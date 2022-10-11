@@ -301,13 +301,11 @@ def game_over_music():
     global repeats, loop2
     if repeats == 0:
         mixer.Sound.play(gameover1)
-        loop2 = window.after(8800,game_over_music)
+        loop2 = window.after(643,game_over_music)
     else: 
         mixer.Sound.play(gameover2)
-        loop2 = window.after(8533,game_over_music)
+        loop2 = window.after(13714,game_over_music)
     repeats += 1
-
-
 
 def stop_music():
     global repeats
