@@ -184,6 +184,8 @@ title1 = mixer.Sound(filepath+"Gem miner/title1.wav")
 title2 = mixer.Sound(filepath+"Gem miner/title2.wav")
 main1 = mixer.Sound(filepath+"Gem miner/main.wav")
 main2 = mixer.Sound(filepath+"Gem miner/main2.wav")
+time1 = mixer.Sound(filepath+"Gem miner/time1.wav")
+time2 = mixer.Sound(filepath+"Gem miner/time2.wav")
 advance = mixer.Sound(filepath+"Gem miner/nextlevel.wav")
 gameover1 = mixer.Sound(filepath+"Gem miner/gameover1.wav")
 gameover2 = mixer.Sound(filepath+"Gem miner/gameover2.wav")
@@ -307,6 +309,16 @@ def game_music2():
     global loop2
     mixer.Sound.play(main2)
     loop2 = window.after(61075,game_music2)
+
+def time_music():
+    global repeats, loop
+    if repeats == 0:
+        mixer.Sound.play(time1)
+        loop = window.after(8722,time_music)
+    else:
+        mixer.Sound.play(time2)
+        loop = window.after(8722,time_music)
+    repeats += 1
 
 def game_over_music():
     global repeats, loop2
@@ -519,7 +531,7 @@ def time_rush():
     set_brick()
     if gameover_check():
         return
-    base_time = 1500
+    base_time = 1000
     window.after(mean([base_time//level,base_time]),time_rush)
 
 def start():
@@ -567,7 +579,11 @@ def start():
     stop_music()
     track = randint(0,1)
     if MusicOn:
-        [game_music,game_music2][track]()
+        if mode == "Normal":
+            [game_music,game_music2][track]()
+        else:
+            repeats = 0
+            time_music()
     if mode == "normal":
         for _ in range(5):
             set_brick()
@@ -898,7 +914,11 @@ def click(event):
             if SfxOn:
                 mixer.Sound.play(clicked)
             if started:
-                [game_music,game_music2][track]()
+                if mode == "Normal":
+                    [game_music,game_music2][track]()
+                else:
+                    repeats = 0
+                    time_music()
             else:
                 title_music()
             c.itemconfig(musicsquare, image = music)
@@ -940,11 +960,15 @@ def click(event):
             c.itemconfig(finalscoretext,text="")
             track = randint(0,1)
             if MusicOn:
-                [game_music,game_music2][track]()
+                if mode == "Normal":
+                    [game_music,game_music2][track]()
+                else:
+                    repeats = 0
+                    time_music()
             update_text()
-            if mode == "normal":
-                for _ in range(5):
-                    set_brick()
+            for _ in range(5):
+                set_brick()
+            start()
             return
 
 
