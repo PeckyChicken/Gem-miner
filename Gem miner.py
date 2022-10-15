@@ -1,3 +1,4 @@
+from statistics import mean
 from time import sleep
 from tkinter import * #doing wildcard import to make it easier to use
 from math import floor
@@ -31,6 +32,8 @@ level = 1
 track = 0
 busy = False
 reqscore = 500
+mode = "time"
+display = False
 
 MusicOn = True
 SfxOn = True
@@ -255,6 +258,8 @@ pitobjects = list()
 defaulttextsize = 35
 loop = 0
 
+
+#Makes all the title screen buttons
 startbuttonbg = c.create_image(WIDTH/2,HEIGHT/2-35,image=button)
 startbuttontext = c.create_text(WIDTH/2,HEIGHT/2-35,text="Start",font=(font,25),fill="white")
 
@@ -263,6 +268,12 @@ helpbuttontext = c.create_text(WIDTH/2,HEIGHT/2+35,text="How to play",font=(font
 
 startbounds = (WIDTH/2-100,HEIGHT/2-60,WIDTH/2+100,HEIGHT/2-10)
 helpbounds = (WIDTH/2-100,HEIGHT/2+10,WIDTH/2+100,HEIGHT/2+60)
+
+normalbuttonbg = c.create_image(WIDTH/2,HEIGHT/2-35,image=button,state=HIDDEN)
+normalbuttontext = c.create_text(WIDTH/2,HEIGHT/2-35,text="Normal",font=(font,25),fill="white",state=HIDDEN)
+
+timebuttonbg = c.create_image(WIDTH/2,HEIGHT/2+35,image=button,state=HIDDEN)
+timebuttontext = c.create_text(WIDTH/2,HEIGHT/2+35,text="Time rush",font=(font,25),fill="white",state=HIDDEN)
 
 started = False
 helping = False
@@ -504,6 +515,11 @@ def play_place_sound(): #only putting it in a function by itself so i can call i
     if SfxOn:
         mixer.Sound.play(placed)
 
+def time_rush():
+    set_brick()
+    base_time = 1500
+    window.after(mean([base_time//level,base_time]),time_rush)
+
 def start():
     global repeats,track
     reset_color()
@@ -511,6 +527,8 @@ def start():
     draw_powerups()
     draw_board()
     draw_pit()
+    if mode == "time":
+        time_rush()
 
     c.itemconfig(pickvalue,state=NORMAL)
     c.itemconfig(axevalue,state=NORMAL)
@@ -536,14 +554,21 @@ def start():
     c.itemconfig(helpbuttonbg,state=HIDDEN)
     c.itemconfig(helpbuttontext,state=HIDDEN)
 
+    c.itemconfig(normalbuttonbg,state=HIDDEN)
+    c.itemconfig(normalbuttontext,state=HIDDEN)
+
+    c.itemconfig(timebuttonbg,state=HIDDEN)
+    c.itemconfig(timebuttontext,state=HIDDEN)
+
     c.itemconfig(highscoretext,state=HIDDEN)
 
     stop_music()
     track = randint(0,1)
     if MusicOn:
         [game_music,game_music2][track]()
-    for _ in range(5):
-        set_brick()
+    if mode == "normal":
+        for _ in range(5):
+            set_brick()
 
 def clear_board():
     global score, grid, busy
@@ -611,8 +636,9 @@ def ask_close():
         c.itemconfig(finalscoretext,text="")
         c.itemconfig(toasttext, state=HIDDEN)
         clickcount = 0
-        for _ in range(5):
-            set_brick()
+        if mode == "normal":
+            for _ in range(5):
+                set_brick()
         return
     else:
         window.after(2000, reset_count)
@@ -842,9 +868,11 @@ def key_press(event):
     if key in ['1','2','3']:
         keyvalue = int(key)-1
         pick_color(keyvalue*3)
+
 #Main event
 def click(event):
-    global selcolor, pit, canplace, pitobjects, grid, score, gameover, powerups, started, helping, tutstage, level, highscore, MusicOn, SfxOn, repeats, busy, track
+    global selcolor, pit, canplace, pitobjects, grid, score, gameover, powerups, started, helping, tutstage, level, highscore, MusicOn, SfxOn, repeats, busy, track, mode
+
     next_level()
     mousex = event.x
     mousey = event.y #get mouse x and y
@@ -912,8 +940,9 @@ def click(event):
             if MusicOn:
                 [game_music,game_music2][track]()
             update_text()
-            for _ in range(5):
-                set_brick()
+            if mode == "normal":
+                for _ in range(5):
+                    set_brick()
             return
 
 
@@ -1218,8 +1247,9 @@ def click(event):
                     play_place_sound()
                     score += level
                     update_text()
-                    for _ in range(level): #Puts more bricks on the board
-                        set_brick()
+                    if mode == "normal":
+                        for _ in range(level): #Puts more bricks on the board
+                            set_brick()
             else:
                 if SfxOn:
                     mixer.Sound.play(nomatch)
@@ -1231,19 +1261,42 @@ def click(event):
             if selcolor == 0:
                 canplace = False
     else:
-        x1, y1, x2, y2 = startbounds
-        if inside(x1,y1,x2,y2,mousex, mousey):
-            if SfxOn:
-                mixer.Sound.play(clicked)
-            started = True
-            start()
-        x1, y1, x2, y2 = helpbounds
-        if inside(x1,y1,x2,y2,mousex, mousey) and not helping:
-            if SfxOn:
-                mixer.Sound.play(clicked)
-            helping = True
-            tutstage = 1
-            disp_help() 
+        if display:
+            x1, y1, x2, y2 = startbounds
+            if inside(x1,y1,x2,y2,mousex, mousey):
+                if SfxOn:
+                    mixer.Sound.play(clicked)
+                mode = "normal"
+                started = True
+                start()
+            x1, y1, x2, y2 = helpbounds
+            if inside(x1,y1,x2,y2,mousex, mousey):
+                if SfxOn:
+                    mixer.Sound.play(clicked)
+                mode = "time"
+                started = True
+                start()
+        else:
+            x1, y1, x2, y2 = startbounds
+            if inside(x1,y1,x2,y2,mousex, mousey):
+                display_modes()
+                if SfxOn:
+                    mixer.Sound.play(clicked)
+            x1, y1, x2, y2 = helpbounds
+            if inside(x1,y1,x2,y2,mousex, mousey) and not helping:
+                if SfxOn:
+                    mixer.Sound.play(clicked)
+                helping = True
+                tutstage = 1
+                disp_help() 
+
+def display_modes():
+    global display
+    display = True
+    for item in [startbuttonbg,startbuttontext,helpbuttonbg,helpbuttontext]:
+        c.itemconfig(item,state=HIDDEN)
+    for item in [normalbuttonbg,normalbuttontext,timebuttonbg,timebuttontext]:
+        c.itemconfig(item,state=NORMAL)
 
 def clear_diagonal_lines(row,column):
     currow = row
