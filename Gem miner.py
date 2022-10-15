@@ -517,7 +517,8 @@ def play_place_sound(): #only putting it in a function by itself so i can call i
 
 def time_rush():
     set_brick()
-    gameover_check()
+    if gameover_check():
+        return
     base_time = 1500
     window.after(mean([base_time//level,base_time]),time_rush)
 
