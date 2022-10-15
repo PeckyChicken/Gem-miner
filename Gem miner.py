@@ -202,6 +202,8 @@ mixer.Sound.set_volume(title1,music_vol)
 mixer.Sound.set_volume(title2,music_vol)
 mixer.Sound.set_volume(main1,music_vol)
 mixer.Sound.set_volume(main2,music_vol)
+mixer.Sound.set_volume(time1,music_vol)
+mixer.Sound.set_volume(time2,music_vol)
 mixer.Sound.set_volume(gameover1,music_vol)
 mixer.Sound.set_volume(gameover2,music_vol)
 
