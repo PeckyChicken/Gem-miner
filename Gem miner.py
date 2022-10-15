@@ -319,10 +319,10 @@ def time_music():
     global repeats, loop
     if repeats == 0:
         mixer.Sound.play(time1)
-        loop = window.after(8722,time_music)
+        loop = window.after(8720,time_music)
     else:
         mixer.Sound.play(time2)
-        loop = window.after(8722,time_music)
+        loop = window.after(8720,time_music)
     repeats += 1
 
 def game_over_music():
@@ -538,13 +538,14 @@ def time_rush():
         return
     base_time = 1000
     window.after(round(mean([base_time/level,base_time])),time_rush)
+
 def time_bg(index = 0):
     if gameover_check():
         c.itemconfig(bg_image,image=bg)
         return
     else:
         c.itemconfig(bg_image,image=time_bgs[index])
-        window.after(551,time_bg,(index+1)%4) 
+        window.after(545,time_bg,(index+1)%4) 
 
 
 def start():
@@ -598,9 +599,8 @@ def start():
         else:
             repeats = 0
             time_music()
-    if mode == "normal":
-        for _ in range(5):
-            set_brick()
+    for _ in range(5):
+        set_brick()
 
 def clear_board():
     global score, grid, busy
@@ -668,9 +668,9 @@ def ask_close():
         c.itemconfig(finalscoretext,text="")
         c.itemconfig(toasttext, state=HIDDEN)
         clickcount = 0
-        if mode == "normal":
-            for _ in range(5):
-                set_brick()
+        # if mode == "normal":
+        #     for _ in range(5):
+        #         set_brick()
         return
     else:
         window.after(2000, reset_count)
@@ -973,15 +973,15 @@ def click(event):
             c.itemconfig(playagaintext,text="")
             c.itemconfig(finalscoretext,text="")
             track = randint(0,1)
-            if MusicOn:
-                if mode == "normal":
-                    [game_music,game_music2][track]()
-                else:
-                    repeats = 0
-                    time_music()
+            # if MusicOn:
+            #     if mode == "normal":
+            #         [game_music,game_music2][track]()
+            #     else:
+            #         repeats = 0
+            #         time_music()
             update_text()
-            for _ in range(5):
-                set_brick()
+            # for _ in range(5):
+            #     set_brick()
             start()
             return
 
