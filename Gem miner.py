@@ -41,7 +41,7 @@ SfxOn = True
 c = Canvas(window,width=WIDTH,height=HEIGHT, bg="gray") #sets up canvas
 c.pack(fill="both")
 bg = PhotoImage(file = filepath+"Gem miner/bg.png")
-c.create_image(WIDTH/2,HEIGHT/2,image=bg)
+bg_image = c.create_image(WIDTH/2,HEIGHT/2,image=bg)
 
 try:
     with open(filepath+"Gem miner/highscore.txt","r+") as hsfile:
@@ -149,6 +149,11 @@ brickbreaking = [PhotoImage(file = filepath+"Gem miner/brickbreak1.png"),
                  PhotoImage(file = filepath+"Gem miner/brickbreak3.png"),
                  PhotoImage(file = filepath+"Gem miner/brickbreak4.png"),
                  PhotoImage(file = filepath+"Gem miner/brickbreak5.png"),]
+
+time_bgs = [PhotoImage(file = filepath+"Gem miner/time_bg1.png"),
+            PhotoImage(file = filepath+"Gem miner/time_bg2.png"),
+            PhotoImage(file = filepath+"Gem miner/time_bg3.png"),
+            PhotoImage(file = filepath+"Gem miner/time_bg4.png"),]
 
 diceused = [PhotoImage(file = filepath+"Gem miner/dice1.png")]
 
@@ -532,7 +537,15 @@ def time_rush():
     if gameover_check():
         return
     base_time = 1000
-    window.after(mean([base_time//level,base_time]),time_rush)
+    window.after(round(mean([base_time/level,base_time])),time_rush)
+def time_bg(index = 0):
+    if gameover_check():
+        c.itemconfig(bg_image,image=bg)
+        return
+    else:
+        c.itemconfig(bg_image,image=time_bgs[index])
+        window.after(551,time_bg,(index+1)%4) 
+
 
 def start():
     global repeats,track
@@ -542,6 +555,7 @@ def start():
     draw_board()
     draw_pit()
     if mode == "time":
+        time_bg()
         time_rush()
 
     c.itemconfig(pickvalue,state=NORMAL)
@@ -579,7 +593,7 @@ def start():
     stop_music()
     track = randint(0,1)
     if MusicOn:
-        if mode == "Normal":
+        if mode == "normal":
             [game_music,game_music2][track]()
         else:
             repeats = 0
@@ -914,7 +928,7 @@ def click(event):
             if SfxOn:
                 mixer.Sound.play(clicked)
             if started:
-                if mode == "Normal":
+                if mode == "normal":
                     [game_music,game_music2][track]()
                 else:
                     repeats = 0
@@ -960,7 +974,7 @@ def click(event):
             c.itemconfig(finalscoretext,text="")
             track = randint(0,1)
             if MusicOn:
-                if mode == "Normal":
+                if mode == "normal":
                     [game_music,game_music2][track]()
                 else:
                     repeats = 0
