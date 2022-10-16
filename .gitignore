@@ -1,1 +1,4 @@
 Gem miner/highscore.txt
+build/*
+dist/*
+*.spec
