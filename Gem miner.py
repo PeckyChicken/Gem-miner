@@ -538,7 +538,7 @@ def time_rush():
     set_brick()
     if gameover_check():
         return
-    base_time = 1000
+    base_time = 1090
     window.after(round(mean([base_time/level,base_time])),time_rush)
 
 def time_bg(index = 0):
@@ -1427,7 +1427,7 @@ def clear_selection():
 
 def gameover_check():
     global gameover, highscore
-    if 0 not in grid and sum(x for x in grid if 10 >= x >=5) == 0: #game is over
+    if 0 not in grid and any(x in grid for x in [5,6,7,8,9,10,11]) == 0: #game is over
         stop_music()
         if MusicOn:
             game_over_music()
