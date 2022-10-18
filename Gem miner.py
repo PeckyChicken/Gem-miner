@@ -324,7 +324,7 @@ def time_music():
         loop = window.after(8720,time_music)
     else:
         mixer.Sound.play(time2)
-        loop = window.after(34335,time_music)
+        loop = window.after(34880,time_music)
     repeats += 1
 
 def game_over_music():
