@@ -249,9 +249,9 @@ shufflevalue = c.create_text(498,420,text='',font=(font,15),state=HIDDEN,fill=TE
 
 
 #Sets up the button squares
-restartsquare = c.create_image(470,450,image=restart,state=HIDDEN)
-musicsquare = c.create_image(25,475,image=music)
+restartsquare = c.create_image(25,375,image=restart,state=HIDDEN)
 sfxsquare = c.create_image(25,425,image=sfx)
+musicsquare = c.create_image(25,475,image=music)
 
 
 #* GRID
@@ -537,13 +537,13 @@ def play_place_sound(): #only putting it in a function by itself so i can call i
 def time_rush():
     set_brick()
     if gameover_check():
+        c.itemconfig(bg_image,image=bg)
         return
     base_time = 1090
     window.after(round(mean([base_time/level,base_time])),time_rush)
 
 def time_bg(index = 0):
-    if gameover_check():
-        c.itemconfig(bg_image,image=bg)
+    if gameover:
         return
     else:
         c.itemconfig(bg_image,image=time_bgs[index])
@@ -975,15 +975,7 @@ def click(event):
             c.itemconfig(playagaintext,text="")
             c.itemconfig(finalscoretext,text="")
             track = randint(0,1)
-            # if MusicOn:
-            #     if mode == "normal":
-            #         [game_music,game_music2][track]()
-            #     else:
-            #         repeats = 0
-            #         time_music()
             update_text()
-            # for _ in range(5):
-            #     set_brick()
             start()
             return
 
@@ -1093,7 +1085,7 @@ def click(event):
             gameover_check()
 
         #* BUTTONS
-        if inside(445,425,495,475,mousex,mousey): #Is restart clicked?
+        if inside(0,350,50,400,mousex,mousey): #Is restart clicked?
             ask_close()
 
         row = floor((mousex-SQUAREMARGINY)//49-1) 
