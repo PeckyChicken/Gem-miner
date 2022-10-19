@@ -35,8 +35,8 @@ reqscore = 500
 mode = "time"
 display = False
 
-MusicOn = True
-SfxOn = True
+music_on = True
+sfx_on = True
 
 c = Canvas(window,width=WIDTH,height=HEIGHT, bg="gray") #sets up canvas
 c.pack(fill="both")
@@ -195,6 +195,7 @@ advance = mixer.Sound(filepath+"Gem miner/nextlevel.wav")
 gameover1 = mixer.Sound(filepath+"Gem miner/gameover1.wav")
 gameover2 = mixer.Sound(filepath+"Gem miner/gameover2.wav")
 clicked = mixer.Sound(filepath+"Gem miner/click.wav")
+clocktick = mixer.Sound(filepath+"Gem miner/clocktick.wav")
 
 #Sets the volume of the music
 music_vol = 0.25
@@ -226,8 +227,10 @@ mixer.Sound.set_volume(placed,sound_vol)
 mixer.Sound.set_volume(powerupselected,sound_vol)
 mixer.Sound.set_volume(shufflesound,sound_vol)
 mixer.Sound.set_volume(axe,sound_vol)
+mixer.Sound.set_volume(starnoise,sound_vol)
 mixer.Sound.set_volume(advance,sound_vol)
 mixer.Sound.set_volume(clicked,sound_vol)
+mixer.Sound.set_volume(clocktick,sound_vol)
 
 powerups = [1,1,1,1,1] #sets up the powerup squares
 powerupvalues = [1,1,1,1,1]
@@ -294,6 +297,9 @@ itemid = {0:empty_block,1:red_block,2:yellow_block,3:green_block,4:blue_block,5:
 board = list() #sets up the board
 #Music loop
 
+def play_sound_effect(effect):
+    if sfx_on:
+        mixer.Sound.play(effect)
 
 repeats = 0
 def title_music():
@@ -414,8 +420,8 @@ def next_level():
         powerupvalues = [1]*5
         update_text()
         draw_powerups()
-        if SfxOn:
-            mixer.Sound.play(advance)
+        
+        play_sound_effect(advance)
             
 def lookup(x,y):
     try:
@@ -527,12 +533,13 @@ def set_brick(): #sets a random square to a brick
     while lookup(x,y) != 0:
         x, y = randint(0,6),randint(0,6)
     draw_animation(x,y,brickplace,100)
-    set_square(12,x,y)
-    return 0
+    if lookup(x,y) == 0:
+        set_square(12,x,y)
+        return 0
+    return 1
 
 def play_place_sound(): #only putting it in a function by itself so i can call it from a window.after
-    if SfxOn:
-        mixer.Sound.play(placed)
+    play_sound_effect(placed)
 
 def time_rush():
     set_brick()
@@ -543,6 +550,8 @@ def time_rush():
     window.after(round(mean([base_time/level,base_time])),time_rush)
 
 def time_bg(index = 0):
+    if not music_on:
+        play_sound_effect(clocktick)
     if gameover:
         return
     else:
@@ -595,7 +604,7 @@ def start():
 
     stop_music()
     track = randint(0,1)
-    if MusicOn:
+    if music_on:
         if mode == "normal":
             [game_music,game_music2][track]()
         else:
@@ -636,8 +645,8 @@ def toast(msg,time=-1):
 
 def ask_close():
     global grid, clickcount, score, level, highscore
-    if SfxOn:
-        mixer.Sound.play(clicked)
+    
+    play_sound_effect(clicked)
     clickcount += 1
     toast("Click again if you really want to restart.",2)
     if clickcount == 2:
@@ -731,9 +740,9 @@ def disp_help():
 #* HANDLING
 
 def clear3x3(row,column):
-    global score, SfxOn
-    if SfxOn:
-        mixer.Sound.play(drillused)
+    global score, sfx_on
+    
+    play_sound_effect(drillused)
     
     #Clear all the vertical rows.
     clear_line("V",row-1,column,False)
@@ -767,8 +776,8 @@ def convert_colors(item,row,column,samesquare):
         else:
             print("ERROR ERROR SYSTEM OVERLOAD HUGE ERROR ARRRGGGGHHHHHHHH WHATS GOING ON WHY IS THIS HAPPENING AWFUL BUG FIX THIS RIGHT NOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
-    if SfxOn:
-        mixer.Sound.play(diamondused)
+    
+    play_sound_effect(diamondused)
     
     for i in range(len(grid)):
         if grid[i] == lookup(diamondx,diamondy)-6: #sets all colors of the same to the item
@@ -784,9 +793,7 @@ def convert_colors(item,row,column,samesquare):
 
 def clear_2_lines(row,column):
     global score
-    if SfxOn:
-        mixer.Sound.play(drillused)
-    
+    play_sound_effect(drillused)
     clear_line("V",row,column,False)
     clear_line("H",row,column,False)
 
@@ -806,8 +813,8 @@ def handle_items(item,row,column):
     if 6 < leftid < 11 or 6 < rightid < 11\
         or 6 < upid < 11 or 6 < downid < 11:
         if item == 'diamond':
-            if SfxOn:
-                mixer.Sound.play(clearall)
+            
+            play_sound_effect(clearall)
             window.after(2250,clear_board)
             return True
         convert_colors(item,row,column,False)
@@ -849,19 +856,19 @@ def clear_line(direction,row,column,sound=True):
     # itemid = column*GRIDROWS + row 
     # grid[itemid] = 0 #replaces the current color with the new one
 
-    if sound and SfxOn:
-        mixer.Sound.play(drillused)
+    if sound:
+        play_sound_effect(drillused)
     for square in range(GRIDROWS):
         curx, cury = square if direction == "H" else row, square if direction == "V" else column
         cursquare = lookup(curx,cury)
         draw_animation(curx,cury,breaking,100)
         if cursquare != 0:
             score += 10*level
-            if SfxOn:
-                if cursquare == 12:
-                    mixer.Sound.play(brickbreak)
-                else:
-                    mixer.Sound.play(remove)
+            
+            if cursquare == 12:
+                play_sound_effect(brickbreak)
+            else:
+                play_sound_effect(remove)
             update_text()
             c.itemconfig(scoredisp,text=score)
             #     #This bit here makes sure that it does not set off any drills directly next to it, 
@@ -905,30 +912,30 @@ def key_press(event):
 
 #Main event
 def click(event):
-    global selcolor, pit, canplace, pitobjects, grid, score, gameover, powerups, started, helping, tutstage, level, highscore, MusicOn, SfxOn, repeats, busy, track, mode
+    global selcolor, pit, canplace, pitobjects, grid, score, gameover, powerups, started, helping, tutstage, level, highscore, music_on, sfx_on, repeats, busy, track, mode
 
     next_level()
     mousex = event.x
     mousey = event.y #get mouse x and y
     if helping:
         tutstage += 1
-        if SfxOn:
-            mixer.Sound.play(clicked)
+        
+        play_sound_effect(clicked)
         disp_help()
         return
 
     if inside(0,450,50,500,mousex,mousey): #Is music clicked?
-        if MusicOn:
-            MusicOn = False
-            if SfxOn:
-                mixer.Sound.play(clicked)
+        if music_on:
+            music_on = False
+            
+            play_sound_effect(clicked)
             stop_music()
             c.itemconfig(musicsquare, image = nomusic)
         else:
-            MusicOn = True
+            music_on = True
             repeats = 0
-            if SfxOn:
-                mixer.Sound.play(clicked)
+            
+            play_sound_effect(clicked)
             if started:
                 if mode == "normal":
                     [game_music,game_music2][track]()
@@ -940,20 +947,20 @@ def click(event):
             c.itemconfig(musicsquare, image = music)
 
     if inside(0,400,50,450,mousex,mousey): #Is sfx clicked?
-        if SfxOn:
-            SfxOn = False
+        if sfx_on:
+            sfx_on = False
             c.itemconfig(sfxsquare, image = nosfx)
         else:
-            SfxOn = True
-            if SfxOn:
-                mixer.Sound.play(clicked)
+            sfx_on = True
+            
+            play_sound_effect(clicked)
             c.itemconfig(sfxsquare, image = sfx)
     
     if started:
         if gameover: #if the game is over run it again
             stop_music()
-            if SfxOn:
-                mixer.Sound.play(clicked)
+            
+            play_sound_effect(clicked)
             grid = [0,0,0,0,0,0,0,
                     0,0,0,0,0,0,0,
                     0,0,0,0,0,0,0,
@@ -987,8 +994,8 @@ def click(event):
                 clear_toast()
                 clear_selection()
                 return
-            if SfxOn:
-                mixer.Sound.play(powerupselected)
+            
+            play_sound_effect(powerupselected)
             if canplace:
                 pit = [selcolor if elem==0 else elem for elem in pit]
                 selcolor = 0
@@ -1005,8 +1012,8 @@ def click(event):
                 clear_toast()
                 clear_selection()
                 return
-            if SfxOn:
-                mixer.Sound.play(powerupselected)
+            
+            play_sound_effect(powerupselected)
             if canplace:
                 pit = [selcolor if elem==0 else elem for elem in pit]
                 selcolor = 0
@@ -1023,8 +1030,8 @@ def click(event):
                 clear_toast()
                 clear_selection()
                 return
-            if SfxOn:
-                mixer.Sound.play(powerupselected)
+            
+            play_sound_effect(powerupselected)
             if canplace:
                 pit = [selcolor if elem==0 else elem for elem in pit]
                 selcolor = 0
@@ -1041,8 +1048,8 @@ def click(event):
                 clear_toast()
                 clear_selection()
                 return
-            if SfxOn:
-                mixer.Sound.play(powerupselected)
+            
+            play_sound_effect(powerupselected)
             if canplace:
                 pit = [selcolor if elem==0 else elem for elem in pit]
                 selcolor = 0
@@ -1064,13 +1071,13 @@ def click(event):
                 update_text()
                 powerups[4] = 2
                 toast("Use the Dice to replenish your pit.")
-                mixer.Sound.play(powerupselected)
+                play_sound_effect(powerupselected)
                 c.itemconfig(selected,image=shuffle)
                 return
             clear_toast()
             powerups = [1 if elem==2 else elem for elem in powerups]
-            if SfxOn:
-                mixer.Sound.play(shufflesound)
+            
+            play_sound_effect(shufflesound)
             c.itemconfig(scoredisp,text=score)
             powerupvalues[4] -= 1
             if powerupvalues[4] == 0:
@@ -1095,22 +1102,21 @@ def click(event):
             if row < 0 or row > 6 or column < 0 or column > 6:
                 pass
             elif lookup (row,column) == 0:
-                if SfxOn:
-                    mixer.Sound.play(nomatch)
+                
+                play_sound_effect(nomatch)
             else:
                 powerupvalues[0] -= 1
                 if powerupvalues[0] == 0:
                     powerups[0] = 0
                     c.itemconfig(pickaxesquare,state=HIDDEN)
                 c.itemconfig(selected,image=empty_block)    
-                if SfxOn:
-                    mixer.Sound.play(pickused)
+                
+                play_sound_effect(pickused)
                 draw_animation(row,column,breaking, 100)
-                if SfxOn:
-                    if lookup(row,column) == 12:
-                        mixer.Sound.play(brickbreak)
-                    else:
-                        mixer.Sound.play(remove)
+                if lookup(row,column) == 12:
+                    play_sound_effect(brickbreak)
+                else:
+                    play_sound_effect(remove)
                 score += 60*level
                 update_text()
                 c.itemconfig(scoredisp,text=score)
@@ -1123,8 +1129,8 @@ def click(event):
                 powerups[1] = 0
                 c.itemconfig(throwingaxesquare,state=HIDDEN)
             c.itemconfig(selected,image=empty_block)
-            if SfxOn:
-                mixer.Sound.play(axe)
+            
+            play_sound_effect(axe)
             score += 120*level
             update_text()
             c.itemconfig(scoredisp,text=score)
@@ -1137,8 +1143,8 @@ def click(event):
                 powerups[2] = 0
                 c.itemconfig(jackhammersquare,state=HIDDEN)
             c.itemconfig(selected,image=empty_block)
-            if SfxOn:
-                mixer.Sound.play(jackhammerused)
+            
+            play_sound_effect(jackhammerused)
             score += 120*level
             update_text()
             c.itemconfig(scoredisp,text=score)
@@ -1151,8 +1157,8 @@ def click(event):
                 powerups[3] = 0
                 c.itemconfig(starsquare,state=HIDDEN)
             c.itemconfig(selected,image=empty_block)
-            if SfxOn:
-                mixer.Sound.play(starnoise)
+            
+            play_sound_effect(starnoise)
             score += 300*level
             update_text()
             c.itemconfig(scoredisp,text=score)
@@ -1189,15 +1195,15 @@ def click(event):
                 if lookup(row,column) > 6 and lookup(row,column) < 11: #its a diamond
                     busy = True
                     if handle_items("diamond",row,column): return
-                    if SfxOn:
-                        mixer.Sound.play(diamondused)
+                    
+                    play_sound_effect(diamondused)
                     busy = False
                     for i in range(len(grid)):
                         if grid[i] == lookup(row,column)-6: #sets all colors of the same to gray
                             currow, curcolumn = i%7,floor(i/7)
                             draw_animation(currow,curcolumn,breaking,75)
-                            if SfxOn:
-                                mixer.Sound.play(remove)
+                            
+                            play_sound_effect(remove)
                             set_square(0,currow,curcolumn)
                             score += 10*level
                             c.itemconfig(scoredisp,text=score)
@@ -1249,21 +1255,21 @@ def click(event):
                     update_text()
 
                 if len (lines) >= 3: 
-                    if SfxOn:
-                        mixer.Sound.play(remove)
+                    
+                    play_sound_effect(remove)
                 
                 if len(lines) == 4: #Finds the lines with 4 gems and changes them into a drill with the opposite direction as the line.
                     set_square(5 if direction == "H" else 6,row,column)
-                    if SfxOn:
-                        mixer.Sound.play(drillcreated)
+                    
+                    play_sound_effect(drillcreated)
                 elif len(lines) == 5:
                     set_square(selcolor+6,row,column) #finds the lines with 5 gems and changes them into a diamond
-                    if SfxOn:
-                        mixer.Sound.play(diamondcreated)
+                    
+                    play_sound_effect(diamondcreated)
                 elif len(lines) >= 6: #finds the lines with 6 or more gems and changes them into a bomb. gems used in 2 lines count twice
                     set_square(11,row,column)
-                    if SfxOn:
-                        mixer.Sound.play(bombcreated)
+                    
+                    play_sound_effect(bombcreated)
                 
                 #Need to go through all the lines again to remove all the bricks
                 for line in lines:
@@ -1285,8 +1291,8 @@ def click(event):
                         for _ in range(level): #Puts more bricks on the board
                             set_brick()
             else:
-                if SfxOn:
-                    mixer.Sound.play(nomatch)
+                
+                play_sound_effect(nomatch)
 
             if gameover_check(): return
             draw_board()
@@ -1298,15 +1304,15 @@ def click(event):
         if display:
             x1, y1, x2, y2 = startbounds
             if inside(x1,y1,x2,y2,mousex, mousey):
-                if SfxOn:
-                    mixer.Sound.play(clicked)
+                
+                play_sound_effect(clicked)
                 mode = "normal"
                 started = True
                 start()
             x1, y1, x2, y2 = helpbounds
             if inside(x1,y1,x2,y2,mousex, mousey):
-                if SfxOn:
-                    mixer.Sound.play(clicked)
+                
+                play_sound_effect(clicked)
                 mode = "time"
                 started = True
                 start()
@@ -1314,12 +1320,12 @@ def click(event):
             x1, y1, x2, y2 = startbounds
             if inside(x1,y1,x2,y2,mousex, mousey):
                 display_modes()
-                if SfxOn:
-                    mixer.Sound.play(clicked)
+                
+                play_sound_effect(clicked)
             x1, y1, x2, y2 = helpbounds
             if inside(x1,y1,x2,y2,mousex, mousey) and not helping:
-                if SfxOn:
-                    mixer.Sound.play(clicked)
+                
+                play_sound_effect(clicked)
                 helping = True
                 tutstage = 1
                 disp_help() 
@@ -1340,9 +1346,9 @@ def clear_diagonal_lines(row,column):
         curcolumn -= 1
     while currow < 7 and curcolumn < 7:
         if lookup(currow,curcolumn) == 12:
-            mixer.Sound.play(brickbreak)
+            play_sound_effect(brickbreak)
         elif lookup(currow,curcolumn) != 0:
-            mixer.Sound.play(remove)
+            play_sound_effect(remove)
         set_square(0,currow,curcolumn)
         draw_animation(currow,curcolumn,breaking,100)
         currow += 1
@@ -1356,9 +1362,9 @@ def clear_diagonal_lines(row,column):
         curcolumn -= 1
     while currow >= 0 and curcolumn < 7:
         if lookup(currow,curcolumn) == 12:
-            mixer.Sound.play(brickbreak)
+            play_sound_effect(brickbreak)
         elif lookup(currow,curcolumn) != 0:
-            mixer.Sound.play(remove)
+            play_sound_effect(remove)
         set_square(0,currow,curcolumn)
         draw_animation(currow,curcolumn,breaking,100)
         currow -= 1
@@ -1366,8 +1372,8 @@ def clear_diagonal_lines(row,column):
 
 def explode(row, column, radius):
     global score
-    if SfxOn:
-        mixer.Sound.play(explosion)
+    
+    play_sound_effect(explosion)
     for i in range(row-radius,row+radius+1):
         for j in range(column-radius,column+radius+1):
             if not(i < 0 or i > 6 or j < 0 or j > 6):
@@ -1391,28 +1397,28 @@ def clear_bricks(line):
         if not line[0]-1 < 0:
             set_square(0,line[0]-1,line[1])
             draw_animation(line[0]-1,line[1],brickbreaking,100)
-            if SfxOn:
-                mixer.Sound.play(brickbreak)
+            
+            play_sound_effect(brickbreak)
 
     if lookup(line[0],line[1]+1) == 12:
         if not line[1]+1 > 6:
             set_square(0,line[0],line[1]+1)
             draw_animation(line[0],line[1]+1,brickbreaking,100)
-            if SfxOn:
-                mixer.Sound.play(brickbreak)
+            
+            play_sound_effect(brickbreak)
     if lookup(line[0]+1,line[1]) == 12:
         if not line[0]+1 > 6:
             set_square(0,line[0]+1,line[1])
             draw_animation(line[0]+1,line[1],brickbreaking,100)
-            if SfxOn:
-                mixer.Sound.play(brickbreak)
+            
+            play_sound_effect(brickbreak)
 
     if lookup(line[0],line[1]-1) == 12:
         if not line[1]-1 < 0:
             set_square(0,line[0],line[1]-1)
             draw_animation(line[0],line[1]-1,brickbreaking,100)
-            if SfxOn:
-                mixer.Sound.play(brickbreak)
+            
+            play_sound_effect(brickbreak)
 
 def clear_selection():
     c.itemconfig(selected,image=empty_block)
@@ -1421,7 +1427,7 @@ def gameover_check():
     global gameover, highscore
     if 0 not in grid and any(x in grid for x in [5,6,7,8,9,10,11]) == 0: #game is over
         stop_music()
-        if MusicOn:
+        if music_on:
             game_over_music()
         c.itemconfig(gameovertext,text="GAME OVER")
         c.itemconfig(playagaintext,text="Click anywhere to play again")
