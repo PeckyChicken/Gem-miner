@@ -2,7 +2,7 @@ from statistics import mean
 from time import sleep
 from tkinter import * #doing wildcard import to make it easier to use
 from math import floor
-from random import choice, randint
+from random import choice, randint, shuffle
 from pygame import mixer, init
 mixer.pre_init(48000, -16, 1, 512)
 init()
@@ -95,7 +95,7 @@ jackhammer = PhotoImage(file = filepath+"Gem miner/jackhammer.png")
 pickaxe = PhotoImage(file = filepath+"Gem miner/pickaxe.png")
 throwingaxe = PhotoImage(file = filepath+"Gem miner/throwing axe.png")
 star = PhotoImage(file = filepath+"Gem miner/star.png")
-shuffle = PhotoImage(file = filepath+"Gem miner/shuffle.png")
+dice = PhotoImage(file = filepath+"Gem miner/shuffle.png")
 restart = PhotoImage(file = filepath+"Gem miner/restartbutton.png")
 brickp1 = PhotoImage(file = filepath+"Gem miner/bricks_particle_1.png")
 brickp2 = PhotoImage(file = filepath+"Gem miner/bricks_particle_2.png")
@@ -251,7 +251,7 @@ jackhammervalue = c.create_text(498,300,text='',font=(font,15),state=HIDDEN,fill
 starsquare = c.create_image(470,330,image=star,state=HIDDEN)
 starvalue = c.create_text(498,360,text='',font=(font,15),state=HIDDEN,fill=TEXTCOL)
 
-shufflesquare = c.create_image(470,390,image=shuffle,state=HIDDEN)
+shufflesquare = c.create_image(470,390,image=dice,state=HIDDEN)
 shufflevalue = c.create_text(498,420,text='',font=(font,15),state=HIDDEN,fill=TEXTCOL)
 
 
@@ -390,13 +390,10 @@ def draw_board():
             #SQUAREMARGINX is how far it starts off the left of the screen.
 
 def draw_powerups():
-    global pickaxesquare, throwingaxesquare, jackhammersquare, starsquare, shuffle, powerups
-    powerups = [1,1,1,1,1]
-    c.itemconfig(pickaxesquare,state=NORMAL)
-    c.itemconfig(throwingaxesquare,state=NORMAL)
-    c.itemconfig(jackhammersquare,state=NORMAL)
-    c.itemconfig(starsquare,state=NORMAL)
-    c.itemconfig(shufflesquare,state=NORMAL)
+    global pickaxesquare, throwingaxesquare, jackhammersquare, starsquare, shufflesquare, powerups
+    tools = [pickaxesquare,throwingaxesquare,jackhammersquare,starsquare,shufflesquare]
+    for tool, value in zip(tools,powerups):
+        c.itemconfig(tool,state=[HIDDEN,NORMAL][value])
     c.itemconfig(restartsquare,state=NORMAL)
 
 
@@ -432,17 +429,20 @@ def set_square(color,x,y):
 def next_level():
     global level, powerups, reqscore, powerupvalues, moves
     if mode == "obstacle": #Different level system in obstacle mode
-        next = 12 not in grid
+        level_complete = 12 not in grid
     else:
         #This complicated setup means that the player will advance a level when they get to 500, 1000, 5000, etc.
         reqscore = (((level+1)%2)+1) * 500 * 10 ** (1+(level - 3) // 2)
-        next = score >= reqscore
-    if next:
+        level_complete = score >= reqscore
+    if level_complete:
         play_sound_effect(advance)
         level += 1
-        powerups = [1]*5
-        powerupvalues = [0] + [1]*4
-        shuffle(powerupvalues)
+        if mode == "obstacle":
+            powerupvalues[randint(0,len(powerupvalues)-1)] += 1
+            powerups[:] = [1 if i else 0 for i in powerupvalues]
+        else:
+            powerups = [1]*5
+            powerupvalues = [1]*5
         draw_powerups()
         if mode == "obstacle":
             if moves < 10:
@@ -593,7 +593,7 @@ def time_bg(index = 0):
 
 
 def start():
-    global repeats,track
+    global repeats,track,powerups,powerupvalues
     reset_color()
     reset_color()
     draw_powerups()
@@ -602,12 +602,8 @@ def start():
     if mode == "time":
         time_bg()
         time_rush()
-
-    c.itemconfig(pickvalue,state=NORMAL)
-    c.itemconfig(axevalue,state=NORMAL)
-    c.itemconfig(jackhammervalue,state=NORMAL)
-    c.itemconfig(starvalue,state=NORMAL)
-    c.itemconfig(shufflevalue,state=NORMAL)
+    powerups = powerupvalues = [1]*5
+    draw_powerups()
 
     c.itemconfig(scoredisp,state=NORMAL)
     c.itemconfig(scoretext,state=NORMAL)
@@ -617,8 +613,6 @@ def start():
 
     c.itemconfig(goaldisp,state=NORMAL)
     c.itemconfig(goaltext,state=NORMAL)
-
-    
 
     if mode == "obstacle":
         c.itemconfig(goaltext,text="Moves")
@@ -977,9 +971,11 @@ def click(event):
             if started:
                 if mode == "normal":
                     [game_music,game_music2][track]()
-                else:
+                elif mode == "time":
                     repeats = 0
                     time_music()
+                elif mode == "obstacle":
+                    obstacle_music()
             else:
                 title_music()
             c.itemconfig(musicsquare, image = music)
@@ -1111,7 +1107,7 @@ def click(event):
                 powerups[4] = 2
                 toast("Use the Dice to replenish your pit.")
                 play_sound_effect(powerupselected)
-                c.itemconfig(selected,image=shuffle)
+                c.itemconfig(selected,image=dice)
                 return
             clear_toast()
             powerups = [1 if elem==2 else elem for elem in powerups]
@@ -1276,7 +1272,7 @@ def click(event):
                     return
         except IndexError:
             pass
-        #works out if the clicked area was inside the grid, that the player can put a color there, that it is empty, and that there is a square next to it
+        #works out if the clicked area was inside the grid, that the player can place a color there, that it is empty, and that there is a square next to it
         if row >= 0 and row < GRIDROWS and column >= 0 and column < GRIDROWS and canplace:
             # print(f'Row: {row}, Column: {column}, Row+1: {row+1}, Column+1: {column+1}, Row-1: {row-1}, Column-1: {column-1}')
             if (lookup(row,column) == 0 and
@@ -1294,8 +1290,6 @@ def click(event):
                 lines,direction = detect_line(row,column) #detects any lines
                 if mode == "obstacle":
                     moves -= 1
-                    if gameover_check():
-                        return
 
                 for line in lines: #if there are any lines
                     set_square(0,line[0],line[1]) #clears all of the squares part of the line
@@ -1338,6 +1332,9 @@ def click(event):
                     if mode == "normal":
                         for _ in range(level): #Puts more bricks on the board
                             set_brick()
+                next_level()
+                if gameover_check():
+                        return
             else:
                 
                 play_sound_effect(nomatch)
