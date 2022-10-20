@@ -26,13 +26,13 @@ gameover = False
 squarey = SQUAREMARGINY
 GRIDROWS = 7
 PITSQUAREY = 425
-STARTERMOVES = 30
+moves = 15
 score = 0
 level = 1
 track = 0
 busy = False
 reqscore = 500
-mode = "time"
+mode = "none"
 display = False
 
 music_on = True
@@ -155,6 +155,8 @@ time_bgs = [PhotoImage(file = filepath+"Gem miner/time_bg1.png"),
             PhotoImage(file = filepath+"Gem miner/time_bg3.png"),
             PhotoImage(file = filepath+"Gem miner/time_bg4.png"),]
 
+obstacle_bg = PhotoImage(file = filepath+"Gem miner/obstacle_bg.png")
+
 diceused = [PhotoImage(file = filepath+"Gem miner/dice1.png")]
 
 
@@ -194,6 +196,7 @@ time2 = mixer.Sound(filepath+"Gem miner/time2.wav")
 advance = mixer.Sound(filepath+"Gem miner/nextlevel.wav")
 gameover1 = mixer.Sound(filepath+"Gem miner/gameover1.wav")
 gameover2 = mixer.Sound(filepath+"Gem miner/gameover2.wav")
+obstacle = mixer.Sound(filepath+"Gem miner/obstacle.wav")
 clicked = mixer.Sound(filepath+"Gem miner/click.wav")
 clocktick = mixer.Sound(filepath+"Gem miner/clocktick.wav")
 
@@ -205,6 +208,7 @@ mixer.Sound.set_volume(main1,music_vol)
 mixer.Sound.set_volume(main2,music_vol)
 mixer.Sound.set_volume(time1,music_vol)
 mixer.Sound.set_volume(time2,music_vol)
+mixer.Sound.set_volume(obstacle,music_vol)
 mixer.Sound.set_volume(gameover1,music_vol)
 mixer.Sound.set_volume(gameover2,music_vol)
 
@@ -270,22 +274,32 @@ pitobjects = list()
 defaulttextsize = 35
 loop = 0
 
+class GameButton:
+    def __init__(self,text:str,offset:float,hide:bool=False):
+        self.image = c.create_image(WIDTH/2,HEIGHT/2+offset,image=button,state=[NORMAL,HIDDEN][hide])
+        self.text = c.create_text(WIDTH/2,HEIGHT/2+offset,text=text,font=(font,25),fill="white",state=[NORMAL,HIDDEN][hide])
+        self.bounds = (WIDTH/2-100,
+                       HEIGHT/2+offset-50/2,
+                       WIDTH/2+100,
+                       HEIGHT/2+offset+50/2)
+        self.offset = offset
+
+    def is_clicked(self,mousex:float,mousey:float) -> bool:
+        x1,y1,x2,y2 = self.bounds
+        return inside(x1,y1,x2,y2,mousex, mousey)
+
+    def set_visible(self,visible:bool):
+        c.itemconfig(self.image,state=[HIDDEN,NORMAL][visible])
+        c.itemconfig(self.text,state=[HIDDEN,NORMAL][visible])
 
 #Makes all the title screen buttons
-startbuttonbg = c.create_image(WIDTH/2,HEIGHT/2-35,image=button)
-startbuttontext = c.create_text(WIDTH/2,HEIGHT/2-35,text="Start",font=(font,25),fill="white")
+startb = GameButton("Start",-35,False)
+helpb = GameButton("How to play",35,False)
 
-helpbuttonbg = c.create_image(WIDTH/2,HEIGHT/2+35,image=button)
-helpbuttontext = c.create_text(WIDTH/2,HEIGHT/2+35,text="How to play",font=(font,25),fill="white")
+normalb = GameButton("Normal",-35,True)
+timeb = GameButton("Time Rush",35,True)
+obstacleb = GameButton("Obstacles",105,True)
 
-startbounds = (WIDTH/2-100,HEIGHT/2-60,WIDTH/2+100,HEIGHT/2-10)
-helpbounds = (WIDTH/2-100,HEIGHT/2+10,WIDTH/2+100,HEIGHT/2+60)
-
-normalbuttonbg = c.create_image(WIDTH/2,HEIGHT/2-35,image=button,state=HIDDEN)
-normalbuttontext = c.create_text(WIDTH/2,HEIGHT/2-35,text="Normal",font=(font,25),fill="white",state=HIDDEN)
-
-timebuttonbg = c.create_image(WIDTH/2,HEIGHT/2+35,image=button,state=HIDDEN)
-timebuttontext = c.create_text(WIDTH/2,HEIGHT/2+35,text="Time rush",font=(font,25),fill="white",state=HIDDEN)
 
 started = False
 helping = False
@@ -333,6 +347,11 @@ def time_music():
         loop = window.after(34880,time_music)
     repeats += 1
 
+def obstacle_music():
+    global loop2
+    mixer.Sound.play(obstacle)
+    loop2 = window.after(56000,obstacle_music)
+    
 def game_over_music():
     global repeats, loop2
     if repeats == 0:
@@ -411,17 +430,31 @@ def set_square(color,x,y):
     draw_board()
 
 def next_level():
-    global level, powerups, reqscore, powerupvalues
-    #This complicated setup means that the player will advance a level when they get to 500, 1000, 5000, etc.
-    reqscore = (((level+1)%2)+1) * 500 * 10 ** (1+(level - 3) // 2)
-    if score >= reqscore:
+    global level, powerups, reqscore, powerupvalues, moves
+    if mode == "obstacle": #Different level system in obstacle mode
+        next = 12 not in grid
+    else:
+        #This complicated setup means that the player will advance a level when they get to 500, 1000, 5000, etc.
+        reqscore = (((level+1)%2)+1) * 500 * 10 ** (1+(level - 3) // 2)
+        next = score >= reqscore
+    if next:
+        play_sound_effect(advance)
         level += 1
         powerups = [1]*5
-        powerupvalues = [1]*5
-        update_text()
+        powerupvalues = [0] + [1]*4
+        shuffle(powerupvalues)
         draw_powerups()
-        
-        play_sound_effect(advance)
+        if mode == "obstacle":
+            if moves < 10:
+                moves += 10
+            else:
+                moves += 5
+            update_text(False)
+            for _ in range(level+4):
+                set_brick()
+        update_text(False)
+        return True
+    return False
             
 def lookup(x,y):
     try:
@@ -585,20 +618,21 @@ def start():
     c.itemconfig(goaldisp,state=NORMAL)
     c.itemconfig(goaltext,state=NORMAL)
 
+    
+
+    if mode == "obstacle":
+        c.itemconfig(goaltext,text="Moves")
+        c.itemconfig(goaldisp,text=str(moves))
+        c.itemconfig(bg_image,image=obstacle_bg)
+
     c.itemconfig(selected,state=NORMAL)
     c.itemconfig(titlebg,state=HIDDEN)
 
-    c.itemconfig(startbuttonbg,state=HIDDEN)
-    c.itemconfig(startbuttontext,state=HIDDEN)
-
-    c.itemconfig(helpbuttonbg,state=HIDDEN)
-    c.itemconfig(helpbuttontext,state=HIDDEN)
-
-    c.itemconfig(normalbuttonbg,state=HIDDEN)
-    c.itemconfig(normalbuttontext,state=HIDDEN)
-
-    c.itemconfig(timebuttonbg,state=HIDDEN)
-    c.itemconfig(timebuttontext,state=HIDDEN)
+    startb.set_visible(False)
+    helpb.set_visible(False)
+    normalb.set_visible(False)
+    timeb.set_visible(False)
+    obstacleb.set_visible(False)
 
     c.itemconfig(highscoretext,state=HIDDEN)
 
@@ -607,12 +641,13 @@ def start():
     if music_on:
         if mode == "normal":
             [game_music,game_music2][track]()
-        else:
+        elif mode == "time":
             repeats = 0
             time_music()
+        elif mode == "obstacle":
+            obstacle_music()
     for _ in range(5):
         set_brick()
-
 def clear_board():
     global score, grid, busy
     busy = False
@@ -689,15 +724,20 @@ def ask_close():
 def calc_font_size(text):
     return defaulttextsize-len(text)*4
 
-def update_text(): #Updates the font size depending on how many points the player has.
+def update_text(next=True): #Updates the font size depending on how many points the player has.
     c.itemconfig(scoredisp,font=(font,calc_font_size(str(score))))
     c.itemconfig(scoredisp,text=str(score))
-    next_level()
+    if next:
+        next_level()
     c.itemconfig(leveldisp,text=str(level))
     c.itemconfig(leveldisp,font=(font,calc_font_size(str(level))))
-
-    c.itemconfig(goaldisp,text=str(reqscore))
-    c.itemconfig(goaldisp,font=(font,calc_font_size(str(reqscore))))
+    
+    if mode == "obstacle":
+        c.itemconfig(goaldisp,text=str(moves))
+        c.itemconfig(goaldisp,font=(font,calc_font_size(str(moves))))
+    else:
+        c.itemconfig(goaldisp,text=str(reqscore))
+        c.itemconfig(goaldisp,font=(font,calc_font_size(str(reqscore))))
 
     for idx, value in enumerate(powerupvalues):
         text = ''
@@ -712,10 +752,8 @@ update_text()
 def disp_help():
     global helping
     c.itemconfig(titlebg,state=HIDDEN)
-    c.itemconfig(startbuttonbg,state=HIDDEN)
-    c.itemconfig(startbuttontext,state=HIDDEN)
-    c.itemconfig(helpbuttonbg,state=HIDDEN)
-    c.itemconfig(helpbuttontext,state=HIDDEN)
+    startb.set_visible(False)
+    helpb.set_visible(False)
     if tutstage == 1:
      c.itemconfig(tutimage,image=tut1,state=NORMAL)
     elif tutstage == 2:
@@ -733,10 +771,8 @@ def disp_help():
         helping = False
         c.itemconfig(bg,state=NORMAL)
         c.itemconfig(titlebg,state=NORMAL)
-        c.itemconfig(startbuttonbg,state=NORMAL)
-        c.itemconfig(startbuttontext,state=NORMAL)
-        c.itemconfig(helpbuttonbg,state=NORMAL)
-        c.itemconfig(helpbuttontext,state=NORMAL)
+        startb.set_visible(True)
+        helpb.set_visible(True)
 #* HANDLING
 
 def clear3x3(row,column):
@@ -866,6 +902,7 @@ def clear_line(direction,row,column,sound=True):
             score += 10*level
             
             if cursquare == 12:
+                next_level()
                 play_sound_effect(brickbreak)
             else:
                 play_sound_effect(remove)
@@ -912,11 +949,12 @@ def key_press(event):
 
 #Main event
 def click(event):
-    global selcolor, pit, canplace, pitobjects, grid, score, gameover, powerups, started, helping, tutstage, level, highscore, music_on, sfx_on, repeats, busy, track, mode
+    global selcolor, pit, canplace, pitobjects, grid, score, gameover, powerups, started, helping, tutstage, level, highscore, music_on, sfx_on, repeats, busy, track, mode, moves
 
     next_level()
     mousex = event.x
     mousey = event.y #get mouse x and y
+    # print(mousex,mousey)
     if helping:
         tutstage += 1
         
@@ -982,8 +1020,9 @@ def click(event):
             c.itemconfig(playagaintext,text="")
             c.itemconfig(finalscoretext,text="")
             track = randint(0,1)
-            update_text()
+            moves = 15
             start()
+            update_text()
             return
 
 
@@ -1114,6 +1153,7 @@ def click(event):
                 play_sound_effect(pickused)
                 draw_animation(row,column,breaking, 100)
                 if lookup(row,column) == 12:
+                    next_level()
                     play_sound_effect(brickbreak)
                 else:
                     play_sound_effect(remove)
@@ -1121,6 +1161,7 @@ def click(event):
                 update_text()
                 c.itemconfig(scoredisp,text=score)
                 set_square(0,row,column)
+                next_level()
                 return
         if powerups[1] == 2 and 0 <= column <= 6 and 0 <= row <= 6: #Removes the line for the throwing axe after checking that it is within bounds
             clear_toast()
@@ -1135,6 +1176,7 @@ def click(event):
             update_text()
             c.itemconfig(scoredisp,text=score)
             clear_line("H",row,column,False)
+            next_level()
             return
         if powerups[2] == 2 and 0 <= column <= 6 and 0 <= row <= 6: #Removes the column for the jackhammer after checking that it is within bounds
             clear_toast()
@@ -1149,6 +1191,7 @@ def click(event):
             update_text()
             c.itemconfig(scoredisp,text=score)
             clear_line("V",row,column,False)
+            next_level()
             return
         if powerups[3] == 2 and 0 <= column <= 6 and 0 <= row <= 6: #Clears the starline
             clear_toast()
@@ -1165,6 +1208,7 @@ def click(event):
             clear_line("V",row,column,False)
             clear_line("H",row,column,False)
             clear_diagonal_lines(row,column)
+            next_level()
             return
         try:
             if not busy:
@@ -1248,6 +1292,10 @@ def click(event):
                 canplace = False
                 c.itemconfig(selected,image=empty_block)
                 lines,direction = detect_line(row,column) #detects any lines
+                if mode == "obstacle":
+                    moves -= 1
+                    if gameover_check():
+                        return
 
                 for line in lines: #if there are any lines
                     set_square(0,line[0],line[1]) #clears all of the squares part of the line
@@ -1302,29 +1350,28 @@ def click(event):
                 canplace = False
     else:
         if display:
-            x1, y1, x2, y2 = startbounds
-            if inside(x1,y1,x2,y2,mousex, mousey):
-                
+            if normalb.is_clicked(mousex,mousey):
                 play_sound_effect(clicked)
                 mode = "normal"
                 started = True
                 start()
-            x1, y1, x2, y2 = helpbounds
-            if inside(x1,y1,x2,y2,mousex, mousey):
-                
+
+            if timeb.is_clicked(mousex,mousey):
                 play_sound_effect(clicked)
                 mode = "time"
                 started = True
                 start()
-        else:
-            x1, y1, x2, y2 = startbounds
-            if inside(x1,y1,x2,y2,mousex, mousey):
-                display_modes()
-                
+
+            if obstacleb.is_clicked(mousex,mousey):
                 play_sound_effect(clicked)
-            x1, y1, x2, y2 = helpbounds
-            if inside(x1,y1,x2,y2,mousex, mousey) and not helping:
-                
+                mode = "obstacle"
+                started = True
+                start()
+        else:
+            if startb.is_clicked(mousex,mousey):
+                display_modes()
+                play_sound_effect(clicked)
+            if helpb.is_clicked(mousex,mousey) and not helping:
                 play_sound_effect(clicked)
                 helping = True
                 tutstage = 1
@@ -1333,10 +1380,12 @@ def click(event):
 def display_modes():
     global display
     display = True
-    for item in [startbuttonbg,startbuttontext,helpbuttonbg,helpbuttontext]:
-        c.itemconfig(item,state=HIDDEN)
-    for item in [normalbuttonbg,normalbuttontext,timebuttonbg,timebuttontext]:
-        c.itemconfig(item,state=NORMAL)
+    c.itemconfig(titlebg,state=HIDDEN)
+    for item in [startb,helpb]:
+        item.set_visible(FALSE)
+
+    for item in [normalb,timeb,obstacleb]:
+        item.set_visible(True)
 
 def clear_diagonal_lines(row,column):
     currow = row
@@ -1346,6 +1395,7 @@ def clear_diagonal_lines(row,column):
         curcolumn -= 1
     while currow < 7 and curcolumn < 7:
         if lookup(currow,curcolumn) == 12:
+            next_level()
             play_sound_effect(brickbreak)
         elif lookup(currow,curcolumn) != 0:
             play_sound_effect(remove)
@@ -1362,6 +1412,7 @@ def clear_diagonal_lines(row,column):
         curcolumn -= 1
     while currow >= 0 and curcolumn < 7:
         if lookup(currow,curcolumn) == 12:
+            next_level()
             play_sound_effect(brickbreak)
         elif lookup(currow,curcolumn) != 0:
             play_sound_effect(remove)
@@ -1396,19 +1447,21 @@ def clear_bricks(line):
     if lookup(line[0]-1,line[1]) == 12:
         if not line[0]-1 < 0:
             set_square(0,line[0]-1,line[1])
+            next_level()
             draw_animation(line[0]-1,line[1],brickbreaking,100)
-            
             play_sound_effect(brickbreak)
 
     if lookup(line[0],line[1]+1) == 12:
         if not line[1]+1 > 6:
             set_square(0,line[0],line[1]+1)
+            next_level()
             draw_animation(line[0],line[1]+1,brickbreaking,100)
             
             play_sound_effect(brickbreak)
     if lookup(line[0]+1,line[1]) == 12:
         if not line[0]+1 > 6:
             set_square(0,line[0]+1,line[1])
+            next_level()
             draw_animation(line[0]+1,line[1],brickbreaking,100)
             
             play_sound_effect(brickbreak)
@@ -1416,6 +1469,7 @@ def clear_bricks(line):
     if lookup(line[0],line[1]-1) == 12:
         if not line[1]-1 < 0:
             set_square(0,line[0],line[1]-1)
+            next_level()
             draw_animation(line[0],line[1]-1,brickbreaking,100)
             
             play_sound_effect(brickbreak)
@@ -1425,7 +1479,7 @@ def clear_selection():
 
 def gameover_check():
     global gameover, highscore
-    if 0 not in grid and any(x in grid for x in [5,6,7,8,9,10,11]) == 0: #game is over
+    if (0 not in grid and any(x in grid for x in [5,6,7,8,9,10,11]) == 0) or (moves <= 0 and mode == "obstacle"):  #game is over
         stop_music()
         if music_on:
             game_over_music()
