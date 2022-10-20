@@ -1478,7 +1478,7 @@ def gameover_check():
     global gameover, highscore
     if (0 not in grid and any(x in grid for x in [5,6,7,8,9,10,11]) == 0) or (moves <= 0 and mode == "obstacle"):  #game is over
         stop_music()
-        if music_on:
+        if music_on or sfx_on:
             game_over_music()
         c.itemconfig(gameovertext,text="GAME OVER")
         c.itemconfig(playagaintext,text="Click anywhere to play again")
