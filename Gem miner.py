@@ -1125,6 +1125,8 @@ def click(event):
             if powerupvalues[4] == 0:
                 powerups[4] = 0
                 c.itemconfig(shufflesquare,state=HIDDEN)
+            else:
+                powerups[4] = 1
             c.itemconfig(selected,image=empty_block)
             #sets the pit to random colors
             for i in range(2,-1,-1):
@@ -1151,6 +1153,8 @@ def click(event):
                 if powerupvalues[0] == 0:
                     powerups[0] = 0
                     c.itemconfig(pickaxesquare,state=HIDDEN)
+                else:
+                    powerups[0] = 1
                 c.itemconfig(selected,image=empty_block)    
                 
                 play_sound_effect(pickused)
@@ -1172,6 +1176,8 @@ def click(event):
             if powerupvalues[1] == 0:
                 powerups[1] = 0
                 c.itemconfig(throwingaxesquare,state=HIDDEN)
+            else:
+                powerups[1] = 1
             c.itemconfig(selected,image=empty_block)
             
             play_sound_effect(axe)
@@ -1187,6 +1193,8 @@ def click(event):
             if powerupvalues[2] == 0:
                 powerups[2] = 0
                 c.itemconfig(jackhammersquare,state=HIDDEN)
+            else:
+                powerups[2] = 1
             c.itemconfig(selected,image=empty_block)
             
             play_sound_effect(jackhammerused)
@@ -1202,6 +1210,8 @@ def click(event):
             if powerupvalues[3] == 0:
                 powerups[3] = 0
                 c.itemconfig(starsquare,state=HIDDEN)
+            else:
+                powerups[3] = 1
             c.itemconfig(selected,image=empty_block)
             
             play_sound_effect(starnoise)
