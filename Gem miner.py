@@ -236,6 +236,7 @@ mixer.Sound.set_volume(advance,sound_vol)
 mixer.Sound.set_volume(clicked,sound_vol)
 mixer.Sound.set_volume(clocktick,sound_vol)
 
+
 powerups = [1,1,1,1,1] #sets up the powerup squares
 powerupvalues = [1,1,1,1,1]
 
@@ -299,7 +300,6 @@ helpb = GameButton("How to play",35,False)
 normalb = GameButton("Normal",-35,True)
 timeb = GameButton("Time Rush",35,True)
 obstacleb = GameButton("Obstacles",105,True)
-
 
 started = False
 helping = False
@@ -392,10 +392,18 @@ def draw_board():
 def draw_powerups():
     global pickaxesquare, throwingaxesquare, jackhammersquare, starsquare, shufflesquare, powerups
     tools = [pickaxesquare,throwingaxesquare,jackhammersquare,starsquare,shufflesquare]
+    toolvalues = [pickvalue,axevalue,jackhammervalue,starvalue,shufflevalue]
     for tool, value in zip(tools,powerups):
         c.itemconfig(tool,state=[HIDDEN,NORMAL][value])
-    c.itemconfig(restartsquare,state=NORMAL)
 
+    for tool, value in zip(toolvalues,powerupvalues):
+        c.itemconfig(tool,text=str(value))
+        if value > 1:
+            c.itemconfig(tool,state=NORMAL)
+        else:
+            c.itemconfig(tool,state=HIDDEN)
+    c.itemconfig(restartsquare,state=NORMAL)
+    
 
 def draw_animation(x,y,frames,fps):
     frametime = 1/fps
@@ -409,6 +417,7 @@ def draw_animation(x,y,frames,fps):
         sleep(1/fps)
     c.delete(sprite)
 
+#!Do not use, does not work.
 def draw_instant_animation(x,y,frames,fps,frame=0):
     DrawX, DrawY = get_pos(x,y)
     sprite = c.create_image(DrawX,DrawY,image=frames[0])
@@ -440,15 +449,13 @@ def next_level():
         if mode == "obstacle":
             powerupvalues[randint(0,len(powerupvalues)-1)] += 1
             powerups[:] = [1 if i else 0 for i in powerupvalues]
+            draw_powerups()
         else:
             powerups = [1]*5
             powerupvalues = [1]*5
-        draw_powerups()
+            draw_powerups()
         if mode == "obstacle":
-            if moves < 10:
-                moves += 10
-            else:
-                moves += 5
+            moves += ((level-1)*3)+1
             update_text(False)
             for _ in range(level+4):
                 set_brick()
