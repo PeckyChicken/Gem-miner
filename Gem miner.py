@@ -7,13 +7,11 @@ from pygame import mixer, init
 mixer.pre_init(48000, -16, 1, 512)
 init()
 mixer.init()
-
 filepath = __file__+"/../"
 window = Tk() #sets up window
 window.title("Gem miner")
 window.iconbitmap(filepath+"Gem miner/icon.ico")
 window.resizable(0, 0)
-
 WIDTH = 500
 HEIGHT = 500
 SQUARELEN = 50
@@ -241,19 +239,19 @@ powerups = [1,1,1,1,1] #sets up the powerup squares
 powerupvalues = [1,1,1,1,1]
 
 pickaxesquare = c.create_image(470,150,image=pickaxe,state=HIDDEN)
-pickvalue = c.create_text(498,180,text='',font=(font,15),state=HIDDEN,fill=TEXTCOL)
+pickvalue = c.create_text(490,180,text='',font=(font,15),state=HIDDEN,fill=TEXTCOL)
 
 throwingaxesquare = c.create_image(470,210,image=throwingaxe,state=HIDDEN)
-axevalue = c.create_text(498,240,text='',font=(font,15),state=HIDDEN,fill=TEXTCOL)
+axevalue = c.create_text(490,240,text='',font=(font,15),state=HIDDEN,fill=TEXTCOL)
 
 jackhammersquare = c.create_image(470,270,image=jackhammer,state=HIDDEN)
-jackhammervalue = c.create_text(498,300,text='',font=(font,15),state=HIDDEN,fill=TEXTCOL)
+jackhammervalue = c.create_text(490,300,text='',font=(font,15),state=HIDDEN,fill=TEXTCOL)
 
 starsquare = c.create_image(470,330,image=star,state=HIDDEN)
-starvalue = c.create_text(498,360,text='',font=(font,15),state=HIDDEN,fill=TEXTCOL)
+starvalue = c.create_text(490,360,text='',font=(font,15),state=HIDDEN,fill=TEXTCOL)
 
 shufflesquare = c.create_image(470,390,image=dice,state=HIDDEN)
-shufflevalue = c.create_text(498,420,text='',font=(font,15),state=HIDDEN,fill=TEXTCOL)
+shufflevalue = c.create_text(490,420,text='',font=(font,15),state=HIDDEN,fill=TEXTCOL)
 
 
 #Sets up the button squares
@@ -455,9 +453,9 @@ def next_level():
             powerupvalues = [1]*5
             draw_powerups()
         if mode == "obstacle":
-            moves += ((level-1)*3)+1
+            moves += ((level-1)*2)
             update_text(False)
-            for _ in range(level+4):
+            for _ in range(level):
                 set_brick()
         update_text(False)
         return True
@@ -1512,7 +1510,6 @@ def gameover_check():
             hsfile.close()
         return True #game is over
     return False #game is not over
-
 def draw_pit():
     global pitobjects
     #delete everything in the pit
