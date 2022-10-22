@@ -24,7 +24,7 @@ gameover = False
 squarey = SQUAREMARGINY
 GRIDROWS = 7
 PITSQUAREY = 425
-moves = 15
+moves = 3
 score = 0
 level = 1
 track = 0
@@ -67,8 +67,7 @@ leveldisp = c.create_text(40,210,text=1,font=(font,31),state=HIDDEN,fill=TEXTCOL
 frame = 0
 
 gameovertext = c.create_text(WIDTH/2,HEIGHT/2-25,font=(font,50),fill=TEXTCOL)
-playagaintext = c.create_text(WIDTH/2,HEIGHT/2+25,font=(font,30),fill=TEXTCOL)
-finalscoretext = c.create_text(WIDTH/2,HEIGHT/2+75,font=(font,15),fill=TEXTCOL)
+finalscoretext = c.create_text(WIDTH/2,HEIGHT/2+25,font=(font,25),fill=TEXTCOL)
 toasttext = c.create_text(WIDTH/2,HEIGHT/2 + 150,font=(font,15),text="Click again if you really want to restart.",state=HIDDEN,fill=TEXTCOL)
 
 highscoretext = c.create_text(WIDTH-10,HEIGHT-20,font=(font,15),anchor="e",text=f"High score: {highscore}",fill="#916000")
@@ -187,6 +186,7 @@ axe = mixer.Sound(filepath+"Gem miner/Throwing axe.wav")
 starnoise = mixer.Sound(filepath+"Gem miner/star.wav")
 title1 = mixer.Sound(filepath+"Gem miner/title1.wav")
 title2 = mixer.Sound(filepath+"Gem miner/title2.wav")
+mode_select = mixer.Sound(filepath+"Gem miner/mode_select.wav")
 main1 = mixer.Sound(filepath+"Gem miner/main.wav")
 main2 = mixer.Sound(filepath+"Gem miner/main2.wav")
 time1 = mixer.Sound(filepath+"Gem miner/time1.wav")
@@ -260,7 +260,7 @@ sfxsquare = c.create_image(25,425,image=sfx)
 musicsquare = c.create_image(25,475,image=music)
 
 
-#* GRID
+#Buttons
 grid = [0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,
@@ -299,6 +299,8 @@ normalb = GameButton("Normal",-35,True)
 timeb = GameButton("Time Rush",35,True)
 obstacleb = GameButton("Obstacles",105,True)
 
+playb = GameButton("Play again",95,True)
+
 started = False
 helping = False
 tutstage = 0
@@ -324,6 +326,11 @@ def title_music():
         loop = window.after(54850,title_music)
     repeats += 1
 title_music()
+
+def select_music():
+    global loop2
+    mixer.Sound.play(mode_select)
+    loop2 = window.after(52369,select_music)
 
 def game_music():
     global loop2
@@ -435,7 +442,7 @@ def set_square(color,x,y):
 
 def next_level():
     global level, powerups, reqscore, powerupvalues, moves
-    if mode == "obstacle": #Different level system in obstacle mode
+    if mode == "obstacle" and started: #Different level system in obstacle mode
         level_complete = 12 not in grid
     else:
         #This complicated setup means that the player will advance a level when they get to 500, 1000, 5000, etc.
@@ -598,7 +605,7 @@ def time_bg(index = 0):
 
 
 def start():
-    global repeats,track,powerups,powerupvalues
+    global repeats,track,powerups,powerupvalues, level
     reset_color()
     reset_color()
     draw_powerups()
@@ -615,7 +622,6 @@ def start():
 
     c.itemconfig(leveldisp,state=NORMAL)
     c.itemconfig(leveltext,state=NORMAL)
-
     c.itemconfig(goaldisp,state=NORMAL)
     c.itemconfig(goaltext,state=NORMAL)
 
@@ -633,6 +639,11 @@ def start():
     timeb.set_visible(False)
     obstacleb.set_visible(False)
 
+    if mode == "obstacle":
+        c.itemconfig(bg_image,image=obstacle_bg)
+    elif mode == "normal":
+        c.itemconfig(bg_image,image=bg)
+    
     c.itemconfig(highscoretext,state=HIDDEN)
 
     stop_music()
@@ -647,6 +658,7 @@ def start():
             obstacle_music()
     for _ in range(5):
         set_brick()
+
 def clear_board():
     global score, grid, busy
     busy = False
@@ -709,13 +721,9 @@ def ask_close():
         draw_board()
         c.itemconfig(scoredisp,text=score)
         c.itemconfig(gameovertext,text="")
-        c.itemconfig(playagaintext,text="")
         c.itemconfig(finalscoretext,text="")
         c.itemconfig(toasttext, state=HIDDEN)
         clickcount = 0
-        # if mode == "normal":
-        #     for _ in range(5):
-        #         set_brick()
         return
     else:
         window.after(2000, reset_count)
@@ -996,9 +1004,13 @@ def click(event):
             c.itemconfig(sfxsquare, image = sfx)
     
     if started:
-        if gameover: #if the game is over run it again
+        if gameover and playb.is_clicked(mousex,mousey): #if the game is over run it again
             stop_music()
-            
+            playb.set_visible(False)
+            display_modes(True)
+            #repeats = 0
+            #title_music()
+            #c.itemconfig(bg_image,image=bg)
             play_sound_effect(clicked)
             grid = [0,0,0,0,0,0,0,
                     0,0,0,0,0,0,0,
@@ -1007,23 +1019,20 @@ def click(event):
                     0,0,0,0,0,0,0,
                     0,0,0,0,0,0,0,
                     0,0,0,0,0,0,0]
-            reset_color()
-            reset_color()
-            draw_powerups()
+            #reset_color()
+            #reset_color()
+            #draw_powerups()
             selcolor = 0
             c.itemconfig(selected,image=empty_block)
             score = 0
             level = 1
             gameover = False
-            draw_board()
+            #draw_board()
             c.itemconfig(scoredisp,text=score)
             c.itemconfig(gameovertext,text="")
-            c.itemconfig(playagaintext,text="")
             c.itemconfig(finalscoretext,text="")
             track = randint(0,1)
             moves = 15
-            start()
-            update_text()
             return
 
 
@@ -1389,8 +1398,11 @@ def click(event):
                 tutstage = 1
                 disp_help() 
 
-def display_modes():
-    global display
+def display_modes(music=False):
+    global display, started
+    if music and music_on:
+        select_music()
+    started = False
     display = True
     c.itemconfig(titlebg,state=HIDDEN)
     for item in [startb,helpb]:
@@ -1489,14 +1501,15 @@ def clear_bricks(line):
 def clear_selection():
     c.itemconfig(selected,image=empty_block)
 
+#RETURN HERE
 def gameover_check():
-    global gameover, highscore
+    global gameover, highscore, display
     if (0 not in grid and any(x in grid for x in [5,6,7,8,9,10,11]) == 0) or (moves <= 0 and mode == "obstacle"):  #game is over
         stop_music()
         if music_on or sfx_on:
             game_over_music()
+        playb.set_visible(True)
         c.itemconfig(gameovertext,text="GAME OVER")
-        c.itemconfig(playagaintext,text="Click anywhere to play again")
         c.itemconfig(finalscoretext, text="Your score was "+str(score))
         for square in board: #delete the grid so we can actually see the gameover text
             c.delete(square)
@@ -1521,7 +1534,6 @@ def draw_pit():
                 PITSQUAREY+25,
                 image=itemid[pit[square]]))
         #works out how to draw the pit
-
 
 def inside(x1,y1,x2,y2,testx, testy):
     return (testx > x1 and testx < x2) and (testy > y1 and testy < y2) #works out if a point is inside another

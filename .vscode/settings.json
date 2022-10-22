@@ -35,15 +35,16 @@
                 }
             },
             {
-                "scope": "keyword.operator.assignment",
-                "settings": {
-                    "foreground": "#4f5bff"
-                }
-            },
-            {
                 "scope": "keyword.operator.comparison",
                 "settings": {
                     "foreground": "#dfa300"
+                }
+            },
+            {
+                "scope": "variable.parameter",
+                "settings": {
+                    "foreground": "#108600",
+                    "fontStyle": "italic"
                 }
             }
         ],
