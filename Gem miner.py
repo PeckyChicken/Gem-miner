@@ -3,6 +3,7 @@ from time import sleep
 from tkinter import * #doing wildcard import to make it easier to use
 from math import floor
 from random import choice, randint, shuffle
+from turtle import update
 from pygame import mixer, init
 mixer.pre_init(48000, -16, 1, 512)
 init()
@@ -24,7 +25,7 @@ gameover = False
 squarey = SQUAREMARGINY
 GRIDROWS = 7
 PITSQUAREY = 425
-moves = 3
+moves = 15
 score = 0
 level = 1
 track = 0
@@ -656,6 +657,7 @@ def start():
             time_music()
         elif mode == "obstacle":
             obstacle_music()
+    update_text(nextlevel=False)
     for _ in range(5):
         set_brick()
 
@@ -731,10 +733,10 @@ def ask_close():
 def calc_font_size(text):
     return defaulttextsize-len(text)*4
 
-def update_text(next=True): #Updates the font size depending on how many points the player has.
+def update_text(nextlevel=True): #Updates the font size depending on how many points the player has.
     c.itemconfig(scoredisp,font=(font,calc_font_size(str(score))))
     c.itemconfig(scoredisp,text=str(score))
-    if next:
+    if nextlevel:
         next_level()
     c.itemconfig(leveldisp,text=str(level))
     c.itemconfig(leveldisp,font=(font,calc_font_size(str(level))))
@@ -1503,7 +1505,7 @@ def clear_selection():
 
 #RETURN HERE
 def gameover_check():
-    global gameover, highscore, display
+    global gameover, highscore, display, score
     if (0 not in grid and any(x in grid for x in [5,6,7,8,9,10,11]) == 0) or (moves <= 0 and mode == "obstacle"):  #game is over
         stop_music()
         if music_on or sfx_on:
@@ -1514,14 +1516,16 @@ def gameover_check():
         for square in board: #delete the grid so we can actually see the gameover text
             c.delete(square)
         gameover = True
-        update_text()
 
         if score > highscore: 
             highscore = score
         with open("Gem miner/highscore.txt","w+") as hsfile:
             hsfile.write(str(highscore))
             hsfile.close()
+        score = 0
+        update_text(False)
         return True #game is over
+
     return False #game is not over
 def draw_pit():
     global pitobjects
