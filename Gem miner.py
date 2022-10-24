@@ -331,7 +331,7 @@ title_music()
 def select_music():
     global loop2
     mixer.Sound.play(mode_select)
-    loop2 = window.after(52369,select_music)
+    loop2 = window.after(69818,select_music)
 
 def game_music():
     global loop2
