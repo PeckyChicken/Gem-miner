@@ -410,17 +410,20 @@ def draw_powerups():
             c.itemconfig(tool,state=HIDDEN)
     c.itemconfig(restartsquare,state=NORMAL)
     
-
+cancel_ani = False
 def draw_animation(x,y,frames,fps):
+    global cancel_ani
     frametime = 1/fps
     DrawX, DrawY = get_pos(x,y)
     sprite = c.create_image(DrawX,DrawY,image=frames[0])
     frame = 0
-    while frame < len(frames):
+    cancel_ani = False
+    while frame < len(frames) and not cancel_ani:
         c.itemconfig(sprite,state=NORMAL,image=frames[frame])
         frame += 1
         window.update()
-        sleep(1/fps)
+        if cancel_ani: break
+        sleep(frametime)
     c.delete(sprite)
 
 #!Do not use, does not work.
@@ -442,7 +445,7 @@ def set_square(color,x,y):
     draw_board()
 
 def next_level():
-    global level, powerups, reqscore, powerupvalues, moves
+    global level, powerups, reqscore, powerupvalues, moves, cancel_ani
     if mode == "obstacle" and started: #Different level system in obstacle mode
         level_complete = 12 not in grid
     else:
@@ -450,6 +453,7 @@ def next_level():
         reqscore = (((level+1)%2)+1) * 500 * 10 ** (1+(level - 3) // 2)
         level_complete = score >= reqscore
     if level_complete:
+        cancel_ani = True
         play_sound_effect(advance)
         level += 1
         if mode == "obstacle":
@@ -461,7 +465,7 @@ def next_level():
             powerupvalues = [1]*5
             draw_powerups()
         if mode == "obstacle":
-            moves += ((level-1)*2)
+            moves += level
             update_text(False)
             for _ in range(level):
                 set_brick()
@@ -657,9 +661,12 @@ def start():
             time_music()
         elif mode == "obstacle":
             obstacle_music()
+        
     update_text(nextlevel=False)
-    for _ in range(5):
-        set_brick()
+    if mode != "obstacle":
+        for _ in range(4):
+            set_brick()
+    set_brick()
 
 def clear_board():
     global score, grid, busy
@@ -1470,35 +1477,26 @@ def explode(row, column, radius):
 def clear_bricks(line):
     #This next part checks all the blocks around where the line was.
     #If any bricks were there it breaks them
-    if lookup(line[0]-1,line[1]) == 12:
-        if not line[0]-1 < 0:
-            set_square(0,line[0]-1,line[1])
-            next_level()
-            draw_animation(line[0]-1,line[1],brickbreaking,100)
-            play_sound_effect(brickbreak)
+    x, y = line[0], line[1]+1
+    breakbrick(x,y)
 
-    if lookup(line[0],line[1]+1) == 12:
-        if not line[1]+1 > 6:
-            set_square(0,line[0],line[1]+1)
-            next_level()
-            draw_animation(line[0],line[1]+1,brickbreaking,100)
-            
-            play_sound_effect(brickbreak)
-    if lookup(line[0]+1,line[1]) == 12:
-        if not line[0]+1 > 6:
-            set_square(0,line[0]+1,line[1])
-            next_level()
-            draw_animation(line[0]+1,line[1],brickbreaking,100)
-            
-            play_sound_effect(brickbreak)
+    x, y = line[0], line[1]-1
+    breakbrick(x,y)
 
-    if lookup(line[0],line[1]-1) == 12:
-        if not line[1]-1 < 0:
-            set_square(0,line[0],line[1]-1)
-            next_level()
-            draw_animation(line[0],line[1]-1,brickbreaking,100)
-            
+    x, y = line[0]+1, line[1]
+    breakbrick(x,y)
+
+    x, y = line[0]-1, line[1]
+    breakbrick(x,y)
+
+
+def breakbrick(x,y):
+    if lookup(x,y) == 12:
+        if not (0 >= y > 6 and 0 >= x > 6):
+            set_square(0,x,y)
+            draw_animation(x,y,brickbreaking,100)
             play_sound_effect(brickbreak)
+            next_level()
 
 def clear_selection():
     c.itemconfig(selected,image=empty_block)
