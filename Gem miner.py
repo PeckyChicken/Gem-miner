@@ -867,7 +867,7 @@ def handle_items(item,row,column):
         if item == 'diamond':
             
             play_sound_effect(clearall)
-            window.after(2250,clear_board)
+            window.after(3000,clear_board)
             return True
         convert_colors(item,row,column,False)
 
