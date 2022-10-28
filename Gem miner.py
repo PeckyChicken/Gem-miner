@@ -462,7 +462,7 @@ def next_level():
     if level_complete:
         cancel_ani = True
         level += 1
-        if mode == "normal" and level%5 == 0:
+        if mode == "normal" and level%10 == 0:
             play_sound_effect(specialadvance)
         else:
             play_sound_effect(advance)
