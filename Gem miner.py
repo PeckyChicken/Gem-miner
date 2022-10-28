@@ -198,6 +198,7 @@ gameover2 = mixer.Sound(filepath+"Gem miner/gameover2.ogg")
 obstacle = mixer.Sound(filepath+"Gem miner/obstacle.ogg")
 clicked = mixer.Sound(filepath+"Gem miner/click.wav")
 clocktick = mixer.Sound(filepath+"Gem miner/clocktick.wav")
+specialadvance = mixer.Sound(filepath+"Gem miner/you_know_not_what_this_is.wav")
 
 #Sets the volume of the music
 music_vol = 0.25
@@ -321,57 +322,62 @@ repeats = 0
 def title_music():
     global repeats, loop
     if repeats == 0:
-        mixer.Sound.play(title1)
+        mixer.Channel(repeats%2).play(title1)
         loop = window.after(13300,title_music)
     else:
-        mixer.Sound.play(title2)
+        mixer.Channel(repeats%2).play(title2)
         loop = window.after(54850,title_music)
     repeats += 1
 title_music()
 
 def select_music():
-    global loop2
-    mixer.Sound.play(mode_select)
+    global repeats,loop2
+    mixer.Channel(repeats%2).play(mode_select)
     loop2 = window.after(69818,select_music)
+    repeats += 1
 
 def game_music():
-    global loop2
-    mixer.Sound.play(main1)
+    global repeats,loop2
+    mixer.Channel(repeats%2).play(main1)
     loop2 = window.after(52377,game_music)
+    repeats += 1
 
 def game_music2():
-    global loop2
-    mixer.Sound.play(main2)
+    global repeats,loop2
+    mixer.Channel(repeats%2).play(main2)
     loop2 = window.after(61075,game_music2)
+    repeats += 1
 
 def time_music():
     global repeats, loop
     if repeats == 0:
-        mixer.Sound.play(time1)
+        mixer.Channel(repeats%2).play(time1)
         loop = window.after(8720,time_music)
     else:
-        mixer.Sound.play(time2)
+        mixer.Channel(repeats%2).play(time2)
         loop = window.after(34880,time_music)
     repeats += 1
 
 def obstacle_music():
-    global loop2
-    mixer.Sound.play(obstacle)
+    global repeats,loop2
+    mixer.Channel(repeats%2).play(obstacle)
     loop2 = window.after(56000,obstacle_music)
+    repeats += 1
     
 def game_over_music():
     global repeats, loop2
     if repeats == 0:
-        mixer.Sound.play(gameover1)
+        mixer.Channel(repeats%2).play(gameover1)
         loop2 = window.after(643,game_over_music)
     else: 
-        mixer.Sound.play(gameover2)
+        mixer.Channel(repeats%2).play(gameover2)
         loop2 = window.after(13714,game_over_music)
     repeats += 1
 
 def stop_music():
     global repeats
-    mixer.stop()
+    mixer.Channel(0).stop()
+    mixer.Channel(1).stop()
     try:
         window.after_cancel(loop)
     except NameError: pass
@@ -455,8 +461,11 @@ def next_level():
         level_complete = score >= reqscore
     if level_complete:
         cancel_ani = True
-        play_sound_effect(advance)
         level += 1
+        if mode == "normal" and level%10 == 0:
+            play_sound_effect(specialadvance)
+        else:
+            play_sound_effect(advance)
         if mode == "obstacle":
             powerupvalues[randint(0,len(powerupvalues)-1)] += 1
             powerups[:] = [1 if i else 0 for i in powerupvalues]
@@ -635,6 +644,8 @@ def start():
         c.itemconfig(goaltext,text="Moves")
         c.itemconfig(goaldisp,text=str(moves))
         c.itemconfig(bg_image,image=obstacle_bg)
+    else:
+        c.itemconfig(goaltext,text="Goal")
 
     c.itemconfig(selected,state=NORMAL)
     c.itemconfig(titlebg,state=HIDDEN)
@@ -644,7 +655,6 @@ def start():
     normalb.set_visible(False)
     timeb.set_visible(False)
     obstacleb.set_visible(False)
-
     if mode == "obstacle":
         c.itemconfig(bg_image,image=obstacle_bg)
     elif mode == "normal":
@@ -960,7 +970,7 @@ def pick_color(row):
 
 def key_press(event):
     key = event.keysym
-    if key in ['1','2','3']:
+    if key in ['1','2','3'] and started:
         keyvalue = int(key)-1
         pick_color(keyvalue*3)
 
@@ -1493,7 +1503,7 @@ def clear_bricks(line):
 
 def breakbrick(x,y):
     if lookup(x,y) == 12:
-        if not (0 >= y > 6 and 0 >= x > 6):
+        if 0 <= y <= 6 and 0 <= x <= 6:
             set_square(0,x,y)
             draw_animation(x,y,brickbreaking,100)
             play_sound_effect(brickbreak)
