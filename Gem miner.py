@@ -462,7 +462,7 @@ def next_level():
     if level_complete:
         cancel_ani = True
         level += 1
-        if mode == "normal" and level%10 == 0:
+        if mode == "normal" and level%5 == 0:
             play_sound_effect(specialadvance)
         else:
             play_sound_effect(advance)
@@ -970,7 +970,7 @@ def pick_color(row):
 
 def key_press(event):
     key = event.keysym
-    if key in ['1','2','3'] and started:
+    if key in '123' and started and not gameover:
         keyvalue = int(key)-1
         pick_color(keyvalue*3)
 
