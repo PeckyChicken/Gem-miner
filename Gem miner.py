@@ -34,6 +34,7 @@ reqscore = 500
 mode = "none"
 display = False
 
+
 music_on = True
 sfx_on = True
 
@@ -272,7 +273,7 @@ grid = [0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,
         0,0,0,0,0,0,0] #defines the game board
 pit = [randint(1,4),randint(1,4),randint(1,4)] #sets up the pit
-pitobjects = list()
+pitobjects: list[Button] = list()
 defaulttextsize = 35
 loop = 0
 
@@ -311,18 +312,20 @@ tutstage = 0
 #*IDS
 itemid = {0:empty_block,1:red_block,2:yellow_block,3:green_block,4:blue_block,5:vdrill,6:hdrill,7:red_diamond,8:yellow_diamond,9:green_diamond,10:blue_diamond,11:bomb,12:bricks} #sets up the item ids
 
-board = list() #sets up the board
+board: list[Button] = list() #sets up the board
 #Music loop
 
 def play_sound_effect(effect):
     if sfx_on:
         mixer.Sound.play(effect)
-channels: list[mixer.Channel] = []
+
+channels: set[mixer.Channel] = set()
 def get_channel() -> mixer.Channel:
     global channels
     channel = mixer.find_channel(True)
-    channels.append(channel)
+    channels.add(channel)
     return channel
+
 repeats = 0
 def title_music():
     global repeats, loop
@@ -378,12 +381,11 @@ def game_over_music():
         get_channel().play(gameover2)
         loop2 = window.after(13714,game_over_music)
     repeats += 1
-    
+
 def stop_music():
     global repeats, channels
-    for idx,chl in enumerate(channels):
-        chl.stop()
-        del channels[idx]
+    for idx,channel in enumerate(channels):
+        channel.stop()
     errors = 0 #Should just be one of these
     try:
         window.after_cancel(loop)
@@ -978,6 +980,7 @@ def pick_color(row):
     c.itemconfig(pitobjects[row//3],image=itemid[selcolor]) #sets the color to gray temporarily
     selcolor, pit[row//3] = pit[row//3], selcolor #swaps the selected color with the one in the pit
     c.itemconfig(selected,image=itemid[selcolor]) #fills the selected box with whatever color was chosen
+    canplace = bool(selcolor)
 
 def key_press(event):
     key = event.keysym
@@ -987,7 +990,7 @@ def key_press(event):
 
 #Main event
 def click(event):
-    global selcolor, pit, canplace, pitobjects, grid, score, gameover, powerups, started, helping, tutstage, level, highscore, music_on, sfx_on, repeats, busy, track, mode, moves
+    global selcolor, pit, canplace, pitobjects, grid, score, gameover, powerups, started, helping, tutstage, level, highscore, music_on, sfx_on, repeats, busy, track, mode, moves, selecting
 
     next_level()
     mousex = event.x
@@ -1005,7 +1008,9 @@ def click(event):
             music_on = False
             
             play_sound_effect(clicked)
-            stop_music()
+            if not gameover or (gameover and not sfx_on):
+                stop_music()
+            
             c.itemconfig(musicsquare, image = nomusic)
         else:
             music_on = True
@@ -1013,7 +1018,10 @@ def click(event):
             
             play_sound_effect(clicked)
             if started:
-                if mode == "normal":
+                if gameover:
+                    if not sfx_on:
+                        game_over_music()
+                elif mode == "normal":
                     [game_music,game_music2][track]()
                 elif mode == "time":
                     repeats = 0
@@ -1021,16 +1029,22 @@ def click(event):
                 elif mode == "obstacle":
                     obstacle_music()
             else:
-                title_music()
+                if selecting:
+                    select_music()
+                else:
+                    title_music()
             c.itemconfig(musicsquare, image = music)
 
     if inside(0,400,50,450,mousex,mousey): #Is sfx clicked?
         if sfx_on:
             sfx_on = False
+            if gameover and not music_on:
+                stop_music()
             c.itemconfig(sfxsquare, image = nosfx)
         else:
             sfx_on = True
-            
+            if gameover and not music_on:
+                game_over_music()
             play_sound_effect(clicked)
             c.itemconfig(sfxsquare, image = sfx)
     
@@ -1038,10 +1052,13 @@ def click(event):
         if gameover and playb.is_clicked(mousex,mousey): #if the game is over run it again
             stop_music()
             playb.set_visible(False)
+            #Anything in these lists gets deleted or vanished
+            for x in board+pitobjects:
+                c.delete(x)
+            for x in [scoredisp,scoretext,goaldisp,goaltext,leveldisp,leveltext,selected,pickaxesquare,throwingaxesquare,jackhammersquare,starsquare,shufflesquare,restartsquare]:
+                c.itemconfig(x,state=HIDDEN)
+            selecting = True
             display_modes(True)
-            #repeats = 0
-            #title_music()
-            #c.itemconfig(bg_image,image=bg)
             play_sound_effect(clicked)
             grid = [0,0,0,0,0,0,0,
                     0,0,0,0,0,0,0,
@@ -1050,15 +1067,11 @@ def click(event):
                     0,0,0,0,0,0,0,
                     0,0,0,0,0,0,0,
                     0,0,0,0,0,0,0]
-            #reset_color()
-            #reset_color()
-            #draw_powerups()
             selcolor = 0
             c.itemconfig(selected,image=empty_block)
             score = 0
             level = 1
             gameover = False
-            #draw_board()
             c.itemconfig(scoredisp,text=score)
             c.itemconfig(gameovertext,text="")
             c.itemconfig(finalscoretext,text="")
@@ -1128,7 +1141,6 @@ def click(event):
                 clear_toast()
                 clear_selection()
                 return
-            
             play_sound_effect(powerupselected)
             if canplace:
                 pit = [selcolor if elem==0 else elem for elem in pit]
@@ -1168,7 +1180,7 @@ def click(event):
             c.itemconfig(selected,image=empty_block)
             #sets the pit to random colors
             for i in range(2,-1,-1):
-                set_pit(randint(1,4),i)
+                set_pit(choice([j for j in range(1,4) if j != pit[i]]),i)
                 draw_animation(i*3,8,diceused,20)
                 draw_pit()
             gameover_check()
@@ -1525,11 +1537,13 @@ def clear_selection():
 
 #RETURN HERE
 def gameover_check():
-    global gameover, highscore, display, score
+    global gameover, highscore, display, score, powerups, powerupvalues
     if (0 not in grid and any(x in grid for x in [5,6,7,8,9,10,11]) == 0) or (moves <= 0 and mode == "obstacle"):  #game is over
         stop_music()
         if music_on or sfx_on:
             game_over_music()
+        powerups = [0]*5
+        powerupvalues = [0]*5
         playb.set_visible(True)
         c.itemconfig(gameovertext,text="GAME OVER")
         c.itemconfig(finalscoretext, text="Your score was "+str(score))
@@ -1542,7 +1556,6 @@ def gameover_check():
         with open("Gem miner/highscore.txt","w+") as hsfile:
             hsfile.write(str(highscore))
             hsfile.close()
-        score = 0
         update_text(False)
         return True #game is over
 
