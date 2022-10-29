@@ -378,6 +378,7 @@ def game_over_music():
         get_channel().play(gameover2)
         loop2 = window.after(13714,game_over_music)
     repeats += 1
+    
 def stop_music():
     global repeats, channels
     for idx,chl in enumerate(channels):
