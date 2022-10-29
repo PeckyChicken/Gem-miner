@@ -317,73 +317,83 @@ board = list() #sets up the board
 def play_sound_effect(effect):
     if sfx_on:
         mixer.Sound.play(effect)
-
+channels: list[mixer.Channel] = []
+def get_channel() -> mixer.Channel:
+    global channels
+    channel = mixer.find_channel(True)
+    channels.append(channel)
+    return channel
 repeats = 0
 def title_music():
     global repeats, loop
     if repeats == 0:
-        mixer.Channel(repeats%2).play(title1)
+        get_channel().play(title1)
         loop = window.after(13300,title_music)
     else:
-        mixer.Channel(repeats%2).play(title2)
+        get_channel().play(title2)
         loop = window.after(54850,title_music)
     repeats += 1
 title_music()
 
 def select_music():
     global repeats,loop2
-    mixer.Channel(repeats%2).play(mode_select)
+    get_channel().play(mode_select)
     loop2 = window.after(69818,select_music)
     repeats += 1
 
 def game_music():
     global repeats,loop2
-    mixer.Channel(repeats%2).play(main1)
+    get_channel().play(main1)
     loop2 = window.after(52377,game_music)
     repeats += 1
 
 def game_music2():
     global repeats,loop2
-    mixer.Channel(repeats%2).play(main2)
+    get_channel().play(main2)
     loop2 = window.after(61075,game_music2)
     repeats += 1
 
 def time_music():
     global repeats, loop
     if repeats == 0:
-        mixer.Channel(repeats%2).play(time1)
+        get_channel().play(time1)
         loop = window.after(8720,time_music)
     else:
-        mixer.Channel(repeats%2).play(time2)
+        get_channel().play(time2)
         loop = window.after(34880,time_music)
     repeats += 1
 
 def obstacle_music():
     global repeats,loop2
-    mixer.Channel(repeats%2).play(obstacle)
+    get_channel().play(obstacle)
     loop2 = window.after(56000,obstacle_music)
     repeats += 1
     
 def game_over_music():
     global repeats, loop2
     if repeats == 0:
-        mixer.Channel(repeats%2).play(gameover1)
+        get_channel().play(gameover1)
         loop2 = window.after(643,game_over_music)
     else: 
-        mixer.Channel(repeats%2).play(gameover2)
+        get_channel().play(gameover2)
         loop2 = window.after(13714,game_over_music)
     repeats += 1
-
 def stop_music():
-    global repeats
-    mixer.Channel(0).stop()
-    mixer.Channel(1).stop()
+    global repeats, channels
+    for idx,chl in enumerate(channels):
+        chl.stop()
+        del channels[idx]
+    errors = 0 #Should just be one of these
     try:
         window.after_cancel(loop)
-    except NameError: pass
+    except NameError: 
+        errors += 1
     try:
         window.after_cancel(loop2)
-    except NameError: pass
+    except NameError: 
+        errors += 1
+    if errors != 1:
+        print(f"LOG: Error found in function stop_music(), the number of errors were:\n{errors}.\nExpected:\n1.")
     repeats = 0
 
 def draw_board():
@@ -462,7 +472,7 @@ def next_level():
     if level_complete:
         cancel_ani = True
         level += 1
-        if mode == "normal" and level%10 == 0:
+        if mode == "normal" and level%8 == 0:
             play_sound_effect(specialadvance)
         else:
             play_sound_effect(advance)
