@@ -8,6 +8,8 @@ from pygame import mixer, init
 mixer.pre_init(48000, -16, 1, 512)
 init()
 mixer.init()
+mixer.set_num_channels(16)
+
 filepath = __file__+"/../"
 window = Tk() #sets up window
 window.title("Gem miner")
@@ -40,7 +42,7 @@ sfx_on = True
 
 c = Canvas(window,width=WIDTH,height=HEIGHT, bg="gray") #sets up canvas
 c.pack(fill="both")
-bg = PhotoImage(file = filepath+"Gem miner/bg.png")
+bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/bg.png")
 bg_image = c.create_image(WIDTH/2,HEIGHT/2,image=bg)
 
 try:
@@ -76,87 +78,89 @@ highscoretext = c.create_text(WIDTH-10,HEIGHT-20,font=(font,15),anchor="e",text=
 clickcount = 0
 
 #imports the images
-red_block = PhotoImage(file = filepath+"Gem miner/red_block.png")
-yellow_block = PhotoImage(file = filepath+"Gem miner/yellow_block.png")
-green_block = PhotoImage(file = filepath+"Gem miner/green_block.png")
-blue_block = PhotoImage(file = filepath+"Gem miner/blue_block.png")
-empty_block = PhotoImage(file = filepath+"Gem miner/empty.png")
-vdrill = PhotoImage(file = filepath+"Gem miner/rocket_vertical.png")
-hdrill = PhotoImage(file = filepath+"Gem miner/rocket_horizontal.png")
-red_diamond = PhotoImage(file = filepath+"Gem miner/red_ball.png")
-yellow_diamond = PhotoImage(file = filepath+"Gem miner/yellow_ball.png")
-green_diamond = PhotoImage(file = filepath+"Gem miner/green_ball.png")
-blue_diamond = PhotoImage(file = filepath+"Gem miner/blue_ball.png")
-rainbow_diamond = PhotoImage(file = filepath+"Gem miner/rain_ball.png")
-bomb = PhotoImage(file = filepath+"Gem miner/bomb.png")
-bricks = PhotoImage(file = filepath+"Gem miner/bricks.png")
-jackhammer = PhotoImage(file = filepath+"Gem miner/jackhammer.png")
-pickaxe = PhotoImage(file = filepath+"Gem miner/pickaxe.png")
-throwingaxe = PhotoImage(file = filepath+"Gem miner/throwing axe.png")
-star = PhotoImage(file = filepath+"Gem miner/star.png")
-dice = PhotoImage(file = filepath+"Gem miner/shuffle.png")
-restart = PhotoImage(file = filepath+"Gem miner/restartbutton.png")
-brickp1 = PhotoImage(file = filepath+"Gem miner/bricks_particle_1.png")
-brickp2 = PhotoImage(file = filepath+"Gem miner/bricks_particle_2.png")
-brickp3 = PhotoImage(file = filepath+"Gem miner/bricks_particle_3.png")
-brickp4 = PhotoImage(file = filepath+"Gem miner/bricks_particle_4.png")
-button = PhotoImage(file = filepath+"Gem miner/button.png")
-titlebgimage = PhotoImage(file = filepath+"Gem miner/TitleBG.png")
-tut1 = PhotoImage(file = filepath+"Gem miner/Tutorial1.png")
-tut2 = PhotoImage(file = filepath+"Gem miner/Tutorial2.png")
-tut3 = PhotoImage(file = filepath+"Gem miner/Tutorial3.png")
-tut4 = PhotoImage(file = filepath+"Gem miner/Tutorial4.png")
-tut5 = PhotoImage(file = filepath+"Gem miner/Tutorial5.png")
-tut6 = PhotoImage(file = filepath+"Gem miner/Tutorial6.png")
-music = PhotoImage(file = filepath+"Gem miner/music_yes.png")
-sfx = PhotoImage(file = filepath+"Gem miner/sfx_yes.png")
-nomusic = PhotoImage(file = filepath+"Gem miner/music_no.png")
-nosfx = PhotoImage(file = filepath+"Gem miner/sfx_no.png")
-explosions = [PhotoImage(file = filepath+"Gem miner/explosion1.png"), 
-              PhotoImage(file = filepath+"Gem miner/explosion2.png"), 
-              PhotoImage(file = filepath+"Gem miner/explosion3.png"), 
-              PhotoImage(file = filepath+"Gem miner/explosion4.png"), 
-              PhotoImage(file = filepath+"Gem miner/explosion5.png"), 
-              PhotoImage(file = filepath+"Gem miner/explosion6.png"), 
-              PhotoImage(file = filepath+"Gem miner/explosion7.png"), 
-              PhotoImage(file = filepath+"Gem miner/explosion8.png"), 
-              PhotoImage(file = filepath+"Gem miner/explosion9.png"), 
-              PhotoImage(file = filepath+"Gem miner/explosion10.png")]
+red_block = PhotoImage(file = filepath+"Gem miner/Images/Gems/red_gem.png")
+yellow_block = PhotoImage(file = filepath+"Gem miner/Images/Gems/yellow_gem.png")
+green_block = PhotoImage(file = filepath+"Gem miner/Images/Gems/green_gem.png")
+blue_block = PhotoImage(file = filepath+"Gem miner/Images/Gems/blue_gem.png")
+empty_block = PhotoImage(file = filepath+"Gem miner/Images/UI/empty.png")
 
-breaking = [PhotoImage(file = filepath+"Gem miner/vdrill1.png"),
-           PhotoImage(file = filepath+"Gem miner/vdrill2.png"),
-           PhotoImage(file = filepath+"Gem miner/vdrill3.png"),
-           PhotoImage(file = filepath+"Gem miner/vdrill4.png"),
-           PhotoImage(file = filepath+"Gem miner/vdrill5.png"),
-           PhotoImage(file = filepath+"Gem miner/vdrill6.png"),
-           PhotoImage(file = filepath+"Gem miner/vdrill7.png"),
-           PhotoImage(file = filepath+"Gem miner/vdrill8.png"),
-           PhotoImage(file = filepath+"Gem miner/vdrill9.png"),
-           PhotoImage(file = filepath+"Gem miner/vdrill10.png")]
+vdrill = PhotoImage(file = filepath+"Gem miner/Images/Tools/rocket_vertical.png")
+hdrill = PhotoImage(file = filepath+"Gem miner/Images/Tools/rocket_horizontal.png")
+red_diamond = PhotoImage(file = filepath+"Gem miner/Images/Tools/Diamonds/red_diamond.png")
+yellow_diamond = PhotoImage(file = filepath+"Gem miner/Images/Tools/Diamonds/yellow_diamond.png")
+green_diamond = PhotoImage(file = filepath+"Gem miner/Images/Tools/Diamonds/green_diamond.png")
+blue_diamond = PhotoImage(file = filepath+"Gem miner/Images/Tools/Diamonds/blue_diamond.png")
+rainbow_diamond = PhotoImage(file = filepath+"Gem miner/Images/Tools/Diamonds/rainbow_diamond.png")
+bomb = PhotoImage(file = filepath+"Gem miner/Images/Tools/bomb.png")
 
-brickplace = [PhotoImage(file = filepath+"Gem miner/brickplace1.png"),
-              PhotoImage(file = filepath+"Gem miner/brickplace2.png"),
-              PhotoImage(file = filepath+"Gem miner/brickplace3.png"),
-              PhotoImage(file = filepath+"Gem miner/brickplace4.png"),
-              PhotoImage(file = filepath+"Gem miner/brickplace5.png"),
-              PhotoImage(file = filepath+"Gem miner/brickplace6.png"),
-              PhotoImage(file = filepath+"Gem miner/brickplace7.png"),
-              PhotoImage(file = filepath+"Gem miner/brickplace8.png")]
+bricks = PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/bricks.png")
+jackhammer = PhotoImage(file = filepath+"Gem miner/Images/Tools/jackhammer.png")
+pickaxe = PhotoImage(file = filepath+"Gem miner/Images/Tools/pickaxe.png")
+throwingaxe = PhotoImage(file = filepath+"Gem miner/Images/Tools/axe.png")
+star = PhotoImage(file = filepath+"Gem miner/Images/Tools/star.png")
+dice = PhotoImage(file = filepath+"Gem miner/Images/Tools/shuffle.png")
 
-brickbreaking = [PhotoImage(file = filepath+"Gem miner/brickbreak1.png"),
-                 PhotoImage(file = filepath+"Gem miner/brickbreak2.png"),
-                 PhotoImage(file = filepath+"Gem miner/brickbreak3.png"),
-                 PhotoImage(file = filepath+"Gem miner/brickbreak4.png"),
-                 PhotoImage(file = filepath+"Gem miner/brickbreak5.png"),]
+restart = PhotoImage(file = filepath+"Gem miner/Images/UI/restartbutton.png")
+button = PhotoImage(file = filepath+"Gem miner/Images/UI/button.png")
+titlebgimage = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/titlebg.png")
 
-time_bgs = [PhotoImage(file = filepath+"Gem miner/time_bg1.png"),
-            PhotoImage(file = filepath+"Gem miner/time_bg2.png"),
-            PhotoImage(file = filepath+"Gem miner/time_bg3.png"),
-            PhotoImage(file = filepath+"Gem miner/time_bg4.png"),]
+tut1 = PhotoImage(file = filepath+"Gem miner/Images/Tutorial/tutorial1.png")
+tut2 = PhotoImage(file = filepath+"Gem miner/Images/Tutorial/tutorial2.png")
+tut3 = PhotoImage(file = filepath+"Gem miner/Images/Tutorial/tutorial3.png")
+tut4 = PhotoImage(file = filepath+"Gem miner/Images/Tutorial/tutorial4.png")
+tut5 = PhotoImage(file = filepath+"Gem miner/Images/Tutorial/tutorial5.png")
+tut6 = PhotoImage(file = filepath+"Gem miner/Images/Tutorial/tutorial6.png")
 
-obstacle_bg = PhotoImage(file = filepath+"Gem miner/obstacle_bg.png")
+music = PhotoImage(file = filepath+"Gem miner/Images/UI/music_yes.png")
+sfx = PhotoImage(file = filepath+"Gem miner/Images/UI/sfx_yes.png")
+nomusic = PhotoImage(file = filepath+"Gem miner/Images/UI/music_no.png")
+nosfx = PhotoImage(file = filepath+"Gem miner/Images/UI/sfx_no.png")
 
-diceused = [PhotoImage(file = filepath+"Gem miner/dice1.png")]
+explosions = [PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion1.png"), 
+              PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion2.png"), 
+              PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion3.png"), 
+              PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion4.png"), 
+              PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion5.png"), 
+              PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion6.png"), 
+              PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion7.png"), 
+              PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion8.png"), 
+              PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion9.png"), 
+              PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion10.png")]
+
+breaking = [PhotoImage(file = filepath+"Gem miner/Images/Animations/Smoke/vdrill1.png"),
+           PhotoImage(file = filepath+"Gem miner/Images/Animations/Smoke/vdrill2.png"),
+           PhotoImage(file = filepath+"Gem miner/Images/Animations/Smoke/vdrill3.png"),
+           PhotoImage(file = filepath+"Gem miner/Images/Animations/Smoke/vdrill4.png"),
+           PhotoImage(file = filepath+"Gem miner/Images/Animations/Smoke/vdrill5.png"),
+           PhotoImage(file = filepath+"Gem miner/Images/Animations/Smoke/vdrill6.png"),
+           PhotoImage(file = filepath+"Gem miner/Images/Animations/Smoke/vdrill7.png"),
+           PhotoImage(file = filepath+"Gem miner/Images/Animations/Smoke/vdrill8.png"),
+           PhotoImage(file = filepath+"Gem miner/Images/Animations/Smoke/vdrill9.png"),
+           PhotoImage(file = filepath+"Gem miner/Images/Animations/Smoke/vdrill10.png")]
+
+brickplace = [PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Placing/brickplace1.png"),
+              PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Placing/brickplace2.png"),
+              PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Placing/brickplace3.png"),
+              PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Placing/brickplace4.png"),
+              PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Placing/brickplace5.png"),
+              PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Placing/brickplace6.png"),
+              PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Placing/brickplace7.png"),
+              PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Placing/brickplace8.png")]
+
+brickbreaking = [PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Breaking/brickbreak1.png"),
+                 PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Breaking/brickbreak2.png"),
+                 PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Breaking/brickbreak3.png"),
+                 PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Breaking/brickbreak4.png"),
+                 PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Breaking/brickbreak5.png"),]
+
+time_bgs = [PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/Time/time_bg1.png"),
+            PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/Time/time_bg2.png"),
+            PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/Time/time_bg3.png"),
+            PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/Time/time_bg4.png"),]
+
+obstacle_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/obstacle_bg.png")
+
+diceused = [PhotoImage(file = filepath+"Gem miner/Images/Animations/Dice/dice1.png")]
 
 
 
@@ -169,37 +173,38 @@ tutimage = c.create_image(WIDTH/2,HEIGHT/2,image=tut1,state=HIDDEN)
 
 
 #Importing the sounds
-bombcreated = mixer.Sound(filepath+"Gem miner/bombcreated.wav")
-explosion = mixer.Sound(filepath+"Gem miner/boom.wav")
-remove = mixer.Sound(filepath+"Gem miner/break.wav")
-brickbreak = mixer.Sound(filepath+"Gem miner/brick_break.wav")
-clearall = mixer.Sound(filepath+"Gem miner/clearall.wav")
-diamondcreated = mixer.Sound(filepath+"Gem miner/diamondcreated.wav")
-diamondused = mixer.Sound(filepath+"Gem miner/diamondused.wav")
-drillcreated = mixer.Sound(filepath+"Gem miner/drillcreated.wav")
-drillused = mixer.Sound(filepath+"Gem miner/drillused.wav")
-jackhammerused = mixer.Sound(filepath+"Gem miner/jackhammerused.wav")
-nomatch = mixer.Sound(filepath+"Gem miner/nomatch.wav")
-pickused = mixer.Sound(filepath+"Gem miner/pickaxeused.wav")
-placed = mixer.Sound(filepath+"Gem miner/place.wav")
-powerupselected = mixer.Sound(filepath+"Gem miner/powerupselected.wav")
-shufflesound = mixer.Sound(filepath+"Gem miner/shuffle.wav")
-axe = mixer.Sound(filepath+"Gem miner/Throwing axe.wav")
-starnoise = mixer.Sound(filepath+"Gem miner/star.wav")
-title1 = mixer.Sound(filepath+"Gem miner/title1.ogg")
-title2 = mixer.Sound(filepath+"Gem miner/title2.ogg")
-mode_select = mixer.Sound(filepath+"Gem miner/mode_select.ogg")
-main1 = mixer.Sound(filepath+"Gem miner/main.ogg")
-main2 = mixer.Sound(filepath+"Gem miner/main2.ogg")
-time1 = mixer.Sound(filepath+"Gem miner/time1.ogg")
-time2 = mixer.Sound(filepath+"Gem miner/time2.ogg")
-advance = mixer.Sound(filepath+"Gem miner/nextlevel.wav")
-gameover1 = mixer.Sound(filepath+"Gem miner/gameover1.ogg")
-gameover2 = mixer.Sound(filepath+"Gem miner/gameover2.ogg")
-obstacle = mixer.Sound(filepath+"Gem miner/obstacle.ogg")
-clicked = mixer.Sound(filepath+"Gem miner/click.wav")
-clocktick = mixer.Sound(filepath+"Gem miner/clocktick.wav")
-specialadvance = mixer.Sound(filepath+"Gem miner/you_know_not_what_this_is.wav")
+bombcreated = mixer.Sound(filepath+"Gem miner/Sounds/Bomb/bombcreated.wav")
+explosion = mixer.Sound(filepath+"Gem miner/Sounds/Bomb/boom.wav")
+remove = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/break.wav")
+brickbreak = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/brick_break.wav")
+clearall = mixer.Sound(filepath+"Gem miner/Sounds/Diamond/clearall.wav")
+diamondcreated = mixer.Sound(filepath+"Gem miner/Sounds/Diamond/diamondcreated.wav")
+diamondused = mixer.Sound(filepath+"Gem miner/Sounds/Diamond/diamondused.wav")
+drillcreated = mixer.Sound(filepath+"Gem miner/Sounds/Drill/drillcreated.wav")
+drillused = mixer.Sound(filepath+"Gem miner/Sounds/Drill/drillused.wav")
+
+jackhammerused = mixer.Sound(filepath+"Gem miner/Sounds/Tools/jackhammerused.wav")
+nomatch = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/nomatch.wav")
+pickused = mixer.Sound(filepath+"Gem miner/Sounds/Tools/pickaxeused.wav")
+placed = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/place.wav")
+powerupselected = mixer.Sound(filepath+"Gem miner/Sounds/Tools/powerupselected.wav")
+shufflesound = mixer.Sound(filepath+"Gem miner/Sounds/Tools/shuffleused.wav")
+axeused = mixer.Sound(filepath+"Gem miner/Sounds/Tools/axeused.wav")
+starused = mixer.Sound(filepath+"Gem miner/Sounds/Tools/starused.wav")
+title1 = mixer.Sound(filepath+"Gem miner/Music/title1.ogg")
+title2 = mixer.Sound(filepath+"Gem miner/Music/title2.ogg")
+mode_select = mixer.Sound(filepath+"Gem miner/Music/mode_select.ogg")
+main1 = mixer.Sound(filepath+"Gem miner/Music/main.ogg")
+main2 = mixer.Sound(filepath+"Gem miner/Music/main2.ogg")
+time1 = mixer.Sound(filepath+"Gem miner/Music/time1.ogg")
+time2 = mixer.Sound(filepath+"Gem miner/Music/time2.ogg")
+advance = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/nextlevel.wav")
+gameover1 = mixer.Sound(filepath+"Gem miner/Music/gameover1.ogg")
+gameover2 = mixer.Sound(filepath+"Gem miner/Music/gameover2.ogg")
+obstacle = mixer.Sound(filepath+"Gem miner/Music/obstacle.ogg")
+clicked = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/click.wav")
+clocktick = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/clocktick.wav")
+specialadvance = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/you_know_not_what_this_is.wav")
 
 #Sets the volume of the music
 music_vol = 0.25
@@ -232,8 +237,8 @@ mixer.Sound.set_volume(pickused,sound_vol)
 mixer.Sound.set_volume(placed,sound_vol)
 mixer.Sound.set_volume(powerupselected,sound_vol)
 mixer.Sound.set_volume(shufflesound,sound_vol)
-mixer.Sound.set_volume(axe,sound_vol)
-mixer.Sound.set_volume(starnoise,sound_vol)
+mixer.Sound.set_volume(axeused,sound_vol)
+mixer.Sound.set_volume(starused,sound_vol)
 mixer.Sound.set_volume(advance,sound_vol)
 mixer.Sound.set_volume(clicked,sound_vol)
 mixer.Sound.set_volume(clocktick,sound_vol)
@@ -317,7 +322,10 @@ board: list[Button] = list() #sets up the board
 
 def play_sound_effect(effect):
     if sfx_on:
-        mixer.Sound.play(effect)
+        try:
+            mixer.find_channel().play(effect)
+        except AttributeError:
+            mixer.Channel(20).play(effect)
 
 channels: set[mixer.Channel] = set()
 def get_channel() -> mixer.Channel:
@@ -1230,7 +1238,7 @@ def click(event):
                 powerups[1] = 1
             c.itemconfig(selected,image=empty_block)
             
-            play_sound_effect(axe)
+            play_sound_effect(axeused)
             score += 120*level
             update_text()
             c.itemconfig(scoredisp,text=score)
@@ -1264,7 +1272,7 @@ def click(event):
                 powerups[3] = 1
             c.itemconfig(selected,image=empty_block)
             
-            play_sound_effect(starnoise)
+            play_sound_effect(starused)
             score += 300*level
             update_text()
             c.itemconfig(scoredisp,text=score)
