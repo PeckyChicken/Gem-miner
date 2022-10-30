@@ -35,6 +35,7 @@ busy = False
 reqscore = 500
 mode = "none"
 display = False
+selecting = False
 
 
 music_on = True
@@ -158,10 +159,13 @@ time_bgs = [PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/Time/time_b
             PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/Time/time_bg3.png"),
             PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/Time/time_bg4.png"),]
 
+vdiamonds = {}
+for ani in ["Red","Green","Yellow","Blue"]:
+    vdiamonds[ani.lower()] = [PhotoImage(file = filepath+f"Gem miner/Images/Animations/Diamonds/Vertical/{ani}/frame{i}.png") for i in range(1,10)]
+
 obstacle_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/obstacle_bg.png")
 
 diceused = [PhotoImage(file = filepath+"Gem miner/Images/Animations/Dice/dice1.png")]
-
 
 
 titlebg = c.create_image(WIDTH/2,HEIGHT/2,image=titlebgimage)
@@ -1380,9 +1384,19 @@ def click(event):
                     
                     play_sound_effect(drillcreated)
                 elif len(lines) == 5:
-                    set_square(selcolor+6,row,column) #finds the lines with 5 gems and changes them into a diamond
-                    
+                    #finds the lines with 5 gems and changes them into a diamond
                     play_sound_effect(diamondcreated)
+                    print(direction)
+                    if direction == "V":
+                        if selcolor == 1: #Red
+                            draw_animation(row,column,vdiamonds["red"],100)
+                        elif selcolor == 2: #Yellow
+                            draw_animation(row,column,vdiamonds["yellow"],100)
+                        elif selcolor == 3: #Green
+                            draw_animation(row,column,vdiamonds["green"],100)
+                        elif selcolor == 4: #Blue
+                            draw_animation(row,column,vdiamonds["blue"],100)
+                    set_square(selcolor+6,row,column)
                 elif len(lines) >= 6: #finds the lines with 6 or more gems and changes them into a bomb. gems used in 2 lines count twice
                     set_square(11,row,column)
                     
