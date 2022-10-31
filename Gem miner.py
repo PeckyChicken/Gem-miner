@@ -278,8 +278,8 @@ musicsquare = c.create_image(25,475,image=music)
 
 #Buttons
 grid = [0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,
+        0,8,0,0,0,0,0,
+        0,0,11,0,0,0,0,
         0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,
@@ -632,15 +632,15 @@ def play_place_sound(): #only putting it in a function by itself so i can call i
 
 def time_rush():
     base_time = 1000
-    window.after(floor(base_time),time_rush)
-            
+    loop3 = window.after(floor(base_time),time_rush)
+    if gameover_check():
+        c.itemconfig(bg_image,image=bg)
+        window.after_cancel(loop3)
+        return
     for _ in range(level):
         if 0 in grid:
             play_sound_effect(brickplaced)
         set_brick()
-    if gameover_check():
-        c.itemconfig(bg_image,image=bg)
-        return
 
 def time_bg(index = 0):
     #if not music_on:
@@ -896,7 +896,7 @@ def clear_2_lines(row,column):
 def big_bang(row,column):
     global score
     score += 50*level
-    explode(row,column,4)
+    explode(row,column,3)
     set_square(0,row,column)
 
 def handle_items(item,row,column):
@@ -946,15 +946,41 @@ def handle_items(item,row,column):
     update_text()
     return False
 
+def clear_colors(row,column):
+    global score
+    play_sound_effect(diamondused)
+    busy = False
+    for i in range(len(grid)):
+        if grid[i] == lookup(row,column)-6: #sets all colors of the same to gray
+            currow, curcolumn = i%7,floor(i/7)
+            draw_animation(currow,curcolumn,breaking,75)
+            
+            play_sound_effect(remove)
+            set_square(0,currow,curcolumn)
+            score += 10*level
+            c.itemconfig(scoredisp,text=score)
+            update_text()
+    score += 100*level
+    update_text()
+    c.itemconfig(scoredisp,text=score)
+    draw_animation(row,column,breaking,100)
+    set_square(0,row,column) #removes the current diamond
+    if all(0==x for x in grid):
+        score += 50*level
+        update_text()
+        c.itemconfig(scoredisp,text=score)
+        window.after(1000,reset_color)
+        window.after(1000,play_place_sound)
+    update_text()
+
 def clear_line(direction,row,column,sound=True):
     global score
-    # #Reusing code from the SetSquare() function, because the SetSquare function runs some unwanted code
-    # itemid = column*GRIDROWS + row 
-    # grid[itemid] = 0 #replaces the current color with the new one
 
     if sound:
         play_sound_effect(drillused)
+    queue: callable = []
     for square in range(GRIDROWS):
+        delete = True
         curx, cury = square if direction == "H" else row, square if direction == "V" else column
         cursquare = lookup(curx,cury)
         draw_animation(curx,cury,breaking,100)
@@ -968,13 +994,20 @@ def clear_line(direction,row,column,sound=True):
                 play_sound_effect(remove)
             update_text()
             c.itemconfig(scoredisp,text=score)
-            #     #This bit here makes sure that it does not set off any drills directly next to it, 
-            #     #as they would have been combined to clear 2 lines. It also makes sure that it doesnt set itself off
-            # if cursquare == 5:
-            #     clearline("V",curx,cury)
-            # if cursquare == 6:
-            #     clearline("H",curx,cury)
-        set_square(0,curx,cury) #sets all squares in the column to blank
+
+            if (curx,cury) != (row,column):
+                func, functype = chain(curx, cury)
+                if func is not None:
+                    if functype in ("bomb"):
+                        func()
+                    else:
+                        delete = False
+                        queue.append(func)
+
+        if delete:      
+            set_square(0,curx,cury) #sets all squares in the column to blank
+    for item in queue:
+        item()
     if all(0==x for x in grid):
         score += 50*level
         update_text()
@@ -1322,31 +1355,7 @@ def click(event):
                 if lookup(row,column) > 6 and lookup(row,column) < 11: #its a diamond
                     busy = True
                     if handle_items("diamond",row,column): return
-                    
-                    play_sound_effect(diamondused)
-                    busy = False
-                    for i in range(len(grid)):
-                        if grid[i] == lookup(row,column)-6: #sets all colors of the same to gray
-                            currow, curcolumn = i%7,floor(i/7)
-                            draw_animation(currow,curcolumn,breaking,75)
-                            
-                            play_sound_effect(remove)
-                            set_square(0,currow,curcolumn)
-                            score += 10*level
-                            c.itemconfig(scoredisp,text=score)
-                            update_text()
-                    score += 100*level
-                    update_text()
-                    c.itemconfig(scoredisp,text=score)
-                    draw_animation(row,column,breaking,100)
-                    set_square(0,row,column) #removes the current diamond
-                    if all(0==x for x in grid):
-                        score += 50*level
-                        update_text()
-                        c.itemconfig(scoredisp,text=score)
-                        window.after(1000,reset_color)
-                        window.after(1000,play_place_sound)
-                    update_text()
+                    clear_colors(row,column)
                     return
                 if lookup(row,column) == 11: #its a bomb
                     busy = True
@@ -1517,17 +1526,43 @@ def clear_diagonal_lines(row,column):
         currow -= 1
         curcolumn += 1
 
+def chain(x,y):
+    cursquare = lookup(x,y)
+    func: callable|None = None
+    functype: str|None = None
+    if cursquare == 5: 
+        func = (lambda x=x,y=y: clear_line("V",x,y))
+        functype = "line"
+    if cursquare == 6:
+        func = (lambda x=x,y=y: clear_line("H",x,y))
+        functype = "line"
+    if cursquare == 11:
+        func = (lambda x=x,y=y: explode(x,y,1))
+        functype = "bomb"
+    if 7 <= cursquare <= 10:
+        func = (lambda x=x,y=y: clear_colors(x,y))
+        functype = "diamond"
+    return func, functype
+
 def explode(row, column, radius):
     global score
-    
+    queue = []
     play_sound_effect(explosion)
-    for i in range(row-radius,row+radius+1):
-        for j in range(column-radius,column+radius+1):
-            if not(i < 0 or i > 6 or j < 0 or j > 6):
-                set_square(0,i,j)
+    for x in range(row-radius,row+radius+1):
+        for y in range(column-radius,column+radius+1):
+            if not(x < 0 or x > 6 or y < 0 or y > 6):
+                func = None
+                if (x,y) != (row,column):
+                    func, _ = chain(x,y)
+                if func is not None:
+                    queue.append(func)
+                else:
+                    set_square(0,x,y)
                 score += level
     set_square(0,row,column)
     draw_animation(row,column,explosions,75)
+    for item in queue:
+        item()
     if all(0==x for x in grid):
         toast("Board cleared!", 1)
         score += 50*level
