@@ -160,8 +160,10 @@ time_bgs = [PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/Time/time_b
             PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/Time/time_bg4.png"),]
 
 vdiamonds = {}
+hdiamonds = {}
 for ani in ["Red","Green","Yellow","Blue"]:
     vdiamonds[ani.lower()] = [PhotoImage(file = filepath+f"Gem miner/Images/Animations/Diamonds/Vertical/{ani}/frame{i}.png") for i in range(1,10)]
+    hdiamonds[ani.lower()] = [PhotoImage(file = filepath+f"Gem miner/Images/Animations/Diamonds/Horizontal/{ani}/frame{i}.png") for i in range(1,10)]
 
 obstacle_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/obstacle_bg.png")
 
@@ -586,7 +588,7 @@ def detect_line(x,y):
         xcount == 0
         xusedsquares.clear()
     if xcount == 5: #Return if already a diamond
-        return xusedsquares, "V"
+        return xusedsquares, "H"
     if len(xusedsquares)+len(usedsquares) >= 6:
         return xusedsquares+usedsquares,"HV"
     elif len(xusedsquares) >= 3:
@@ -1386,16 +1388,15 @@ def click(event):
                 elif len(lines) == 5:
                     #finds the lines with 5 gems and changes them into a diamond
                     play_sound_effect(diamondcreated)
-                    print(direction)
-                    if direction == "V":
-                        if selcolor == 1: #Red
-                            draw_animation(row,column,vdiamonds["red"],100)
-                        elif selcolor == 2: #Yellow
-                            draw_animation(row,column,vdiamonds["yellow"],100)
-                        elif selcolor == 3: #Green
-                            draw_animation(row,column,vdiamonds["green"],100)
-                        elif selcolor == 4: #Blue
-                            draw_animation(row,column,vdiamonds["blue"],100)
+                    diamonds = vdiamonds if direction == 'V' else hdiamonds
+                    if selcolor == 1: #Red
+                        draw_animation(row,column,diamonds["red"],100)
+                    elif selcolor == 2: #Yellow
+                        draw_animation(row,column,diamonds["yellow"],100)
+                    elif selcolor == 3: #Green
+                        draw_animation(row,column,diamonds["green"],100)
+                    elif selcolor == 4: #Blue
+                        draw_animation(row,column,diamonds["blue"],100)
                     set_square(selcolor+6,row,column)
                 elif len(lines) >= 6: #finds the lines with 6 or more gems and changes them into a bomb. gems used in 2 lines count twice
                     set_square(11,row,column)
