@@ -398,8 +398,9 @@ def game_over_music():
 
 def stop_music():
     global repeats, channels
-    for idx,channel in enumerate(channels):
+    for channel in channels:
         channel.stop()
+    channels.clear()
     errors = 0 #Should just be one of these
     try:
         window.after_cancel(loop)
