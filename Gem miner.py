@@ -210,6 +210,7 @@ gameover2 = mixer.Sound(filepath+"Gem miner/Music/gameover2.ogg")
 obstacle = mixer.Sound(filepath+"Gem miner/Music/obstacle.ogg")
 clicked = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/click.wav")
 clocktick = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/clocktick.wav")
+brickplaced = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/brick_placed.wav")
 specialadvance = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/you_know_not_what_this_is.wav")
 
 #Sets the volume of the music
@@ -374,10 +375,10 @@ def time_music():
     global repeats, loop
     if repeats == 0:
         get_channel().play(time1)
-        loop = window.after(8720,time_music)
+        loop = window.after(8000,time_music)
     else:
         get_channel().play(time2)
-        loop = window.after(34880,time_music)
+        loop = window.after(32000,time_music)
     repeats += 1
 
 def obstacle_music():
@@ -630,21 +631,25 @@ def play_place_sound(): #only putting it in a function by itself so i can call i
     play_sound_effect(placed)
 
 def time_rush():
-    set_brick()
+    base_time = 1000
+    window.after(floor(base_time),time_rush)
+            
+    for _ in range(level):
+        if 0 in grid:
+            play_sound_effect(brickplaced)
+        set_brick()
     if gameover_check():
         c.itemconfig(bg_image,image=bg)
         return
-    base_time = 1090
-    window.after(round(mean([base_time/level,base_time])),time_rush)
 
 def time_bg(index = 0):
-    if not music_on:
-        play_sound_effect(clocktick)
+    #if not music_on:
+        #play_sound_effect(clocktick)
     if gameover:
         return
     else:
         c.itemconfig(bg_image,image=time_bgs[index])
-        window.after(545,time_bg,(index+1)%4) 
+        window.after(500,time_bg,(index+1)%4) 
 
 
 def start():
