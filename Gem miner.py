@@ -166,6 +166,7 @@ for ani in ["Red","Green","Yellow","Blue"]:
     hdiamonds[ani.lower()] = [PhotoImage(file = filepath+f"Gem miner/Images/Animations/Diamonds/Horizontal/{ani}/frame{i}.png") for i in range(1,10)]
 
 obstacle_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/obstacle_bg.png")
+sandbox_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/sandbox_bg.png")
 
 diceused = [PhotoImage(file = filepath+"Gem miner/Images/Animations/Dice/dice1.png")]
 
@@ -207,6 +208,8 @@ time2 = mixer.Sound(filepath+"Gem miner/Music/time2.ogg")
 advance = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/nextlevel.wav")
 gameover1 = mixer.Sound(filepath+"Gem miner/Music/gameover1.ogg")
 gameover2 = mixer.Sound(filepath+"Gem miner/Music/gameover2.ogg")
+sandbox1 = mixer.Sound(filepath+"Gem miner/Music/sandbox1.ogg")
+sandbox2 = mixer.Sound(filepath+"Gem miner/Music/sandbox2.ogg")
 obstacle = mixer.Sound(filepath+"Gem miner/Music/obstacle.ogg")
 clicked = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/click.wav")
 clocktick = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/clocktick.wav")
@@ -224,6 +227,8 @@ mixer.Sound.set_volume(time2,music_vol)
 mixer.Sound.set_volume(obstacle,music_vol)
 mixer.Sound.set_volume(gameover1,music_vol)
 mixer.Sound.set_volume(gameover2,music_vol)
+mixer.Sound.set_volume(sandbox1,music_vol)
+mixer.Sound.set_volume(sandbox2,music_vol)
 mixer.Sound.set_volume(mode_select,music_vol)
 
 #Sets the volume of the sound effects
@@ -307,13 +312,15 @@ class GameButton:
         c.itemconfig(self.image,state=[HIDDEN,NORMAL][visible])
         c.itemconfig(self.text,state=[HIDDEN,NORMAL][visible])
 
+
 #Makes all the title screen buttons
 startb = GameButton("Start",-35,False)
 helpb = GameButton("How to play",35,False)
 
-normalb = GameButton("Normal",-35,True)
-timeb = GameButton("Time Rush",35,True)
-obstacleb = GameButton("Obstacles",105,True)
+normalb = GameButton("Normal",-105,True)
+timeb = GameButton("Time Rush",-35,True)
+obstacleb = GameButton("Obstacles",35,True)
+sandboxb = GameButton("Sandbox",105,True)
 
 playb = GameButton("Play again",95,True)
 
@@ -379,6 +386,16 @@ def time_music():
     else:
         get_channel().play(time2)
         loop = window.after(32000,time_music)
+    repeats += 1
+
+def sandbox_music():
+    global repeats, loop
+    if repeats == 0:
+        get_channel().play(sandbox1)
+        loop = window.after(4800,sandbox_music)
+    else:
+        get_channel().play(sandbox2)
+        loop = window.after(60000,sandbox_music)
     repeats += 1
 
 def obstacle_music():
@@ -499,7 +516,7 @@ def next_level():
             powerupvalues[randint(0,len(powerupvalues)-1)] += 1
             powerups[:] = [1 if i else 0 for i in powerupvalues]
             draw_powerups()
-        else:
+        elif mode != "sandbox":
             powerups = [1]*5
             powerupvalues = [1]*5
             draw_powerups()
@@ -662,7 +679,10 @@ def start():
     if mode == "time":
         time_bg()
         time_rush()
-    powerups = powerupvalues = [1]*5
+    if mode == "sandbox":
+        powerups = [1,0,0,0,1]
+    else:
+        powerups = powerupvalues = [1]*5
     draw_powerups()
 
     c.itemconfig(scoredisp,state=NORMAL)
@@ -676,7 +696,6 @@ def start():
     if mode == "obstacle":
         c.itemconfig(goaltext,text="Moves")
         c.itemconfig(goaldisp,text=str(moves))
-        c.itemconfig(bg_image,image=obstacle_bg)
     else:
         c.itemconfig(goaltext,text="Goal")
 
@@ -688,10 +707,13 @@ def start():
     normalb.set_visible(False)
     timeb.set_visible(False)
     obstacleb.set_visible(False)
+    sandboxb.set_visible(False)
     if mode == "obstacle":
         c.itemconfig(bg_image,image=obstacle_bg)
     elif mode == "normal":
         c.itemconfig(bg_image,image=bg)
+    elif mode == "sandbox":
+        c.itemconfig(bg_image,image=sandbox_bg)
     
     c.itemconfig(highscoretext,state=HIDDEN)
 
@@ -705,12 +727,16 @@ def start():
             time_music()
         elif mode == "obstacle":
             obstacle_music()
+        elif mode == "sandbox":
+            repeats = 0
+            sandbox_music()
         
     update_text(nextlevel=False)
-    if mode != "obstacle":
+    if mode not in ("obstacle","sandbox"):
         for _ in range(4):
             set_brick()
-    set_brick()
+    if mode != "sandbox":
+        set_brick()
 
 def clear_board():
     global score, grid, busy
@@ -1081,6 +1107,9 @@ def click(event):
                     time_music()
                 elif mode == "obstacle":
                     obstacle_music()
+                elif mode == "sandbox":
+                    repeats = 0
+                    sandbox_music()
             else:
                 if selecting:
                     select_music()
@@ -1205,7 +1234,7 @@ def click(event):
             c.itemconfig(selected,image=star)
             toast("Clear a line in every direction from the Star.")
             return
-        if inside(445,365,495,415,mousex,mousey) and powerups[4] != 0: #is shuffle clicked?.
+        if inside(445,365,495,415,mousex,mousey) and powerups[4] != 0: #is shuffle clicked?
             if powerups[4] == 1:
                 powerups = [1 if elem==2 else elem for elem in powerups]
                 if canplace:
@@ -1224,7 +1253,9 @@ def click(event):
             
             play_sound_effect(shufflesound)
             c.itemconfig(scoredisp,text=score)
-            powerupvalues[4] -= 1
+            
+            if mode != "sandbox":
+                powerupvalues[4] -= 1
             if powerupvalues[4] == 0:
                 powerups[4] = 0
                 c.itemconfig(shufflesquare,state=HIDDEN)
@@ -1232,8 +1263,15 @@ def click(event):
                 powerups[4] = 1
             c.itemconfig(selected,image=empty_block)
             #sets the pit to random colors
+            color = pit[1]
             for i in range(2,-1,-1):
-                set_pit(choice([j for j in range(1,4) if j != pit[i]]),i)
+                if mode == "sandbox":
+                    if (color+1) % 5 != color+1:
+                        set_pit ((color+1)%5+1,i)
+                    else:
+                        set_pit ((color+1),i)
+                else:
+                    set_pit(choice([j for j in range(1,4) if j != pit[i]]),i)
                 draw_animation(i*3,8,diceused,20)
                 draw_pit()
             gameover_check()
@@ -1252,7 +1290,8 @@ def click(event):
                 
                 play_sound_effect(nomatch)
             else:
-                powerupvalues[0] -= 1
+                if mode != "sandbox":
+                    powerupvalues[0] -= 1
                 if powerupvalues[0] == 0:
                     powerups[0] = 0
                     c.itemconfig(pickaxesquare,state=HIDDEN)
@@ -1377,7 +1416,8 @@ def click(event):
                     (row < 6 and lookup(row+1,column)) or
                     (column < 6 and lookup(row,column+1)) or
                     (column > 0 and lookup(row,column-1))
-                    )):
+                    )
+                    or mode == "sandbox"):
                 pit = [randint(1,4) if elem==0 else elem for elem in pit]
                 draw_pit()
                 set_square(selcolor,row,column)
@@ -1469,6 +1509,14 @@ def click(event):
                 mode = "obstacle"
                 started = True
                 start()
+            if sandboxb.is_clicked(mousex,mousey):
+                play_sound_effect(clicked)
+                mode = "sandbox"
+                started = True
+                set_pit(1,0)
+                set_pit(1,1)
+                set_pit(1,2)
+                start()
         else:
             if startb.is_clicked(mousex,mousey):
                 display_modes()
@@ -1489,7 +1537,7 @@ def display_modes(music=False):
     for item in [startb,helpb]:
         item.set_visible(FALSE)
 
-    for item in [normalb,timeb,obstacleb]:
+    for item in [normalb,timeb,obstacleb,sandboxb]:
         item.set_visible(True)
 
 def clear_diagonal_lines(row,column):
