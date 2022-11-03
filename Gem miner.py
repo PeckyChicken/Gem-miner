@@ -520,7 +520,7 @@ def next_level():
             powerups[:] = [1 if i else 0 for i in powerupvalues]
         else:
             powerups = [1]*5
-            powerupvalues[:] = powerupvalues
+            powerupvalues = [1]*5
         draw_powerups()
         if mode == "obstacle":
             moves += level
@@ -1298,6 +1298,7 @@ def click(event):
                     c.itemconfig(pickaxesquare,state=HIDDEN)
                 else:
                     powerups[0] = 1
+                    c.itemconfig(pickaxesquare,state=HIDDEN)
                 c.itemconfig(selected,image=empty_block)    
                 
                 play_sound_effect(pickused)
