@@ -117,6 +117,12 @@ sfx = PhotoImage(file = filepath+"Gem miner/Images/UI/sfx_yes.png")
 nomusic = PhotoImage(file = filepath+"Gem miner/Images/UI/music_no.png")
 nosfx = PhotoImage(file = filepath+"Gem miner/Images/UI/sfx_no.png")
 
+obstaclecard = PhotoImage(file = filepath+"Gem miner/Images/UI/obstacles_card.png")
+survivalcard = PhotoImage(file = filepath+"Gem miner/Images/UI/survival_card.png")
+timecard = PhotoImage(file = filepath+"Gem miner/Images/UI/time_card.png")
+fade_image = PhotoImage(file = filepath+"Gem miner/Images/UI/fade.png")
+
+
 explosions = [PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion1.png"), 
               PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion2.png"), 
               PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion3.png"), 
@@ -158,6 +164,7 @@ time_bgs = [PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/Time/time_b
             PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/Time/time_bg2.png"),
             PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/Time/time_bg3.png"),
             PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/Time/time_bg4.png"),]
+
 
 vdiamonds = {}
 hdiamonds = {}
@@ -211,6 +218,7 @@ clicked = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/click.wav")
 clocktick = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/clocktick.wav")
 brickplaced = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/brick_placed.wav")
 specialadvance = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/you_know_not_what_this_is.wav")
+startsound = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/start.wav")
 
 #Sets the volume of the music
 music_vol = 0.25
@@ -246,8 +254,11 @@ mixer.Sound.set_volume(shufflesound,sound_vol)
 mixer.Sound.set_volume(axeused,sound_vol)
 mixer.Sound.set_volume(starused,sound_vol)
 mixer.Sound.set_volume(advance,sound_vol)
+mixer.Sound.set_volume(specialadvance,sound_vol)
 mixer.Sound.set_volume(clicked,sound_vol)
 mixer.Sound.set_volume(clocktick,sound_vol)
+mixer.Sound.set_volume(brickplaced,sound_vol)
+mixer.Sound.set_volume(startsound,sound_vol)
 
 
 powerups = [1,1,1,1,1] #sets up the powerup squares
@@ -315,9 +326,11 @@ class GameButton:
 startb = GameButton("Start",-35,False)
 helpb = GameButton("How to play",35,False)
 
-normalb = GameButton("Normal",-105,True)
-timeb = GameButton("Time Rush",-35,True)
-obstacleb = GameButton("Obstacles",35,True)
+survivalb = GameButton("Survival",-35,True)
+timeb = GameButton("Time Rush",35,True)
+obstacleb = GameButton("Obstacles",105,True)
+
+
 
 playb = GameButton("Play again",95,True)
 
@@ -496,7 +509,7 @@ def next_level():
     if level_complete:
         cancel_ani = True
         level += 1
-        if mode == "normal" and level%10 == 0:
+        if mode == "survival" and level%10 == 0:
             play_sound_effect(specialadvance)
         else:
             play_sound_effect(advance)
@@ -638,9 +651,9 @@ def time_rush():
         c.itemconfig(bg_image,image=bg)
         window.after_cancel(loop3)
         return
+    if 0 in grid:
+        play_sound_effect(brickplaced)
     for _ in range(level):
-        if 0 in grid:
-            play_sound_effect(brickplaced)
         set_brick()
 
 def time_bg(index = 0):
@@ -652,6 +665,26 @@ def time_bg(index = 0):
         c.itemconfig(bg_image,image=time_bgs[index])
         window.after(500,time_bg,(index+1)%4) 
 
+def start_part_2(card, fade):
+    global started, repeats
+    started = True
+    if mode == "time":
+        time_bg()
+        time_rush()
+    if music_on:
+        if mode == "survival":
+            [game_music,game_music2][track]()
+        elif mode == "time":
+            repeats = 0
+            time_music()
+        elif mode == "obstacle":
+            obstacle_music()
+    c.delete(card[0])
+    c.delete(fade[0])
+    if mode != "obstacle":
+        for _ in range(4):
+            set_brick()
+    set_brick()
 
 def start():
     global repeats,track,powerups,powerupvalues, level
@@ -660,11 +693,9 @@ def start():
     draw_powerups()
     draw_board()
     draw_pit()
-    if mode == "time":
-        time_bg()
-        time_rush()
-    else:
-        powerups = powerupvalues = [1]*5
+
+
+    powerups = powerupvalues = [1]*5
     draw_powerups()
 
     c.itemconfig(scoredisp,state=NORMAL)
@@ -686,33 +717,32 @@ def start():
 
     startb.set_visible(False)
     helpb.set_visible(False)
-    normalb.set_visible(False)
+    survivalb.set_visible(False)
     timeb.set_visible(False)
     obstacleb.set_visible(False)
+
+    fade = [c.create_image(WIDTH/2,HEIGHT/2,image=fade_image)]
     if mode == "obstacle":
         c.itemconfig(bg_image,image=obstacle_bg)
-    elif mode == "normal":
+        card = [c.create_image(WIDTH/2,HEIGHT/2,image=obstaclecard)]
+    elif mode == "time":
+        c.itemconfig(bg_image,image=time_bgs[0])
+        card = [c.create_image(WIDTH/2,HEIGHT/2,image=timecard)]
+    elif mode == "survival":
         c.itemconfig(bg_image,image=bg)
+        card = [c.create_image(WIDTH/2,HEIGHT/2,image=survivalcard)]
+
 
     
     c.itemconfig(highscoretext,state=HIDDEN)
 
     stop_music()
+    if sfx_on:
+        play_sound_effect(startsound)
     track = randint(0,1)
-    if music_on:
-        if mode == "normal":
-            [game_music,game_music2][track]()
-        elif mode == "time":
-            repeats = 0
-            time_music()
-        elif mode == "obstacle":
-            obstacle_music()
-        
+    window.after(3600,start_part_2,card,fade)
     update_text(nextlevel=False)
-    if mode != "obstacle":
-        for _ in range(4):
-            set_brick()
-    set_brick()
+
 
 def clear_board():
     global score, grid, busy
@@ -1076,7 +1106,7 @@ def click(event):
                 if gameover:
                     if not sfx_on:
                         game_over_music()
-                elif mode == "normal":
+                elif mode == "survival":
                     [game_music,game_music2][track]()
                 elif mode == "time":
                     repeats = 0
@@ -1439,7 +1469,7 @@ def click(event):
                     play_place_sound()
                     score += level
                     update_text()
-                    if mode == "normal":
+                    if mode == "survival":
                         for _ in range(level): #Puts more bricks on the board
                             set_brick()
                 next_level()
@@ -1457,22 +1487,19 @@ def click(event):
                 canplace = False
     else:
         if display:
-            if normalb.is_clicked(mousex,mousey):
+            if survivalb.is_clicked(mousex,mousey):
                 play_sound_effect(clicked)
-                mode = "normal"
-                started = True
+                mode = "survival"
                 start()
 
             if timeb.is_clicked(mousex,mousey):
                 play_sound_effect(clicked)
                 mode = "time"
-                started = True
                 start()
 
             if obstacleb.is_clicked(mousex,mousey):
                 play_sound_effect(clicked)
                 mode = "obstacle"
-                started = True
                 start()
         else:
             if startb.is_clicked(mousex,mousey):
@@ -1494,7 +1521,7 @@ def display_modes(music=False):
     for item in [startb,helpb]:
         item.set_visible(FALSE)
 
-    for item in [normalb,timeb,obstacleb]:
+    for item in [survivalb,timeb,obstacleb]:
         item.set_visible(True)
 
 def clear_diagonal_lines(row,column):
