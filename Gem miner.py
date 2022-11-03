@@ -173,6 +173,7 @@ for ani in ["Red","Green","Yellow","Blue"]:
     hdiamonds[ani.lower()] = [PhotoImage(file = filepath+f"Gem miner/Images/Animations/Diamonds/Horizontal/{ani}/frame{i}.png") for i in range(1,10)]
 
 obstacle_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/obstacle_bg.png")
+survival_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/survival_bg.png")
 diceused = [PhotoImage(file = filepath+"Gem miner/Images/Animations/Dice/dice1.png")]
 
 
@@ -430,7 +431,8 @@ def stop_music():
     except NameError: 
         errors += 1
     if errors != 1:
-        print(f"LOG: Error found in function stop_music(), the number of errors were:\n{errors}.\nExpected:\n1.")
+        #print(f"LOG: Error found in function stop_music(), the number of errors were:\n{errors}.\nExpected:\n1.")
+        pass
     repeats = 0
 
 def draw_board():
@@ -729,7 +731,7 @@ def start():
         c.itemconfig(bg_image,image=time_bgs[0])
         card = [c.create_image(WIDTH/2,HEIGHT/2,image=timecard)]
     elif mode == "survival":
-        c.itemconfig(bg_image,image=bg)
+        c.itemconfig(bg_image,image=survival_bg)
         card = [c.create_image(WIDTH/2,HEIGHT/2,image=survivalcard)]
 
 
@@ -979,7 +981,7 @@ def handle_items(item,row,column):
     return False
 
 def clear_colors(row,column):
-    global score
+    global score, busy
     play_sound_effect(diamondused)
     busy = False
     for i in range(len(grid)):
