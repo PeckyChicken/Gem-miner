@@ -518,7 +518,10 @@ def next_level():
         if mode == "obstacle":
             powerupvalues[randint(0,len(powerupvalues)-1)] += 1
             powerups[:] = [1 if i else 0 for i in powerupvalues]
-            draw_powerups()
+        else:
+            powerups = [1]*5
+            powerupvalues[:] = powerupvalues
+        draw_powerups()
         if mode == "obstacle":
             moves += level
             update_text(False)
