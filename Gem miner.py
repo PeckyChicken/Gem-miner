@@ -5,6 +5,10 @@ from math import floor
 from random import choice, randint, shuffle
 from turtle import update
 from pygame import mixer, init
+
+from lines import *
+from animations import *
+
 mixer.pre_init(48000, -16, 1, 512)
 init()
 mixer.init()
@@ -30,6 +34,7 @@ PITSQUAREY = 425
 moves = 15
 score = 0
 level = 1
+cutscene = False
 track = 0
 busy = False
 reqscore = 500
@@ -105,12 +110,8 @@ restart = PhotoImage(file = filepath+"Gem miner/Images/UI/restartbutton.png")
 button = PhotoImage(file = filepath+"Gem miner/Images/UI/button.png")
 titlebgimage = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/titlebg.png")
 
-tut1 = PhotoImage(file = filepath+"Gem miner/Images/Tutorial/tutorial1.png")
-tut2 = PhotoImage(file = filepath+"Gem miner/Images/Tutorial/tutorial2.png")
-tut3 = PhotoImage(file = filepath+"Gem miner/Images/Tutorial/tutorial3.png")
-tut4 = PhotoImage(file = filepath+"Gem miner/Images/Tutorial/tutorial4.png")
-tut5 = PhotoImage(file = filepath+"Gem miner/Images/Tutorial/tutorial5.png")
-tut6 = PhotoImage(file = filepath+"Gem miner/Images/Tutorial/tutorial6.png")
+tut1,tut2,tut3,tut4,tut5,tut6 = create_animation(filepath+"Gem miner/Images/Tutorial","tutorial")
+
 
 music = PhotoImage(file = filepath+"Gem miner/Images/UI/music_yes.png")
 sfx = PhotoImage(file = filepath+"Gem miner/Images/UI/sfx_yes.png")
@@ -123,47 +124,15 @@ timecard = PhotoImage(file = filepath+"Gem miner/Images/UI/time_card.png")
 fade_image = PhotoImage(file = filepath+"Gem miner/Images/UI/fade.png")
 
 
-explosions = [PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion1.png"), 
-              PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion2.png"), 
-              PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion3.png"), 
-              PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion4.png"), 
-              PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion5.png"), 
-              PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion6.png"), 
-              PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion7.png"), 
-              PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion8.png"), 
-              PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion9.png"), 
-              PhotoImage(file = filepath+"Gem miner/Images/Animations/Explosion/explosion10.png")]
+explosions = create_animation(filepath+"Gem miner/Images/Animations/Explosion","explosion")
 
-breaking = [PhotoImage(file = filepath+"Gem miner/Images/Animations/Smoke/vdrill1.png"),
-           PhotoImage(file = filepath+"Gem miner/Images/Animations/Smoke/vdrill2.png"),
-           PhotoImage(file = filepath+"Gem miner/Images/Animations/Smoke/vdrill3.png"),
-           PhotoImage(file = filepath+"Gem miner/Images/Animations/Smoke/vdrill4.png"),
-           PhotoImage(file = filepath+"Gem miner/Images/Animations/Smoke/vdrill5.png"),
-           PhotoImage(file = filepath+"Gem miner/Images/Animations/Smoke/vdrill6.png"),
-           PhotoImage(file = filepath+"Gem miner/Images/Animations/Smoke/vdrill7.png"),
-           PhotoImage(file = filepath+"Gem miner/Images/Animations/Smoke/vdrill8.png"),
-           PhotoImage(file = filepath+"Gem miner/Images/Animations/Smoke/vdrill9.png"),
-           PhotoImage(file = filepath+"Gem miner/Images/Animations/Smoke/vdrill10.png")]
+breaking = create_animation(filepath+"Gem miner/Images/Animations/Smoke","smoke")
 
-brickplace = [PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Placing/brickplace1.png"),
-              PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Placing/brickplace2.png"),
-              PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Placing/brickplace3.png"),
-              PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Placing/brickplace4.png"),
-              PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Placing/brickplace5.png"),
-              PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Placing/brickplace6.png"),
-              PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Placing/brickplace7.png"),
-              PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Placing/brickplace8.png")]
+brickplace = create_animation(filepath+"Gem miner/Images/Animations/Bricks/Placing","brickplace")
 
-brickbreaking = [PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Breaking/brickbreak1.png"),
-                 PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Breaking/brickbreak2.png"),
-                 PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Breaking/brickbreak3.png"),
-                 PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Breaking/brickbreak4.png"),
-                 PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/Breaking/brickbreak5.png"),]
+brickbreaking = create_animation(filepath+"Gem miner/Images/Animations/Bricks/Breaking","brickbreak")
 
-time_bgs = [PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/Time/time_bg1.png"),
-            PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/Time/time_bg2.png"),
-            PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/Time/time_bg3.png"),
-            PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/Time/time_bg4.png"),]
+time_bgs = create_animation(filepath+"Gem miner/Images/Backgrounds/Time","time_bg")
 
 
 vdiamonds = {}
@@ -553,84 +522,7 @@ def get_pos(gridx,gridy):
 def set_pit(color,pos):
     pit[pos] = color #changes color of the pit objects
 
-def detect_line(x,y):
-    count = 0
-    usedsquares = list()
-    curx = x
-    cury = y
-    #Moves down as far as there are matches
-    while lookup(curx,cury) == lookup(x,y):
-        count += 1
-        usedsquares.append([curx,cury]) #add the current match to the list
-        cury += 1 #move it down one
-        if cury >= 7: break #stop it from overflowing
-    if count != 0:
-        curx = x
-        cury = y-1 #subtracts one so it doesnt double count the first one
-        #Once it has finished if it found anything it goes back up to look for other matches
-        while lookup(curx,cury) == lookup(x,y):
-            if cury < 0: break
-            count += 1 
-            usedsquares.append([curx,cury]) #add the current match to the list
-            cury -= 1 #move it up one row
-    
-    #Does it again for the up direction, doesnt need to check for down because it just did that
-    while lookup(curx,cury) == lookup(x,y):
-        if cury < 0: break
-        count += 1 
-        usedsquares.append([curx,cury]) #add the current match to the list
-        cury -= 1 #move it up one row
-    if count == 5: #Return if already a diamond
-        return usedsquares, "V"
-    if count < 3: #If there were no lines that way they do not count
-        count == 0
-        usedsquares.clear()
-    #now for the horizontal lines
-    xcount = 0 #resetting things for the horizontal check
-    xusedsquares = list()
-    curx = x
-    cury = y
-    #checking for anything to the right
-    while lookup(curx,cury) == lookup(x,y):
-        xcount += 1
-        xusedsquares.append([curx,cury]) #add the current match to the list
-        curx += 1 #move it right one column
-        if curx >= 7: break
-    if xcount != 0:
-        curx = x-1 #subtracts one to avoid double counting
-        cury = y
-        #Go back to the left to look for more matches
-        while lookup(curx,cury) == lookup(x,y):
-            if curx < 0: break
-            xcount += 1
-            xusedsquares.append([curx,cury]) #add the current match to the list
-            curx -= 1 #move it back left
-    if xcount < 3: #If there were no lines that way they do not count
-        xcount == 0
-        xusedsquares.clear()
-    if xcount == 5: #Return if already a diamond
-        return xusedsquares, "H"
-    if len(xusedsquares)+len(usedsquares) >= 6:
-        return xusedsquares+usedsquares,"HV"
-    elif len(xusedsquares) >= 3:
-        return xusedsquares,"H"
-    elif len(usedsquares) >= 3:
-        return usedsquares,"V"
-    #Now to check for left on its own
-    while lookup(curx,cury) == lookup(x,y):
-        if curx < 0: break
-        xcount += 1
-        xusedsquares.append([curx,cury]) #add the current match to the list
-        curx -= 1 #move it left one column
-    if xcount == 5:
-        return xusedsquares, "V"
-    if len(xusedsquares)+len(usedsquares) >= 6:
-        return xusedsquares+usedsquares,"HV"
-    elif len(xusedsquares) >= 3:
-        return xusedsquares,"H"
-    elif len(usedsquares) >= 3:
-        return usedsquares,"V"
-    return [],"0"
+
 
 def reset_color(): #sets a random square to a color
     set_square(randint(1,4),randint(0,6),randint(0,6))
@@ -671,8 +563,9 @@ def time_bg(index = 0):
         window.after(500,time_bg,(index+1)%4) 
 
 def start_part_2(card, fade):
-    global started, repeats
+    global started, repeats, cutscene
     started = True
+    cutscene = False
     if mode == "time":
         time_bg()
         time_rush()
@@ -692,13 +585,13 @@ def start_part_2(card, fade):
     set_brick()
 
 def start():
-    global repeats,track,powerups,powerupvalues, level
+    global repeats,track,powerups,powerupvalues, level, cutscene
     reset_color()
     reset_color()
     draw_powerups()
     draw_board()
     draw_pit()
-
+    cutscene = True
 
     powerups = powerupvalues = [1]*5
     draw_powerups()
@@ -1424,7 +1317,7 @@ def click(event):
                 set_square(selcolor,row,column)
                 canplace = False
                 c.itemconfig(selected,image=empty_block)
-                lines,direction = detect_line(row,column) #detects any lines
+                lines,direction = detect_line(row,column,lookup) #detects any lines
                 if mode == "obstacle":
                     moves -= 1
 
