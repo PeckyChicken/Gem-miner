@@ -1,5 +1,7 @@
 Gem miner/highscore.txt
 build/*
 dist/*
+*.pyc
+__
 *.spec
 theme.jsonc
