@@ -37,6 +37,7 @@ advance = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/nextlevel.wav")
 gameover1 = mixer.Sound(filepath+"Gem miner/Music/gameover1.ogg")
 gameover2 = mixer.Sound(filepath+"Gem miner/Music/gameover2.ogg")
 obstacle = mixer.Sound(filepath+"Gem miner/Music/obstacle.ogg")
+chromablitz = mixer.Sound(filepath+"Gem miner/Music/chromablitz.ogg")
 clicked = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/click.wav")
 clocktick = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/clocktick.wav")
 brickplaced = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/brick_placed.wav")
@@ -55,6 +56,7 @@ mixer.Sound.set_volume(obstacle,music_vol)
 mixer.Sound.set_volume(gameover1,music_vol)
 mixer.Sound.set_volume(gameover2,music_vol)
 mixer.Sound.set_volume(mode_select,music_vol)
+mixer.Sound.set_volume(chromablitz,music_vol)
 
 #Sets the volume of the sound effects
 sound_vol = 0.5
@@ -89,3 +91,91 @@ def play_sound_effect(sfx_on,effect):
             mixer.find_channel().play(effect)
         except AttributeError:
             mixer.Channel(20).play(effect)
+
+channels: set[mixer.Channel] = set()
+def get_channel() -> mixer.Channel:
+    global channels
+    channel = mixer.find_channel(True)
+    channels.add(channel)
+    return channel
+
+repeats = 0
+def title_music(window):
+    global repeats, loop
+    if repeats == 0:
+        get_channel().play(title1)
+        loop = window.after(13300,title_music,window)
+    else:
+        get_channel().play(title2)
+        loop = window.after(54850,title_music,window)
+    repeats += 1
+
+def select_music(window):
+    global repeats,loop2
+    get_channel().play(mode_select)
+    loop2 = window.after(69818,select_music,window)
+    repeats += 1
+
+def game_music(window):
+    global repeats,loop2
+    get_channel().play(main1)
+    loop2 = window.after(52377,game_music,window)
+    repeats += 1
+
+def game_music2(window):
+    global repeats,loop2
+    get_channel().play(main2)
+    loop2 = window.after(61075,game_music2)
+    repeats += 1
+
+def time_music(window):
+    global repeats, loop
+    if repeats == 0:
+        get_channel().play(time1)
+        loop = window.after(8000,time_music,window)
+    else:
+        get_channel().play(time2)
+        loop = window.after(32000,time_music,window)
+    repeats += 1
+
+
+def obstacle_music(window):
+    global repeats,loop2
+    get_channel().play(obstacle)
+    loop2 = window.after(56000,obstacle_music,window)
+    repeats += 1
+    
+def game_over_music(window):
+    global repeats, loop2
+    if repeats == 0:
+        get_channel().play(gameover1)
+        loop2 = window.after(643,game_over_music,window)
+    else: 
+        get_channel().play(gameover2)
+        loop2 = window.after(13714,game_over_music,window)
+    repeats += 1
+
+def chroma_music(window):
+    global repeats,loop2
+    get_channel().play(chromablitz)
+    loop2 = window.after(57600,chroma_music,window)
+    repeats += 1
+
+def stop_music(window):
+    global repeats, channels
+    for channel in channels:
+        channel.stop()
+    channels.clear()
+    errors = 0 #Should just be one of these
+    try:
+        window.after_cancel(loop)
+    except NameError: 
+        errors += 1
+    try:
+        window.after_cancel(loop2)
+    except NameError: 
+        errors += 1
+    if errors != 1:
+        #print(f"LOG: Error found in function stop_music(), the number of errors were:\n{errors}.\nExpected:\n1.")
+        pass
+    repeats = 0

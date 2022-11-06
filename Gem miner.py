@@ -9,11 +9,11 @@ from turtle import update
 from lines import *
 from animations import *
 from sounds import *
-
-
+from images import *
 
 filepath = __file__+"/../"
-window = Tk() #sets up window
+
+
 window.title("Gem miner")
 window.iconbitmap(filepath+"Gem miner/icon.ico")
 window.resizable(0, 0)
@@ -81,67 +81,7 @@ toasttext = c.create_text(WIDTH/2,HEIGHT/2 + 150,font=(font,15),text="Click agai
 highscoretext = c.create_text(WIDTH-10,HEIGHT-20,font=(font,15),anchor="e",text=f"High score: {highscore}",fill="#916000")
 clickcount = 0
 
-#imports the images
-red_block = PhotoImage(file = filepath+"Gem miner/Images/Gems/red_gem.png")
-yellow_block = PhotoImage(file = filepath+"Gem miner/Images/Gems/yellow_gem.png")
-green_block = PhotoImage(file = filepath+"Gem miner/Images/Gems/green_gem.png")
-blue_block = PhotoImage(file = filepath+"Gem miner/Images/Gems/blue_gem.png")
-empty_block = PhotoImage(file = filepath+"Gem miner/Images/UI/empty.png")
 
-vdrill = PhotoImage(file = filepath+"Gem miner/Images/Tools/rocket_vertical.png")
-hdrill = PhotoImage(file = filepath+"Gem miner/Images/Tools/rocket_horizontal.png")
-red_diamond = PhotoImage(file = filepath+"Gem miner/Images/Tools/Diamonds/red_diamond.png")
-yellow_diamond = PhotoImage(file = filepath+"Gem miner/Images/Tools/Diamonds/yellow_diamond.png")
-green_diamond = PhotoImage(file = filepath+"Gem miner/Images/Tools/Diamonds/green_diamond.png")
-blue_diamond = PhotoImage(file = filepath+"Gem miner/Images/Tools/Diamonds/blue_diamond.png")
-rainbow_diamond = PhotoImage(file = filepath+"Gem miner/Images/Tools/Diamonds/rainbow_diamond.png")
-bomb = PhotoImage(file = filepath+"Gem miner/Images/Tools/bomb.png")
-
-bricks = PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/bricks.png")
-jackhammer = PhotoImage(file = filepath+"Gem miner/Images/Tools/jackhammer.png")
-pickaxe = PhotoImage(file = filepath+"Gem miner/Images/Tools/pickaxe.png")
-throwingaxe = PhotoImage(file = filepath+"Gem miner/Images/Tools/axe.png")
-star = PhotoImage(file = filepath+"Gem miner/Images/Tools/star.png")
-dice = PhotoImage(file = filepath+"Gem miner/Images/Tools/shuffle.png")
-
-restart = PhotoImage(file = filepath+"Gem miner/Images/UI/restartbutton.png")
-button = PhotoImage(file = filepath+"Gem miner/Images/UI/button.png")
-titlebgimage = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/titlebg.png")
-
-tut1,tut2,tut3,tut4,tut5,tut6 = create_animation(filepath+"Gem miner/Images/Tutorial","tutorial")
-
-
-music = PhotoImage(file = filepath+"Gem miner/Images/UI/music_yes.png")
-sfx = PhotoImage(file = filepath+"Gem miner/Images/UI/sfx_yes.png")
-nomusic = PhotoImage(file = filepath+"Gem miner/Images/UI/music_no.png")
-nosfx = PhotoImage(file = filepath+"Gem miner/Images/UI/sfx_no.png")
-
-obstaclecard = PhotoImage(file = filepath+"Gem miner/Images/UI/obstacles_card.png")
-survivalcard = PhotoImage(file = filepath+"Gem miner/Images/UI/survival_card.png")
-timecard = PhotoImage(file = filepath+"Gem miner/Images/UI/time_card.png")
-fade_image = PhotoImage(file = filepath+"Gem miner/Images/UI/fade.png")
-
-
-explosions = create_animation(filepath+"Gem miner/Images/Animations/Explosion","explosion")
-
-breaking = create_animation(filepath+"Gem miner/Images/Animations/Smoke","smoke")
-
-brickplace = create_animation(filepath+"Gem miner/Images/Animations/Bricks/Placing","brickplace")
-
-brickbreaking = create_animation(filepath+"Gem miner/Images/Animations/Bricks/Breaking","brickbreak")
-
-time_bgs = create_animation(filepath+"Gem miner/Images/Backgrounds/Time","time_bg")
-
-
-vdiamonds = {}
-hdiamonds = {}
-for ani in ["Red","Green","Yellow","Blue"]:
-    vdiamonds[ani.lower()] = [PhotoImage(file = filepath+f"Gem miner/Images/Animations/Diamonds/Vertical/{ani}/frame{i}.png") for i in range(1,10)]
-    hdiamonds[ani.lower()] = [PhotoImage(file = filepath+f"Gem miner/Images/Animations/Diamonds/Horizontal/{ani}/frame{i}.png") for i in range(1,10)]
-
-obstacle_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/obstacle_bg.png")
-survival_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/survival_bg.png")
-diceused = [PhotoImage(file = filepath+"Gem miner/Images/Animations/Dice/dice1.png")]
 
 
 titlebg = c.create_image(WIDTH/2,HEIGHT/2,image=titlebgimage)
@@ -223,6 +163,7 @@ helpb = GameButton("How to play",35,False)
 survivalb = GameButton("Survival",-35,True)
 timeb = GameButton("Time Rush",35,True)
 obstacleb = GameButton("Obstacles",105,True)
+chromab = GameButton("Chromablitz",-105,True)
 
 
 
@@ -237,91 +178,8 @@ itemid = {0:empty_block,1:red_block,2:yellow_block,3:green_block,4:blue_block,5:
 
 board: list[Button] = list() #sets up the board
 #Music loop
+title_music(window)
 
-
-
-channels: set[mixer.Channel] = set()
-def get_channel() -> mixer.Channel:
-    global channels
-    channel = mixer.find_channel(True)
-    channels.add(channel)
-    return channel
-
-repeats = 0
-def title_music():
-    global repeats, loop
-    if repeats == 0:
-        get_channel().play(title1)
-        loop = window.after(13300,title_music)
-    else:
-        get_channel().play(title2)
-        loop = window.after(54850,title_music)
-    repeats += 1
-title_music()
-
-def select_music():
-    global repeats,loop2
-    get_channel().play(mode_select)
-    loop2 = window.after(69818,select_music)
-    repeats += 1
-
-def game_music():
-    global repeats,loop2
-    get_channel().play(main1)
-    loop2 = window.after(52377,game_music)
-    repeats += 1
-
-def game_music2():
-    global repeats,loop2
-    get_channel().play(main2)
-    loop2 = window.after(61075,game_music2)
-    repeats += 1
-
-def time_music():
-    global repeats, loop
-    if repeats == 0:
-        get_channel().play(time1)
-        loop = window.after(8000,time_music)
-    else:
-        get_channel().play(time2)
-        loop = window.after(32000,time_music)
-    repeats += 1
-
-
-def obstacle_music():
-    global repeats,loop2
-    get_channel().play(obstacle)
-    loop2 = window.after(56000,obstacle_music)
-    repeats += 1
-    
-def game_over_music():
-    global repeats, loop2
-    if repeats == 0:
-        get_channel().play(gameover1)
-        loop2 = window.after(643,game_over_music)
-    else: 
-        get_channel().play(gameover2)
-        loop2 = window.after(13714,game_over_music)
-    repeats += 1
-
-def stop_music():
-    global repeats, channels
-    for channel in channels:
-        channel.stop()
-    channels.clear()
-    errors = 0 #Should just be one of these
-    try:
-        window.after_cancel(loop)
-    except NameError: 
-        errors += 1
-    try:
-        window.after_cancel(loop2)
-    except NameError: 
-        errors += 1
-    if errors != 1:
-        #print(f"LOG: Error found in function stop_music(), the number of errors were:\n{errors}.\nExpected:\n1.")
-        pass
-    repeats = 0
 
 def draw_board():
     if not gameover:
@@ -478,9 +336,11 @@ def start_part_2(card, fade):
             [game_music,game_music2][track]()
         elif mode == "time":
             repeats = 0
-            time_music()
+            time_music(window)
         elif mode == "obstacle":
-            obstacle_music()
+            obstacle_music(window)
+        elif mode == "chroma":
+            chroma_music(window)
     c.delete(card[0])
     c.delete(fade[0])
     if mode != "obstacle":
@@ -520,6 +380,7 @@ def start():
     startb.set_visible(False)
     helpb.set_visible(False)
     survivalb.set_visible(False)
+    chromab.set_visible(False)
     timeb.set_visible(False)
     obstacleb.set_visible(False)
 
@@ -533,12 +394,15 @@ def start():
     elif mode == "survival":
         c.itemconfig(bg_image,image=survival_bg)
         card = [c.create_image(WIDTH/2,HEIGHT/2,image=survivalcard)]
+    elif mode == "chroma":
+        c.itemconfig(bg_image,image=chroma_bg)
+        card = [c.create_image(WIDTH/2,HEIGHT/2,image=chromacard)]
 
 
     
     c.itemconfig(highscoretext,state=HIDDEN)
 
-    stop_music()
+    stop_music(window)
     if sfx_on:
         play_sound_effect(sfx_on,startsound)
     track = randint(0,1)
@@ -896,7 +760,7 @@ def click(event):
             
             play_sound_effect(sfx_on,clicked)
             if not gameover or (gameover and not sfx_on):
-                stop_music()
+                stop_music(window)
             
             c.itemconfig(musicsquare, image = nomusic)
         else:
@@ -907,37 +771,39 @@ def click(event):
             if started:
                 if gameover:
                     if not sfx_on:
-                        game_over_music()
+                        game_over_music(window)
                 elif mode == "survival":
                     [game_music,game_music2][track]()
                 elif mode == "time":
                     repeats = 0
-                    time_music()
+                    time_music(window)
                 elif mode == "obstacle":
-                    obstacle_music()
+                    obstacle_music(window)
+                elif mode == "chroma":
+                    chroma_music(window)
             else:
                 if selecting:
-                    select_music()
+                    select_music(window)
                 else:
-                    title_music()
+                    title_music(window)
             c.itemconfig(musicsquare, image = music)
 
     if inside(0,400,50,450,mousex,mousey): #Is sfx clicked?
         if sfx_on:
             sfx_on = False
             if gameover and not music_on:
-                stop_music()
+                stop_music(window)
             c.itemconfig(sfxsquare, image = nosfx)
         else:
             sfx_on = True
             if gameover and not music_on:
-                game_over_music()
+                game_over_music(window)
             play_sound_effect(sfx_on,clicked)
             c.itemconfig(sfxsquare, image = sfx)
     
     if started:
         if gameover and playb.is_clicked(mousex,mousey): #if the game is over run it again
-            stop_music()
+            stop_music(window)
             playb.set_visible(False)
             #Anything in these lists gets deleted or vanished
             for x in board+pitobjects:
@@ -1272,7 +1138,7 @@ def click(event):
                     play_place_sound()
                     score += level
                     update_text()
-                    if mode == "survival":
+                    if mode in ("survival","chroma"):
                         for _ in range(level): #Puts more bricks on the board
                             set_brick()
                 next_level()
@@ -1304,6 +1170,11 @@ def click(event):
                 play_sound_effect(sfx_on,clicked)
                 mode = "obstacle"
                 start()
+            
+            if chromab.is_clicked(mousex,mousey):
+                play_sound_effect(sfx_on,clicked)
+                mode = "chroma"
+                start()
         else:
             if startb.is_clicked(mousex,mousey):
                 display_modes()
@@ -1317,14 +1188,14 @@ def click(event):
 def display_modes(music=False):
     global display, started
     if music and music_on:
-        select_music()
+        select_music(window)
     started = False
     display = True
     c.itemconfig(titlebg,state=HIDDEN)
     for item in [startb,helpb]:
         item.set_visible(FALSE)
 
-    for item in [survivalb,timeb,obstacleb]:
+    for item in [survivalb,timeb,obstacleb,chromab]:
         item.set_visible(True)
 
 def clear_diagonal_lines(row,column):
@@ -1438,9 +1309,9 @@ def clear_selection():
 def gameover_check():
     global gameover, highscore, display, score, powerups, powerupvalues
     if (0 not in grid and any(x in grid for x in [5,6,7,8,9,10,11]) == 0) or (moves <= 0 and mode == "obstacle"):  #game is over
-        stop_music()
+        stop_music(window)
         if music_on or sfx_on:
-            game_over_music()
+            game_over_music(window)
         powerups = [0]*5
         powerupvalues = [0]*5
         playb.set_visible(True)
