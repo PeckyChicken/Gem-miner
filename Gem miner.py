@@ -175,6 +175,7 @@ tutstage = 0
 
 #*IDS
 itemid = {0:empty_block,1:red_block,2:yellow_block,3:green_block,4:blue_block,5:vdrill,6:hdrill,7:red_diamond,8:yellow_diamond,9:green_diamond,10:blue_diamond,11:bomb,12:bricks} #sets up the item ids
+'''1 is red, 2 is yellow, 3 is green, 4 is blue'''
 
 board: list[Button] = list() #sets up the board
 #Music loop
@@ -233,7 +234,7 @@ def set_square(color,x,y):
     draw_board()
 
 def next_level():
-    global level, powerups, reqscore, powerupvalues, moves
+    global level, powerups, reqscore, powerupvalues, moves, grid
     if mode == "obstacle" and started: #Different level system in obstacle mode
         level_complete = 12 not in grid
     else:
@@ -249,6 +250,16 @@ def next_level():
         if mode == "obstacle":
             powerupvalues[randint(0,len(powerupvalues)-1)] += 1
             powerups[:] = [1 if i else 0 for i in powerupvalues]
+        elif mode == "chroma":
+            indices = set()
+            for index,item in enumerate(grid):
+                if item == 12:
+                    indices.add(index)
+            for _ in range(level):
+                index = choice(list(indices))
+                indices.remove(index)
+                tempx, tempy = index//7, index%7
+                breakbrick(tempx,tempy)
         else:
             powerups = [1]*5
             powerupvalues = [1]*5
@@ -333,7 +344,7 @@ def start_part_2(card, fade):
         time_rush()
     if music_on:
         if mode == "survival":
-            [game_music,game_music2][track]()
+            [game_music,game_music2][track](window)
         elif mode == "time":
             repeats = 0
             time_music(window)
@@ -741,7 +752,7 @@ def key_press(event):
 
 #Main event
 def click(event):
-    global selcolor, pit, canplace, pitobjects, grid, score, gameover, powerups, started, helping, tutstage, level, highscore, music_on, sfx_on, repeats, busy, track, mode, moves, selecting
+    global selcolor, pit, canplace, pitobjects, grid, score, gameover, powerups, started, helping, tutstage, level, highscore, music_on, sfx_on, repeats, busy, track, mode, moves, selecting, powerupvalues
 
     next_level()
     mousex = event.x
@@ -1090,15 +1101,40 @@ def click(event):
                 lines,direction = detect_line(row,column,lookup) #detects any lines
                 if mode == "obstacle":
                     moves -= 1
+                tempx, tempy = row,column
+                square = lookup(tempx,tempy)
 
                 for line in lines: #if there are any lines
+                    #* HANDLING LINES
                     set_square(0,line[0],line[1]) #clears all of the squares part of the line
                     score += 10*level
                     update_text()
 
                 if len (lines) >= 3: 
-                    
                     play_sound_effect(sfx_on,remove)
+                    if mode == "chroma":
+                        if square == 1:
+                            play_sound_effect(sfx_on,axeused)
+                            clear_line("V",tempx,tempy,False)
+                            clear_line("H",tempx,tempy,False)
+                        elif square == 2:
+                            play_sound_effect(sfx_on,axeused)
+                            clear_line(direction,tempx,tempy,sound=False)
+                        elif square == 3:
+                            play_sound_effect(sfx_on,powerupselected)
+                            for _ in range(3):
+                                powerups = [0]*5
+                                powerupvalues = powerups
+                                draw_powerups()
+                                window.update()
+                                sleep(0.05)
+                                powerups = [1]*5
+                                powerupvalues = powerups
+                                draw_powerups()
+                                window.update()               
+                                sleep(0.05)
+                        elif square == 4:
+                            explode(tempx,tempy,1)
                 
                 if len(lines) == 4: #Finds the lines with 4 gems and changes them into a drill with the opposite direction as the line.
                     set_square(5 if direction == "H" else 6,row,column)
