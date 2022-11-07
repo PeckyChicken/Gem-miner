@@ -565,6 +565,9 @@ def convert_colors(item,row,column,samesquare):
     rightid = lookup(row+1,column)
     upid = lookup(row,column-1)
     downid = lookup(row,column+1)
+
+
+
     if samesquare:
         diamondx,diamondy = row,column
         
@@ -656,9 +659,10 @@ def handle_items(item,row,column):
     return False
 
 def clear_colors(row,column):
-    global score, busy
+    global score, busy, powerups, powerupvalues
     play_sound_effect(sfx_on,diamondused)
     busy = False
+    square = lookup(row,column)-6
     for i in range(len(grid)):
         if grid[i] == lookup(row,column)-6: #sets all colors of the same to gray
             currow, curcolumn = i%7,floor(i/7)
@@ -669,6 +673,28 @@ def clear_colors(row,column):
             score += 10*level
             c.itemconfig(scoredisp,text=score)
             update_text()
+    if square == 1:
+        play_sound_effect(sfx_on,axeused)
+        clear_line("V",row,column,False)
+        clear_line("H",row,column,False)
+    elif square == 2:
+        play_sound_effect(sfx_on,axeused)
+        clear_line(choice(["V","R"]),row,column,sound=False)
+    elif square == 3:
+        play_sound_effect(sfx_on,powerupselected)
+        for _ in range(3):
+            powerups = [0]*5
+            powerupvalues = powerups
+            draw_powerups()
+            window.update()
+            sleep(0.05)
+            powerups = [1]*5
+            powerupvalues = powerups
+            draw_powerups()
+            window.update()               
+            sleep(0.05)
+    elif square == 4:
+        explode(row,column,1)
     score += 100*level
     update_text()
     c.itemconfig(scoredisp,text=score)
