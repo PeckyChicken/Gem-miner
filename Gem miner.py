@@ -10,6 +10,9 @@ from lines import *
 from animations import *
 from sounds import *
 from images import *
+from constants import *
+from classes import *
+from functions import *
 
 filepath = __file__+"/../"
 
@@ -17,18 +20,10 @@ filepath = __file__+"/../"
 window.title("Gem miner")
 window.iconbitmap(filepath+"Gem miner/icon.ico")
 window.resizable(0, 0)
-WIDTH = 500
-HEIGHT = 500
-SQUARELEN = 50
-SQUARESPACING = 50
-SQUAREMARGINX = 75
-SQUAREMARGINY = 25
-PITSQUARESPACING = 150
-TEXTCOL = "#a27100"
+
 gameover = False
 squarey = SQUAREMARGINY
-GRIDROWS = 7
-PITSQUAREY = 425
+
 moves = 15
 score = 0
 level = 1
@@ -57,28 +52,28 @@ try:
 except (FileNotFoundError, ValueError):
     highscore = 0
 
-font = "comic sans ms"
+
 
 canplace = False
 selcolor = 0
 
-scoretext = c.create_text(40,20,text="Score",font=(font,10),state=HIDDEN,fill=TEXTCOL)
-scoredisp = c.create_text(40,50,text=0,font=(font,31),state=HIDDEN,fill=TEXTCOL)
+scoretext = c.create_text(40,20,text="Score",font=(FONT,10),state=HIDDEN,fill=TEXTCOL)
+scoredisp = c.create_text(40,50,text=0,font=(FONT,31),state=HIDDEN,fill=TEXTCOL)
 
-goaltext = c.create_text(40,100,text="Goal",font=(font,10),state=HIDDEN,fill=TEXTCOL)
-goaldisp = c.create_text(40,130,text=500,font=(font,23),state=HIDDEN,fill=TEXTCOL)
+goaltext = c.create_text(40,100,text="Goal",font=(FONT,10),state=HIDDEN,fill=TEXTCOL)
+goaldisp = c.create_text(40,130,text=500,font=(FONT,23),state=HIDDEN,fill=TEXTCOL)
 
-leveltext = c.create_text(40,180,text="Level",font=(font,10),state=HIDDEN,fill=TEXTCOL)
-leveldisp = c.create_text(40,210,text=1,font=(font,31),state=HIDDEN,fill=TEXTCOL)
+leveltext = c.create_text(40,180,text="Level",font=(FONT,10),state=HIDDEN,fill=TEXTCOL)
+leveldisp = c.create_text(40,210,text=1,font=(FONT,31),state=HIDDEN,fill=TEXTCOL)
 
 
 frame = 0
 
-gameovertext = c.create_text(WIDTH/2,HEIGHT/2-25,font=(font,50),fill=TEXTCOL)
-finalscoretext = c.create_text(WIDTH/2,HEIGHT/2+25,font=(font,25),fill=TEXTCOL)
-toasttext = c.create_text(WIDTH/2,HEIGHT/2 + 150,font=(font,15),text="Click again if you really want to restart.",state=HIDDEN,fill=TEXTCOL)
+gameovertext = c.create_text(WIDTH/2,HEIGHT/2-25,font=(FONT,50),fill=TEXTCOL)
+finalscoretext = c.create_text(WIDTH/2,HEIGHT/2+25,font=(FONT,25),fill=TEXTCOL)
+toasttext = c.create_text(WIDTH/2,HEIGHT/2 + 150,font=(FONT,15),text="Click again if you really want to restart.",state=HIDDEN,fill=TEXTCOL)
 
-highscoretext = c.create_text(WIDTH-10,HEIGHT-20,font=(font,15),anchor="e",text=f"High score: {highscore}",fill="#916000")
+highscoretext = c.create_text(WIDTH-10,HEIGHT-20,font=(FONT,15),anchor="e",text=f"High score: {highscore}",fill="#916000")
 clickcount = 0
 
 
@@ -99,19 +94,19 @@ powerups = [1,1,1,1,1] #sets up the powerup squares
 powerupvalues = [1,1,1,1,1]
 
 pickaxesquare = c.create_image(470,150,image=pickaxe,state=HIDDEN)
-pickvalue = c.create_text(490,180,text='',font=(font,15),state=HIDDEN,fill=TEXTCOL)
+pickvalue = c.create_text(490,180,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
 throwingaxesquare = c.create_image(470,210,image=throwingaxe,state=HIDDEN)
-axevalue = c.create_text(490,240,text='',font=(font,15),state=HIDDEN,fill=TEXTCOL)
+axevalue = c.create_text(490,240,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
 jackhammersquare = c.create_image(470,270,image=jackhammer,state=HIDDEN)
-jackhammervalue = c.create_text(490,300,text='',font=(font,15),state=HIDDEN,fill=TEXTCOL)
+jackhammervalue = c.create_text(490,300,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
 starsquare = c.create_image(470,330,image=star,state=HIDDEN)
-starvalue = c.create_text(490,360,text='',font=(font,15),state=HIDDEN,fill=TEXTCOL)
+starvalue = c.create_text(490,360,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
 shufflesquare = c.create_image(470,390,image=dice,state=HIDDEN)
-shufflevalue = c.create_text(490,420,text='',font=(font,15),state=HIDDEN,fill=TEXTCOL)
+shufflevalue = c.create_text(490,420,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
 
 #Sets up the button squares
@@ -130,44 +125,27 @@ grid = [0,0,0,0,0,0,0,
         0,0,0,0,0,0,0] #defines the game board
 pit = [randint(1,4),randint(1,4),randint(1,4)] #sets up the pit
 pitobjects: list[Button] = list()
-defaulttextsize = 35
+
 loop = 0
 
-class GameButton:
-    def __init__(self,text:str,offset:float,hide:bool=False):
-        self.image = c.create_image(WIDTH/2,HEIGHT/2+offset,image=button,state=[NORMAL,HIDDEN][hide])
-        self.text = c.create_text(WIDTH/2,HEIGHT/2+offset,text=text,font=(font,25),fill="white",state=[NORMAL,HIDDEN][hide])
-        self.bounds = (WIDTH/2-100,
-                       HEIGHT/2+offset-50/2,
-                       WIDTH/2+100,
-                       HEIGHT/2+offset+50/2)
-        self.offset = offset
-        self.visible = not hide
 
-    def is_clicked(self,mousex:float,mousey:float) -> bool:
-        if not self.visible:
-            return False
-        x1,y1,x2,y2 = self.bounds
-        return inside(x1,y1,x2,y2,mousex, mousey)
-
-    def set_visible(self,visible:bool):
-        self.visible = visible
-        c.itemconfig(self.image,state=[HIDDEN,NORMAL][visible])
-        c.itemconfig(self.text,state=[HIDDEN,NORMAL][visible])
 
 
 #Makes all the title screen buttons
-startb = GameButton("Start",-35,False)
-helpb = GameButton("How to play",35,False)
+startb = GameButton("Start",-35,c,False)
+helpb = GameButton("How to play",35,c,False)
+fastb = GameButton("Fast Game",105,c,False)
 
-survivalb = GameButton("Survival",-35,True)
-timeb = GameButton("Time Rush",35,True)
-obstacleb = GameButton("Obstacles",105,True)
-chromab = GameButton("Chromablitz",-105,True)
+fastmode = False
+
+survivalb = GameButton("Survival",-35,c,True)
+timeb = GameButton("Time Rush",35,c,True)
+obstacleb = GameButton("Obstacles",105,c,True)
+chromab = GameButton("Chromablitz",-105,c,True)
 
 
 
-playb = GameButton("Play again",95,True)
+playb = GameButton("Play again",95,c,True)
 
 started = False
 helping = False
@@ -491,22 +469,22 @@ def ask_close():
         window.after(2000, reset_count)
 
 def calc_font_size(text):
-    return defaulttextsize-len(text)*4
+    return DEFAULTTEXTSIZE-len(text)*4
 
 def update_text(nextlevel=True): #Updates the font size depending on how many points the player has.
-    c.itemconfig(scoredisp,font=(font,calc_font_size(str(score))))
+    c.itemconfig(scoredisp,font=(FONT,calc_font_size(str(score))))
     c.itemconfig(scoredisp,text=str(score))
     if nextlevel:
         next_level()
     c.itemconfig(leveldisp,text=str(level))
-    c.itemconfig(leveldisp,font=(font,calc_font_size(str(level))))
+    c.itemconfig(leveldisp,font=(FONT,calc_font_size(str(level))))
     
     if mode == "obstacle":
         c.itemconfig(goaldisp,text=str(moves))
-        c.itemconfig(goaldisp,font=(font,calc_font_size(str(moves))))
+        c.itemconfig(goaldisp,font=(FONT,calc_font_size(str(moves))))
     else:
         c.itemconfig(goaldisp,text=str(reqscore))
-        c.itemconfig(goaldisp,font=(font,calc_font_size(str(reqscore))))
+        c.itemconfig(goaldisp,font=(FONT,calc_font_size(str(reqscore))))
 
     for idx, value in enumerate(powerupvalues):
         text = ''
@@ -783,6 +761,7 @@ def click(event):
     next_level()
     mousex = event.x
     mousey = event.y #get mouse x and y
+    mouseb = event.num
     # print(mousex,mousey)
     if helping:
         tutstage += 1
@@ -1110,7 +1089,13 @@ def click(event):
         except IndexError:
             pass
         #works out if the clicked area was inside the grid, that the player can place a color there, that it is empty, and that there is a square next to it
-        if row >= 0 and row < GRIDROWS and column >= 0 and column < GRIDROWS and canplace:
+        if row >= 0 and row < GRIDROWS and column >= 0 and column < GRIDROWS :
+            if not canplace:
+                if fastmode:
+                    print(f"Picking color {mouseb}")
+                    pick_color((mouseb-1)*3)
+                else:
+                    return
             # print(f'Row: {row}, Column: {column}, Row+1: {row+1}, Column+1: {column+1}, Row-1: {row-1}, Column-1: {column-1}')
             if (lookup(row,column) == 0 and
                     (
@@ -1254,7 +1239,7 @@ def display_modes(music=False):
     started = False
     display = True
     c.itemconfig(titlebg,state=HIDDEN)
-    for item in [startb,helpb]:
+    for item in [startb,helpb,fastb]:
         item.set_visible(FALSE)
 
     for item in [survivalb,timeb,obstacleb,chromab]:
@@ -1404,8 +1389,7 @@ def draw_pit():
                 image=itemid[pit[square]]))
         #works out how to draw the pit
 
-def inside(x1,y1,x2,y2,testx, testy):
-    return (testx > x1 and testx < x2) and (testy > y1 and testy < y2) #works out if a point is inside another
+
 
 window.bind("<Button>",click)
 window.bind("<Key>",key_press)
