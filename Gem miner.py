@@ -34,7 +34,7 @@ reqscore = 500
 mode = "none"
 display = False
 selecting = False
-
+mousex=mousey=0
 
 music_on = True
 sfx_on = True
@@ -108,6 +108,7 @@ starvalue = c.create_text(490,360,text='',font=(FONT,15),state=HIDDEN,fill=TEXTC
 shufflesquare = c.create_image(470,390,image=dice,state=HIDDEN)
 shufflevalue = c.create_text(490,420,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
+indicator = c.create_image(0,0)
 
 #Sets up the button squares
 restartsquare = c.create_image(25,375,image=restart,state=HIDDEN)
@@ -154,6 +155,7 @@ tutstage = 0
 #*IDS
 itemid = {0:empty_block,1:red_block,2:yellow_block,3:green_block,4:blue_block,5:vdrill,6:hdrill,7:red_diamond,8:yellow_diamond,9:green_diamond,10:blue_diamond,11:bomb,12:bricks} #sets up the item ids
 '''1 is red, 2 is yellow, 3 is green, 4 is blue'''
+
 
 board: list[Button] = list() #sets up the board
 #Music loop
@@ -262,8 +264,8 @@ def Get_ID(x,y):
     return board[y*GRIDROWS+x]
 
 def get_pos(gridx,gridy):
-    x = gridx*SQUARELEN+SQUAREMARGINX*1.35
-    y = gridy*SQUARELEN+SQUAREMARGINY*2
+    x = gridx*SQUARELEN+SQUAREMARGINX
+    y = gridy*SQUARELEN+SQUAREMARGINY
     #Both of these are very similar, so I will talk about both together.
     #The gridx/y * squarelen works out the relative position of the square, then the distance from the wall is added on.
     #The distance from the wall is multiplied by the value so that the predicted position is in the center of the square.
@@ -651,28 +653,29 @@ def clear_colors(row,column):
             score += 10*level
             c.itemconfig(scoredisp,text=score)
             update_text()
-    if square == 1:
-        play_sound_effect(sfx_on,axeused)
-        clear_line("V",row,column,False)
-        clear_line("H",row,column,False)
-    elif square == 2:
-        play_sound_effect(sfx_on,axeused)
-        clear_line(choice(["V","R"]),row,column,sound=False)
-    elif square == 3:
-        play_sound_effect(sfx_on,powerupselected)
-        for _ in range(3):
-            powerups = [0]*5
-            powerupvalues = powerups
-            draw_powerups()
-            window.update()
-            sleep(0.05)
-            powerups = [1]*5
-            powerupvalues = powerups
-            draw_powerups()
-            window.update()               
-            sleep(0.05)
-    elif square == 4:
-        explode(row,column,1)
+    if mode == "chroma":
+        if square == 1:
+            play_sound_effect(sfx_on,axeused)
+            clear_line("V",row,column,False)
+            clear_line("H",row,column,False)
+        elif square == 2:
+            play_sound_effect(sfx_on,axeused)
+            clear_line(choice(["V","R"]),row,column,sound=False)
+        elif square == 3:
+            play_sound_effect(sfx_on,powerupselected)
+            for _ in range(3):
+                powerups = [0]*5
+                powerupvalues = powerups
+                draw_powerups()
+                window.update()
+                sleep(0.05)
+                powerups = [1]*5
+                powerupvalues = powerups
+                draw_powerups()
+                window.update()               
+                sleep(0.05)
+        elif square == 4:
+            explode(row,column,1)
     score += 100*level
     update_text()
     c.itemconfig(scoredisp,text=score)
@@ -747,6 +750,7 @@ def pick_color(row):
     selcolor, pit[row//3] = pit[row//3], selcolor #swaps the selected color with the one in the pit
     c.itemconfig(selected,image=itemid[selcolor]) #fills the selected box with whatever color was chosen
     canplace = bool(selcolor)
+    motion("This isn't needed",True)
 
 def key_press(event):
     key = event.keysym
@@ -754,13 +758,51 @@ def key_press(event):
         keyvalue = int(key)-1
         pick_color(keyvalue*3)
 
+def motion(event,outside=False):
+    global indicator,mousex,mousey
+    if not outside:
+        mousex = event.x
+        mousey = event.y #get mouse x and y
+    
+
+    row = floor((mousex-SQUAREMARGINY)//49-1) 
+    column = floor((mousey-SQUAREMARGINX)//49+1) #work out row and column of hovered space
+    c.moveto(indicator,*get_pos(row,column))
+    if all([GRIDROWS > row >= 0, GRIDROWS > column >= 0, started, canplace]):
+        if lookup(row,column) != 0:
+            c.itemconfig(indicator,state=HIDDEN)
+            return
+        if not all((lookup(row,column) == 0,
+                    (
+                        any((
+                    (row > 0 and lookup(row-1,column)),
+                    (row < 6 and lookup(row+1,column)),
+                    (column < 6 and lookup(row,column+1)),
+                    (column > 0 and lookup(row,column-1))))
+                    ))):
+            c.itemconfig(indicator,image=cross,state=NORMAL)
+            return
+        #print(selcolor)
+        lines, direction = detect_line(row,column,lookup,True,selcolor)
+        #print(f"Detected line of squares {lines}, and of direction {direction}")
+        if direction == "HV":
+            icon = bomb
+        elif direction == '0' or len(lines) <= 3:
+            icon = itemid[selcolor]
+        elif len(lines) == 5:
+            icon = itemid[selcolor+6]
+        elif len(lines) == 4:
+            icon = itemid[5 + (direction == "V")]
+        c.itemconfig(indicator,image=icon,state=NORMAL)
+    else:
+        c.itemconfig(indicator,state=HIDDEN)
+
+
 #Main event
 def click(event):
     global selcolor, pit, canplace, pitobjects, grid, score, gameover, powerups, started, helping, tutstage, level, highscore, music_on, sfx_on, repeats, busy, track, mode, moves, selecting, powerupvalues
 
     next_level()
-    mousex = event.x
-    mousey = event.y #get mouse x and y
     mouseb = event.num
     # print(mousex,mousey)
     if helping:
@@ -789,7 +831,7 @@ def click(event):
                     if not sfx_on:
                         game_over_music(window)
                 elif mode == "survival":
-                    [game_music,game_music2][track]()
+                    [game_music,game_music2][track](window)
                 elif mode == "time":
                     repeats = 0
                     time_music(window)
@@ -1090,6 +1132,7 @@ def click(event):
             pass
         #works out if the clicked area was inside the grid, that the player can place a color there, that it is empty, and that there is a square next to it
         if row >= 0 and row < GRIDROWS and column >= 0 and column < GRIDROWS :
+            c.itemconfig(indicator, state=HIDDEN)
             if not canplace:
                 if fastmode:
                     print(f"Picking color {mouseb}")
@@ -1393,6 +1436,7 @@ def draw_pit():
 
 window.bind("<Button>",click)
 window.bind("<Key>",key_press)
+window.bind("<Motion>",motion)
 window.protocol("WM_DELETE_WINDOW", close)
 
 window.mainloop()

@@ -1,11 +1,15 @@
-def detect_line(x,y,lookup:callable):
+def detect_line(x,y,lookup:callable,special=False,color=None):
     '''Given an x and y position, as well as the function lookup, this function will search all the squares around it to find lines of gems.'''
     count = 0
     usedsquares = list()
     curx = x
     cury = y
     #Moves down as far as there are matches
-    while lookup(curx,cury) == lookup(x,y):
+    if special:
+        col = color
+    else:
+        col = lookup(x,y)
+    while (col if (curx,cury) == (x,y) else lookup(curx,cury)) == col:
         count += 1
         usedsquares.append([curx,cury]) #add the current match to the list
         cury += 1 #move it down one
@@ -14,14 +18,14 @@ def detect_line(x,y,lookup:callable):
         curx = x
         cury = y-1 #subtracts one so it doesnt double count the first one
         #Once it has finished if it found anything it goes back up to look for other matches
-        while lookup(curx,cury) == lookup(x,y):
+        while (col if (curx,cury) == (x,y) else lookup(curx,cury))  == col:
             if cury < 0: break
             count += 1 
             usedsquares.append([curx,cury]) #add the current match to the list
             cury -= 1 #move it up one row
     
     #Does it again for the up direction, doesnt need to check for down because it just did that
-    while lookup(curx,cury) == lookup(x,y):
+    while (col if (curx,cury) == (x,y) else lookup(curx,cury))  == col:
         if cury < 0: break
         count += 1 
         usedsquares.append([curx,cury]) #add the current match to the list
@@ -37,7 +41,7 @@ def detect_line(x,y,lookup:callable):
     curx = x
     cury = y
     #checking for anything to the right
-    while lookup(curx,cury) == lookup(x,y):
+    while (col if (curx,cury) == (x,y) else lookup(curx,cury))  == col:
         xcount += 1
         xusedsquares.append([curx,cury]) #add the current match to the list
         curx += 1 #move it right one column
@@ -46,7 +50,7 @@ def detect_line(x,y,lookup:callable):
         curx = x-1 #subtracts one to avoid double counting
         cury = y
         #Go back to the left to look for more matches
-        while lookup(curx,cury) == lookup(x,y):
+        while (col if (curx,cury) == (x,y) else lookup(curx,cury))  == col:
             if curx < 0: break
             xcount += 1
             xusedsquares.append([curx,cury]) #add the current match to the list
@@ -63,7 +67,7 @@ def detect_line(x,y,lookup:callable):
     elif len(usedsquares) >= 3:
         return usedsquares,"V"
     #Now to check for left on its own
-    while lookup(curx,cury) == lookup(x,y):
+    while (col if (curx,cury) == (x,y) else lookup(curx,cury))  == col:
         if curx < 0: break
         xcount += 1
         xusedsquares.append([curx,cury]) #add the current match to the list
