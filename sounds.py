@@ -125,7 +125,7 @@ def game_music(window):
 def game_music2(window):
     global repeats,loop2
     get_channel().play(main2)
-    loop2 = window.after(61075,game_music2)
+    loop2 = window.after(61075,game_music2,window)
     repeats += 1
 
 def time_music(window):

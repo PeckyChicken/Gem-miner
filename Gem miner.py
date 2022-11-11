@@ -36,6 +36,7 @@ display = False
 selecting = False
 mousex=mousey=0
 
+
 music_on = True
 sfx_on = True
 
@@ -43,7 +44,9 @@ c = Canvas(window,width=WIDTH,height=HEIGHT, bg="gray") #sets up canvas
 c.pack(fill="both")
 bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/bg.png")
 bg_image = c.create_image(WIDTH/2,HEIGHT/2,image=bg)
-
+highlight = [c.create_rectangle(5,7,6,8)]
+c.delete(highlight[0])
+highlight.clear()
 try:
     with open(filepath+"Gem miner/highscore.txt","r+") as hsfile:
         highscore = hsfile.read()
@@ -135,7 +138,7 @@ loop = 0
 #Makes all the title screen buttons
 startb = GameButton("Start",-35,c,False)
 helpb = GameButton("How to play",35,c,False)
-fastb = GameButton("Fast Game",105,c,False)
+fastb = GameButton("Fast Game",105,c,True)
 
 fastmode = False
 
@@ -195,17 +198,7 @@ def draw_powerups():
     
 
 
-#!Do not use, does not work.
-def draw_instant_animation(x,y,frames,fps,frame=0):
-    DrawX, DrawY = get_pos(x,y)
-    sprite = c.create_image(DrawX,DrawY,image=frames[0])
-    c.itemconfig(sprite,state=NORMAL,image=frames[frame])
-    frame += 1
-    window.update()
-    if frame < len(frames) -1:
-        frametime = 1/fps
-        window.after(int(frametime),draw_instant_animation,x,y,frames,fps,frame)
-    c.delete(sprite)
+
 
 def set_square(color,x,y):
     global board
@@ -285,7 +278,7 @@ def set_brick(): #sets a random square to a brick
     x, y = randint(0,6),randint(0,6)
     while lookup(x,y) != 0:
         x, y = randint(0,6),randint(0,6)
-    draw_animation(x,y,brickplace,100,c,get_pos,window)
+    draw_old_animation(x,y,brickplace,100,c,get_pos,window)
     if lookup(x,y) == 0:
         set_square(12,x,y)
         return 0
@@ -432,7 +425,7 @@ def toast(msg,time=-1):
         window.after(time*1000,clear_toast)
 
 def ask_close():
-    global grid, clickcount, score, level, highscore
+    global grid, clickcount, score, level, highscore, selcolor, gameover, powerups, powerupvalues
     
     play_sound_effect(sfx_on,clicked)
     clickcount += 1
@@ -452,7 +445,8 @@ def ask_close():
             0,0,0,0,0,0,0]
         reset_color()
         reset_color()
-          
+        powerups = [1]*5
+        powerupvalues = powerups
         draw_powerups()
         selcolor = 0
         c.itemconfig(selected,image=empty_block)
@@ -759,7 +753,10 @@ def key_press(event):
         pick_color(keyvalue*3)
 
 def motion(event,outside=False):
-    global indicator,mousex,mousey
+    global indicator,mousex,mousey,highlight
+    for item in highlight:
+        c.delete(item)
+    highlight.clear()
     if not outside:
         mousex = event.x
         mousey = event.y #get mouse x and y
@@ -768,7 +765,7 @@ def motion(event,outside=False):
     row = floor((mousex-SQUAREMARGINY)//49-1) 
     column = floor((mousey-SQUAREMARGINX)//49+1) #work out row and column of hovered space
     c.moveto(indicator,*get_pos(row,column))
-    if all([GRIDROWS > row >= 0, GRIDROWS > column >= 0, started, canplace]):
+    if all([GRIDROWS > row >= 0, GRIDROWS > column >= 0, started, selcolor != 0]):
         if lookup(row,column) != 0:
             c.itemconfig(indicator,state=HIDDEN)
             return
@@ -782,9 +779,9 @@ def motion(event,outside=False):
                     ))):
             c.itemconfig(indicator,image=cross,state=NORMAL)
             return
-        #print(selcolor)
+
         lines, direction = detect_line(row,column,lookup,True,selcolor)
-        #print(f"Detected line of squares {lines}, and of direction {direction}")
+
         if direction == "HV":
             icon = bomb
         elif direction == '0' or len(lines) <= 3:
@@ -793,6 +790,10 @@ def motion(event,outside=False):
             icon = itemid[selcolor+6]
         elif len(lines) == 4:
             icon = itemid[5 + (direction == "V")]
+        for square in lines:
+            #print(f"Row/Column, {(row,column)}. Square, {(square)}")
+            if square != [row,column]:
+                highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
         c.itemconfig(indicator,image=icon,state=NORMAL)
     else:
         c.itemconfig(indicator,state=HIDDEN)
@@ -900,7 +901,7 @@ def click(event):
                 return
             
             play_sound_effect(sfx_on,powerupselected)
-            if canplace:
+            if selcolor != 0:
                 pit = [selcolor if elem==0 else elem for elem in pit]
                 selcolor = 0
                 canplace = False
@@ -918,7 +919,7 @@ def click(event):
                 return
             
             play_sound_effect(sfx_on,powerupselected)
-            if canplace:
+            if selcolor != 0:
                 pit = [selcolor if elem==0 else elem for elem in pit]
                 selcolor = 0
                 canplace = False
@@ -936,7 +937,7 @@ def click(event):
                 return
             
             play_sound_effect(sfx_on,powerupselected)
-            if canplace:
+            if selcolor != 0:
                 pit = [selcolor if elem==0 else elem for elem in pit]
                 selcolor = 0
                 canplace = False
@@ -953,7 +954,7 @@ def click(event):
                 clear_selection()
                 return
             play_sound_effect(sfx_on,powerupselected)
-            if canplace:
+            if selcolor != 0:
                 pit = [selcolor if elem==0 else elem for elem in pit]
                 selcolor = 0
                 canplace = False
@@ -966,7 +967,7 @@ def click(event):
         if inside(445,365,495,415,mousex,mousey) and powerups[4] != 0: #is shuffle clicked?
             if powerups[4] == 1:
                 powerups = [1 if elem==2 else elem for elem in powerups]
-                if canplace:
+                if selcolor != 0:
                     pit = [selcolor if elem==0 else elem for elem in pit]
                     selcolor = 0
                     canplace = False
@@ -995,7 +996,7 @@ def click(event):
             color = pit[1]
             for i in range(2,-1,-1):
                 set_pit(choice([j for j in range(1,4) if j != pit[i]]),i)
-                draw_animation(i*3,8,diceused,20,c,get_pos,window)
+                draw_old_animation(i*3,8,diceused,20,c,get_pos,window)
                 draw_pit()
             gameover_check()
 
@@ -1132,8 +1133,7 @@ def click(event):
             pass
         #works out if the clicked area was inside the grid, that the player can place a color there, that it is empty, and that there is a square next to it
         if row >= 0 and row < GRIDROWS and column >= 0 and column < GRIDROWS :
-            c.itemconfig(indicator, state=HIDDEN)
-            if not canplace:
+            if selcolor == 0:
                 if fastmode:
                     print(f"Picking color {mouseb}")
                     pick_color((mouseb-1)*3)
@@ -1163,9 +1163,14 @@ def click(event):
                     set_square(0,line[0],line[1]) #clears all of the squares part of the line
                     score += 10*level
                     update_text()
-
+                colorsel = selcolor
+                selcolor = 0
                 if len (lines) >= 3: 
                     play_sound_effect(sfx_on,remove)
+                    for item in highlight:
+                        c.delete(item)
+                    highlight.clear()
+                    c.itemconfig(indicator, state=HIDDEN)
                     if mode == "chroma":
                         if square == 1:
                             play_sound_effect(sfx_on,axeused)
@@ -1198,15 +1203,15 @@ def click(event):
                     #finds the lines with 5 gems and changes them into a diamond
                     play_sound_effect(sfx_on,diamondcreated)
                     diamonds = vdiamonds if direction == 'V' else hdiamonds
-                    if selcolor == 1: #Red
+                    if colorsel == 1: #Red
                         draw_animation(row,column,diamonds["red"],100,c,get_pos,window)
-                    elif selcolor == 2: #Yellow
+                    elif colorsel == 2: #Yellow
                         draw_animation(row,column,diamonds["yellow"],100,c,get_pos,window)
-                    elif selcolor == 3: #Green
+                    elif colorsel == 3: #Green
                         draw_animation(row,column,diamonds["green"],100,c,get_pos,window)
-                    elif selcolor == 4: #Blue
+                    elif colorsel == 4: #Blue
                         draw_animation(row,column,diamonds["blue"],100,c,get_pos,window)
-                    set_square(selcolor+6,row,column)
+                    set_square(colorsel+6,row,column)
                 elif len(lines) >= 6: #finds the lines with 6 or more gems and changes them into a bomb. gems used in 2 lines count twice
                     set_square(11,row,column)
                     
@@ -1223,7 +1228,6 @@ def click(event):
                     c.itemconfig(scoredisp,text=score)
                     window.after(1000,reset_color)
                     window.after(1000,play_place_sound)
-                selcolor = 0
                 if len(lines) == 0:
                     play_place_sound()
                     score += level
