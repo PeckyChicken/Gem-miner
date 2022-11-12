@@ -1,18 +1,17 @@
-from statistics import mean
-from time import sleep
-from tkinter import * #doing wildcard import to make it easier to use
 from math import floor
 from random import choice, randint, shuffle
+from statistics import mean
+from time import sleep
+from tkinter import *  # doing wildcard import to make it easier to use
 from turtle import update
 
-
-from lines import *
 from animations import *
-from sounds import *
-from images import *
-from constants import *
 from classes import *
+from constants import *
 from functions import *
+from images import *
+from lines import *
+from sounds import *
 
 filepath = __file__+"/../"
 
@@ -1216,10 +1215,11 @@ def click(event):
                     set_square(11,row,column)
                     
                     play_sound_effect(sfx_on,bombcreated)
-                
+                soundplayed = False
                 #Need to go through all the lines again to remove all the bricks
                 for line in lines:
-                    clear_bricks(line)
+
+                    soundplayed = clear_bricks(line,soundplayed)
 
                 c.itemconfig(scoredisp,text=score)
                 if all(0==x for x in grid):
@@ -1372,30 +1372,34 @@ def explode(row, column, radius):
         window.after(1000,play_place_sound)
     update_text()
 
-def clear_bricks(line):
+def clear_bricks(line,soundplayed=False):
     #This next part checks all the blocks around where the line was.
     #If any bricks were there it breaks them
+
     x, y = line[0], line[1]+1
-    breakbrick(x,y)
+    soundplayed = breakbrick(x,y,not soundplayed) or soundplayed
 
     x, y = line[0], line[1]-1
-    breakbrick(x,y)
+    soundplayed = breakbrick(x,y,not soundplayed) or soundplayed
 
     x, y = line[0]+1, line[1]
-    breakbrick(x,y)
+    soundplayed = breakbrick(x,y,not soundplayed) or soundplayed
 
     x, y = line[0]-1, line[1]
-    breakbrick(x,y)
+    soundplayed = breakbrick(x,y,not soundplayed) or soundplayed
+    return soundplayed
 
 
-def breakbrick(x,y):
+def breakbrick(x,y,sound):
     if lookup(x,y) == 12:
         if 0 <= y <= 6 and 0 <= x <= 6:
             set_square(0,x,y)
             draw_animation(x,y,brickbreaking,100,c,get_pos,window)
-            play_sound_effect(sfx_on,brickbreak)
+            if sound:
+                play_sound_effect(sfx_on,brickbreak)
             next_level()
-
+            return True
+    return False
 def clear_selection():
     c.itemconfig(selected,image=empty_block)
 

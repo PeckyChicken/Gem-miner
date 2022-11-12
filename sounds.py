@@ -3,7 +3,7 @@ from pygame import mixer, init
 mixer.pre_init(48000, -16, 1, 512)
 init()
 mixer.init()
-mixer.set_num_channels(16)
+mixer.set_num_channels(32)
 
 filepath = __file__+"/../"
 
