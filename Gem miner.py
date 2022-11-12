@@ -764,36 +764,55 @@ def motion(event,outside=False):
     row = floor((mousex-SQUAREMARGINY)//49-1) 
     column = floor((mousey-SQUAREMARGINX)//49+1) #work out row and column of hovered space
     c.moveto(indicator,*get_pos(row,column))
-    if all([GRIDROWS > row >= 0, GRIDROWS > column >= 0, started, selcolor != 0]):
-        if lookup(row,column) != 0:
-            c.itemconfig(indicator,state=HIDDEN)
-            return
-        if not all((lookup(row,column) == 0,
-                    (
-                        any((
-                    (row > 0 and lookup(row-1,column)),
-                    (row < 6 and lookup(row+1,column)),
-                    (column < 6 and lookup(row,column+1)),
-                    (column > 0 and lookup(row,column-1))))
-                    ))):
-            c.itemconfig(indicator,image=cross,state=NORMAL)
-            return
+    if all([GRIDROWS > row >= 0, GRIDROWS > column >= 0, started]):
+        if selcolor != 0:
+            if lookup(row,column) != 0:
+                c.itemconfig(indicator,state=HIDDEN)
+                return
+            if not all((lookup(row,column) == 0,
+                        (
+                            any((
+                        (row > 0 and lookup(row-1,column)),
+                        (row < 6 and lookup(row+1,column)),
+                        (column < 6 and lookup(row,column+1)),
+                        (column > 0 and lookup(row,column-1))))
+                        ))):
+                c.itemconfig(indicator,image=cross,state=NORMAL)
+                return
 
-        lines, direction = detect_line(row,column,lookup,True,selcolor)
+            lines, direction = detect_line(row,column,lookup,True,selcolor)
 
-        if direction == "HV":
-            icon = bomb
-        elif direction == '0' or len(lines) <= 3:
-            icon = itemid[selcolor]
-        elif len(lines) == 5:
-            icon = itemid[selcolor+6]
-        elif len(lines) == 4:
-            icon = itemid[5 + (direction == "V")]
-        for square in lines:
-            #print(f"Row/Column, {(row,column)}. Square, {(square)}")
-            if square != [row,column]:
-                highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
-        c.itemconfig(indicator,image=icon,state=NORMAL)
+            if direction == "HV":
+                icon = bomb
+            elif direction == '0' or len(lines) <= 3:
+                icon = itemid[selcolor]
+            elif len(lines) == 5:
+                icon = itemid[selcolor+6]
+            elif len(lines) == 4:
+                icon = itemid[5 + (direction == "V")]
+            for square in lines:
+                #print(f"Row/Column, {(row,column)}. Square, {(square)}")
+                if square != [row,column]:
+                    highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
+            c.itemconfig(indicator,image=icon,state=NORMAL)
+        elif 2 in powerups:
+            if powerups[0] == 2:
+                if lookup(row,column) == 0:
+                    highlight.append(c.create_image(get_pos(row,column)[0]+SQUARELEN/2,get_pos(row,column)[1]+SQUARELEN/2,image=cross))
+                else:
+                    highlight.append(c.create_image(get_pos(row,column)[0]+SQUARELEN/2,get_pos(row,column)[1]+SQUARELEN/2,image=empty_block))
+            elif powerups[1] == 2:
+                for square in [(i,column) for i in range(7)]:
+                    #if square != [row,column]:
+                    highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
+            elif powerups[2] == 2:
+                for square in [(row,i) for i in range(7)]:
+                    #if square != [row,column]:
+                    highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
+            elif powerups[3] == 2:
+                for square in [(row,i) for i in range(7)]+[(i,column) for i in range(7)]+clear_diagonal_lines(row,column,False):
+                    #if square != [row,column]:
+                    highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
     else:
         c.itemconfig(indicator,state=HIDDEN)
 
@@ -1292,22 +1311,31 @@ def display_modes(music=False):
     for item in [survivalb,timeb,obstacleb,chromab]:
         item.set_visible(True)
 
-def clear_diagonal_lines(row,column):
+def clear_diagonal_lines(row,column,clear=True):
     currow = row
     curcolumn = column
+    if not clear:
+        squares = []
     while currow > 0 and curcolumn > 0:
         currow -= 1
         curcolumn -= 1
     while currow < 7 and curcolumn < 7:
-        if lookup(currow,curcolumn) == 12:
-            next_level()
-            play_sound_effect(sfx_on,brickbreak)
-        elif lookup(currow,curcolumn) != 0:
+
+        if clear:
+            if lookup(currow,curcolumn) == 12:
+                next_level()
+                play_sound_effect(sfx_on,brickbreak)
+            elif lookup(currow,curcolumn) != 0:
+                play_sound_effect(sfx_on,remove)
             play_sound_effect(sfx_on,remove)
-        set_square(0,currow,curcolumn)
-        draw_animation(currow,curcolumn,breaking,100,c,get_pos,window)
+            set_square(0,currow,curcolumn)
+            draw_animation(currow,curcolumn,breaking,100,c,get_pos,window)
+        else:
+            squares.append((currow,curcolumn))
+
         currow += 1
         curcolumn += 1
+
     
     currow = row
     curcolumn = column
@@ -1316,15 +1344,21 @@ def clear_diagonal_lines(row,column):
         currow += 1
         curcolumn -= 1
     while currow >= 0 and curcolumn < 7:
-        if lookup(currow,curcolumn) == 12:
-            next_level()
-            play_sound_effect(sfx_on,brickbreak)
-        elif lookup(currow,curcolumn) != 0:
-            play_sound_effect(sfx_on,remove)
-        set_square(0,currow,curcolumn)
-        draw_animation(currow,curcolumn,breaking,100,c,get_pos,window)
+
+        if clear:
+            set_square(0,currow,curcolumn)
+            draw_animation(currow,curcolumn,breaking,100,c,get_pos,window)
+            if lookup(currow,curcolumn) == 12:
+                next_level()
+                play_sound_effect(sfx_on,brickbreak)
+            elif lookup(currow,curcolumn) != 0:
+                play_sound_effect(sfx_on,remove)
+        else:
+            squares.append((currow,curcolumn))
         currow -= 1
         curcolumn += 1
+    if not clear:
+        return squares
 
 def chain(x,y):
     cursquare = lookup(x,y)
