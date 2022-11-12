@@ -1,5 +1,7 @@
 from tkinter import PhotoImage, Tk
+
 from animations import create_animation
+
 window = Tk() #sets up window
 filepath = __file__+"/../"
 

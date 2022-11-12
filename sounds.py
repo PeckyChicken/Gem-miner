@@ -1,4 +1,4 @@
-from pygame import mixer, init
+from pygame import init, mixer
 
 mixer.pre_init(48000, -16, 1, 512)
 init()
