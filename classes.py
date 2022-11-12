@@ -5,6 +5,8 @@ from functions import *
 from images import *
 
 
+
+
 class GameButton:
     def __init__(self,text:str,offset:float,c:Canvas,hide:bool=False):
         self.image = c.create_image(WIDTH/2,HEIGHT/2+offset,image=button,state=[NORMAL,HIDDEN][hide])

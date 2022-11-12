@@ -1,4 +1,5 @@
 from pygame import init, mixer
+from tkinter import Tk
 
 mixer.pre_init(48000, -16, 1, 512)
 init()
@@ -6,6 +7,37 @@ mixer.init()
 mixer.set_num_channels(32)
 
 filepath = __file__+"/../"
+
+class Music:
+    def __init__(self,music: dict,window:Tk):
+        '''Creates a music object which you can play at any time. 
+        You can pass up to 2 songs as the keys in a dictionary, with the values being how long the songs last, (In ms).'''
+        if len(music) == 1:
+            self.music = [(list(music.keys())[0],list(music.values())[0])]
+            self.repeats = 0
+            self.window = window
+        elif len(music) == 2:
+            self.music = [(list(music.keys())[0],list(music.values())[0]),(list(music.keys())[1],list(music.values())[1])]
+            self.repeats = 0
+            self.window = window
+        else:
+            raise TypeError(f"Expected dict with 2 values, got {len(music)}")
+    def play(self):
+        self.repeats = 0
+        self.play_song()
+    def play_song(self):
+        global loop2
+        self.repeats += 1
+        if len(self.music) == 1:
+            get_channel().play(self.music[0][0])
+            loop2 = self.window.after(self.music[0][1],self.play_song)
+        elif len(self.music) == 2:
+            if self.repeats == 1:
+                get_channel().play(self.music[0][0])
+                loop2 = self.window.after(self.music[0][1],self.play_song)
+            else:
+                get_channel().play(self.music[1][0])
+                loop2 = self.window.after(self.music[1][1],self.play_song)   
 
 #Importing the sounds
 bombcreated = mixer.Sound(filepath+"Gem miner/Sounds/Bomb/bombcreated.wav")
@@ -98,84 +130,18 @@ def get_channel() -> mixer.Channel:
     channel = mixer.find_channel(True)
     channels.add(channel)
     return channel
-
 repeats = 0
-def title_music(window):
-    global repeats, loop
-    if repeats == 0:
-        get_channel().play(title1)
-        loop = window.after(13300,title_music,window)
-    else:
-        get_channel().play(title2)
-        loop = window.after(54850,title_music,window)
-    repeats += 1
-
-def select_music(window):
-    global repeats,loop2
-    get_channel().play(mode_select)
-    loop2 = window.after(69818,select_music,window)
-    repeats += 1
-
-def game_music(window):
-    global repeats,loop2
-    get_channel().play(main1)
-    loop2 = window.after(52377,game_music,window)
-    repeats += 1
-
-def game_music2(window):
-    global repeats,loop2
-    get_channel().play(main2)
-    loop2 = window.after(61075,game_music2,window)
-    repeats += 1
-
-def time_music(window):
-    global repeats, loop
-    if repeats == 0:
-        get_channel().play(time1)
-        loop = window.after(8000,time_music,window)
-    else:
-        get_channel().play(time2)
-        loop = window.after(32000,time_music,window)
-    repeats += 1
-
-
-def obstacle_music(window):
-    global repeats,loop2
-    get_channel().play(obstacle)
-    loop2 = window.after(56000,obstacle_music,window)
-    repeats += 1
-    
-def game_over_music(window):
-    global repeats, loop2
-    if repeats == 0:
-        get_channel().play(gameover1)
-        loop2 = window.after(643,game_over_music,window)
-    else: 
-        get_channel().play(gameover2)
-        loop2 = window.after(13714,game_over_music,window)
-    repeats += 1
-
-def chroma_music(window):
-    global repeats,loop2
-    get_channel().play(chromablitz)
-    loop2 = window.after(57600,chroma_music,window)
-    repeats += 1
-
 def stop_music(window):
     global repeats, channels
     for channel in channels:
         channel.stop()
     channels.clear()
-    errors = 0 #Should just be one of these
-    try:
-        window.after_cancel(loop)
-    except NameError: 
-        errors += 1
+    errors = 0
     try:
         window.after_cancel(loop2)
     except NameError: 
         errors += 1
     if errors != 1:
-        #print(f"LOG: Error found in function stop_music(), the number of errors were:\n{errors}.\nExpected:\n1.")
+        #print(f"LOG: Error found in function stop_music(), the number of errors were:\n{errors}.\nExpected:\n0.")
         pass
     repeats = 0

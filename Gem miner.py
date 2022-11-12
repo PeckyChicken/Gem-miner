@@ -3,7 +3,6 @@ from random import choice, randint, shuffle
 from statistics import mean
 from time import sleep
 from tkinter import *  # doing wildcard import to make it easier to use
-from turtle import update
 
 from animations import *
 from classes import *
@@ -14,6 +13,7 @@ from lines import *
 from sounds import *
 
 filepath = __file__+"/../"
+
 
 
 window.title("Gem miner")
@@ -54,7 +54,16 @@ try:
 except (FileNotFoundError, ValueError):
     highscore = 0
 
+select_music = Music({mode_select:69818},window)
+title_music = Music({title1:13300,title2:54850},window)
+game_music = Music({main1:52377},window)
+game_music2 = Music({main2:61075},window)
+time_music = Music({time1:8000,time2:32000},window)
+obstacle_music = Music({obstacle:56000},window)
+game_over_music = Music({gameover1:643,gameover2:13714},window)
+chroma_music = Music({chromablitz:57600},window)
 
+title_music.play()
 
 canplace = False
 selcolor = 0
@@ -161,7 +170,6 @@ itemid = {0:empty_block,1:red_block,2:yellow_block,3:green_block,4:blue_block,5:
 
 board: list[Button] = list() #sets up the board
 #Music loop
-title_music(window)
 
 
 def draw_board():
@@ -231,7 +239,7 @@ def next_level():
                 index = choice(list(indices))
                 indices.remove(index)
                 tempx, tempy = index//7, index%7
-                breakbrick(tempx,tempy)
+                breakbrick(tempx,tempy,True)
         else:
             powerups = [1]*5
             powerupvalues = [1]*5
@@ -316,14 +324,14 @@ def start_part_2(card, fade):
         time_rush()
     if music_on:
         if mode == "survival":
-            [game_music,game_music2][track](window)
+            [game_music,game_music2][track].play()
         elif mode == "time":
             repeats = 0
-            time_music(window)
+            time_music.play()
         elif mode == "obstacle":
-            obstacle_music(window)
+            obstacle_music.play()
         elif mode == "chroma":
-            chroma_music(window)
+            chroma_music.play()
     c.delete(card[0])
     c.delete(fade[0])
     if mode != "obstacle":
@@ -737,6 +745,7 @@ def pick_color(row):
     global canplace, powerups, selcolor
     if row not in [0,3,6]: return
     clear_toast()
+    clear_dice_prev()
     powerups = [1 if elem==2 else elem for elem in powerups]
     canplace = True #make sure that the player can place a color
     c.itemconfig(pitobjects[row//3],image=itemid[selcolor]) #sets the color to gray temporarily
@@ -759,13 +768,13 @@ def motion(event,outside=False):
     if not outside:
         mousex = event.x
         mousey = event.y #get mouse x and y
-    
 
-    row = floor((mousex-SQUAREMARGINY)//49-1) 
+    row = floor((mousex-SQUAREMARGINY)//49-1)
     column = floor((mousey-SQUAREMARGINX)//49+1) #work out row and column of hovered space
     c.moveto(indicator,*get_pos(row,column))
     if all([GRIDROWS > row >= 0, GRIDROWS > column >= 0, started]):
         if selcolor != 0:
+
             if lookup(row,column) != 0:
                 c.itemconfig(indicator,state=HIDDEN)
                 return
@@ -813,13 +822,14 @@ def motion(event,outside=False):
                 for square in [(row,i) for i in range(7)]+[(i,column) for i in range(7)]+clear_diagonal_lines(row,column,False):
                     #if square != [row,column]:
                     highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
+        else: c.itemconfig(indicator,state=HIDDEN)
     else:
         c.itemconfig(indicator,state=HIDDEN)
 
-
+diceprev = []
 #Main event
 def click(event):
-    global selcolor, pit, canplace, pitobjects, grid, score, gameover, powerups, started, helping, tutstage, level, highscore, music_on, sfx_on, repeats, busy, track, mode, moves, selecting, powerupvalues
+    global selcolor,diceprev, pit, canplace, pitobjects, grid, score, gameover, powerups, started, helping, tutstage, level, highscore, music_on, sfx_on, repeats, busy, track, mode, moves, selecting, powerupvalues
 
     next_level()
     mouseb = event.num
@@ -848,21 +858,21 @@ def click(event):
             if started:
                 if gameover:
                     if not sfx_on:
-                        game_over_music(window)
+                        game_over_music.play()
                 elif mode == "survival":
-                    [game_music,game_music2][track](window)
+                    [game_music,game_music2][track].play()
                 elif mode == "time":
                     repeats = 0
-                    time_music(window)
+                    time_music.play()
                 elif mode == "obstacle":
-                    obstacle_music(window)
+                    obstacle_music.play()
                 elif mode == "chroma":
-                    chroma_music(window)
+                    chroma_music.play()
             else:
                 if selecting:
-                    select_music(window)
+                    select_music.play()
                 else:
-                    title_music(window)
+                    title_music.play()
             c.itemconfig(musicsquare, image = music)
 
     if inside(0,400,50,450,mousex,mousey): #Is sfx clicked?
@@ -874,7 +884,7 @@ def click(event):
         else:
             sfx_on = True
             if gameover and not music_on:
-                game_over_music(window)
+                game_over_music.play()
             play_sound_effect(sfx_on,clicked)
             c.itemconfig(sfxsquare, image = sfx)
     
@@ -912,6 +922,7 @@ def click(event):
 
         #TODO: TURN THIS INTO A FUNCTION
         if inside(445,125,495,175,mousex,mousey) and powerups[0] != 0: #is pickaxe clicked?
+            clear_dice_prev()
             if powerups[0] == 2:
                 powerups[0] = 1
                 clear_toast()
@@ -930,6 +941,7 @@ def click(event):
             toast("The Pickaxe clears the square you click on.")
             return
         if inside(445,185,495,235,mousex,mousey) and powerups[1] != 0: #is throwing axe clicked?
+            clear_dice_prev()
             if powerups[1] == 2:
                 powerups[1] = 1
                 clear_toast()
@@ -948,6 +960,7 @@ def click(event):
             toast("Click on any square to clear a row with the Axe.")
             return
         if inside(445,245,495,295,mousex,mousey) and powerups[2] != 0: #is jackhammer clicked?
+            clear_dice_prev()
             if powerups[2] == 2:
                 powerups[2] = 1
                 clear_toast()
@@ -966,6 +979,7 @@ def click(event):
             toast("Clear a whole column with the Jackhammer.")
             return
         if inside(445,305,495,355,mousex,mousey) and powerups[3] != 0: #is star clicked?
+            clear_dice_prev()
             if powerups[3] == 2:
                 powerups[3] = 1
                 clear_toast()
@@ -995,10 +1009,14 @@ def click(event):
                 toast("Use the Dice to replenish your pit.")
                 play_sound_effect(sfx_on,powerupselected)
                 c.itemconfig(selected,image=dice)
+                for square in [(0,8),(3,8),(6,8)]:
+                    #if square != [row,column]:
+                    diceprev.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
                 return
+
             clear_toast()
             powerups = [1 if elem==2 else elem for elem in powerups]
-            
+            clear_dice_prev()
             play_sound_effect(sfx_on,shufflesound)
             c.itemconfig(scoredisp,text=score)
             
@@ -1150,13 +1168,7 @@ def click(event):
         except IndexError:
             pass
         #works out if the clicked area was inside the grid, that the player can place a color there, that it is empty, and that there is a square next to it
-        if row >= 0 and row < GRIDROWS and column >= 0 and column < GRIDROWS :
-            if selcolor == 0:
-                if fastmode:
-                    print(f"Picking color {mouseb}")
-                    pick_color((mouseb-1)*3)
-                else:
-                    return
+        if row >= 0 and row < GRIDROWS and column >= 0 and column < GRIDROWS and selcolor != 0:
             # print(f'Row: {row}, Column: {column}, Row+1: {row+1}, Column+1: {column+1}, Row-1: {row-1}, Column-1: {column-1}')
             if (lookup(row,column) == 0 and
                     (
@@ -1168,6 +1180,7 @@ def click(event):
                 pit = [randint(1,4) if elem==0 else elem for elem in pit]
                 draw_pit()
                 set_square(selcolor,row,column)
+                selcolor = 0
                 canplace = False
                 c.itemconfig(selected,image=empty_block)
                 lines,direction = detect_line(row,column,lookup) #detects any lines
@@ -1182,7 +1195,6 @@ def click(event):
                     score += 10*level
                     update_text()
                 colorsel = selcolor
-                selcolor = 0
                 if len (lines) >= 3: 
                     play_sound_effect(sfx_on,remove)
                     for item in highlight:
@@ -1215,7 +1227,6 @@ def click(event):
                 
                 if len(lines) == 4: #Finds the lines with 4 gems and changes them into a drill with the opposite direction as the line.
                     set_square(5 if direction == "H" else 6,row,column)
-                    
                     play_sound_effect(sfx_on,drillcreated)
                 elif len(lines) == 5:
                     #finds the lines with 5 gems and changes them into a diamond
@@ -1298,10 +1309,15 @@ def click(event):
                 tutstage = 1
                 disp_help() 
 
+def clear_dice_prev():
+    for item in diceprev:
+        c.delete(item)
+    diceprev.clear()
+
 def display_modes(music=False):
     global display, started
     if music and music_on:
-        select_music(window)
+        select_music.play()
     started = False
     display = True
     c.itemconfig(titlebg,state=HIDDEN)
@@ -1443,7 +1459,7 @@ def gameover_check():
     if (0 not in grid and any(x in grid for x in [5,6,7,8,9,10,11]) == 0) or (moves <= 0 and mode == "obstacle"):  #game is over
         stop_music(window)
         if music_on or sfx_on:
-            game_over_music(window)
+            game_over_music.play()
         powerups = [0]*5
         powerupvalues = [0]*5
         playb.set_visible(True)
