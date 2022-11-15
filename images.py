@@ -34,6 +34,7 @@ titlebgimage = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/titlebg.
 tut1,tut2,tut3,tut4,tut5,tut6 = create_animation(filepath+"Gem miner/Images/Tutorial","tutorial")
 
 
+
 music = PhotoImage(file = filepath+"Gem miner/Images/UI/music_yes.png")
 sfx = PhotoImage(file = filepath+"Gem miner/Images/UI/sfx_yes.png")
 nomusic = PhotoImage(file = filepath+"Gem miner/Images/UI/music_no.png")
@@ -55,6 +56,8 @@ brickplace = create_animation(filepath+"Gem miner/Images/Animations/Bricks/Placi
 brickbreaking = create_animation(filepath+"Gem miner/Images/Animations/Bricks/Breaking","brickbreak")
 
 time_bgs = create_animation(filepath+"Gem miner/Images/Backgrounds/Time","time_bg")
+
+bomb_create = create_animation(filepath+"Gem miner/Images/Animations/Bombs","bomb")
 
 
 vdiamonds = {}

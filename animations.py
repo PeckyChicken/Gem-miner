@@ -31,7 +31,10 @@ def draw_old_animation(x,y,frames,fps,c: Canvas,get_pos: callable,window: Tk):
         window.update()
     c.delete(sprite)
 
-def draw_animation(x,y,frames,fps,c: Canvas,get_pos:callable,window: Tk,frame=0,sprite=None):
+def draw_animation(x,y,frames,fps,c: Canvas,get_pos:callable,window: Tk,frame=0,sprite=None,event:callable=None):
+    '''Draws an animation at a given grid position. X and Y are the grid position of the animation, frames is a list of the frames to play, fps is how fast the animation plays.
+    
+    For c, get_pos, and window, just pass those exact words in, for frame and sprite, leave those alone, and event is the function which will be called on animation completing.'''
     frametime = 1000//fps
     DrawX, DrawY = get_pos(x,y)
     if sprite is None:
@@ -44,6 +47,8 @@ def draw_animation(x,y,frames,fps,c: Canvas,get_pos:callable,window: Tk,frame=0,
     window.update()
     if frame < len(frames):
 
-        window.after(frametime,draw_animation,x,y,frames,fps,c,get_pos,window,frame,sprite)
+        window.after(frametime,draw_animation,x,y,frames,fps,c,get_pos,window,frame,sprite,event)
     else:
+        if event is not None:
+            event()
         c.delete(sprite)

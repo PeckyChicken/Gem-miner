@@ -1180,6 +1180,7 @@ def click(event):
                 pit = [randint(1,4) if elem==0 else elem for elem in pit]
                 draw_pit()
                 set_square(selcolor,row,column)
+                colorsel = selcolor
                 selcolor = 0
                 canplace = False
                 c.itemconfig(selected,image=empty_block)
@@ -1194,7 +1195,6 @@ def click(event):
                     set_square(0,line[0],line[1]) #clears all of the squares part of the line
                     score += 10*level
                     update_text()
-                colorsel = selcolor
                 if len (lines) >= 3: 
                     play_sound_effect(sfx_on,remove)
                     for item in highlight:
@@ -1224,7 +1224,6 @@ def click(event):
                                 sleep(0.05)
                         elif square == 4:
                             explode(tempx,tempy,1)
-                
                 if len(lines) == 4: #Finds the lines with 4 gems and changes them into a drill with the opposite direction as the line.
                     set_square(5 if direction == "H" else 6,row,column)
                     play_sound_effect(sfx_on,drillcreated)
@@ -1233,16 +1232,16 @@ def click(event):
                     play_sound_effect(sfx_on,diamondcreated)
                     diamonds = vdiamonds if direction == 'V' else hdiamonds
                     if colorsel == 1: #Red
-                        draw_animation(row,column,diamonds["red"],100,c,get_pos,window)
+                        draw_animation(row,column,diamonds["red"],100,c,get_pos,window,event=lambda:set_square(colorsel+6,row,column))
                     elif colorsel == 2: #Yellow
-                        draw_animation(row,column,diamonds["yellow"],100,c,get_pos,window)
+                        draw_animation(row,column,diamonds["yellow"],100,c,get_pos,window,event=lambda:set_square(colorsel+6,row,column))
                     elif colorsel == 3: #Green
-                        draw_animation(row,column,diamonds["green"],100,c,get_pos,window)
+                        draw_animation(row,column,diamonds["green"],100,c,get_pos,window,event=lambda:set_square(colorsel+6,row,column))
                     elif colorsel == 4: #Blue
-                        draw_animation(row,column,diamonds["blue"],100,c,get_pos,window)
-                    set_square(colorsel+6,row,column)
+                        draw_animation(row,column,diamonds["blue"],100,c,get_pos,window,event=lambda:set_square(colorsel+6,row,column))
+                    
                 elif len(lines) >= 6: #finds the lines with 6 or more gems and changes them into a bomb. gems used in 2 lines count twice
-                    set_square(11,row,column)
+                    draw_animation(row,column,explosions,100,c,get_pos,window,event=lambda: set_square(11,row,column))
                     
                     play_sound_effect(sfx_on,bombcreated)
                 soundplayed = False
