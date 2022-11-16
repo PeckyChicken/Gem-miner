@@ -59,6 +59,11 @@ time_bgs = create_animation(filepath+"Gem miner/Images/Backgrounds/Time","time_b
 
 bomb_create = create_animation(filepath+"Gem miner/Images/Animations/Bombs","bomb")
 
+hgembreaks = {}
+for ani in ["Red"]:
+    hgembreaks[ani.lower()] = create_animation(filepath+f"Gem miner/Images/Animations/Gems/Horizontal/{ani}/Center",ani.lower())
+
+
 
 vdiamonds = {}
 hdiamonds = {}

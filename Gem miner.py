@@ -1195,7 +1195,11 @@ def click(event):
                     set_square(0,line[0],line[1]) #clears all of the squares part of the line
                     score += 10*level
                     update_text()
-                if len (lines) >= 3: 
+                if len (lines) >= 3:
+                    if len(lines) == 3:
+                        if direction == "H":
+                            if square == 1:
+                                draw_animation(tempx,tempy,hgembreaks["red"],100,c,get_pos,window)
                     play_sound_effect(sfx_on,remove)
                     for item in highlight:
                         c.delete(item)

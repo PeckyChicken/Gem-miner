@@ -1,6 +1,8 @@
 def detect_line(x,y,lookup:callable,special=False,color=None):
     '''Given an x and y position, as well as the function lookup, this function will search all the squares around it to find lines of gems.'''
     count = 0
+    num = int()
+    
     usedsquares = list()
     curx = x
     cury = y
