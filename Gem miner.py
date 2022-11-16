@@ -1314,7 +1314,7 @@ def handle_animation(square, direction, num, tempx, tempy):
     color = [None,"red","yellow","green","blue"][square]
     if direction == "H":
         pos = ["left","center","right"][num]
-        if square == 1:
+        if square in (1, 2):
             draw_animation(tempx,tempy,hgembreaks[color][pos],100,c,get_pos,window)
 
     elif direction == "V":
