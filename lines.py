@@ -1,8 +1,11 @@
 def detect_line(x,y,lookup:callable,special=False,color=None):
     '''Given an x and y position, as well as the function lookup, this function will search all the squares around it to find lines of gems.'''
     count = 0
-    num = int()
     
+    #Positions of the original square
+    xpos = int()
+    ypos = int()
+
     usedsquares = list()
     curx = x
     cury = y
@@ -22,6 +25,7 @@ def detect_line(x,y,lookup:callable,special=False,color=None):
         #Once it has finished if it found anything it goes back up to look for other matches
         while (col if (curx,cury) == (x,y) else lookup(curx,cury))  == col:
             if cury < 0: break
+            ypos += 1
             count += 1 
             usedsquares.append([curx,cury]) #add the current match to the list
             cury -= 1 #move it up one row
@@ -29,11 +33,12 @@ def detect_line(x,y,lookup:callable,special=False,color=None):
     #Does it again for the up direction, doesnt need to check for down because it just did that
     while (col if (curx,cury) == (x,y) else lookup(curx,cury))  == col:
         if cury < 0: break
+        ypos += 1
         count += 1 
         usedsquares.append([curx,cury]) #add the current match to the list
         cury -= 1 #move it up one row
     if count == 5: #Return if already a diamond
-        return usedsquares, "V"
+        return usedsquares, "V", 0
     if count < 3: #If there were no lines that way they do not count
         count == 0
         usedsquares.clear()
@@ -54,6 +59,7 @@ def detect_line(x,y,lookup:callable,special=False,color=None):
         #Go back to the left to look for more matches
         while (col if (curx,cury) == (x,y) else lookup(curx,cury))  == col:
             if curx < 0: break
+            xpos += 1
             xcount += 1
             xusedsquares.append([curx,cury]) #add the current match to the list
             curx -= 1 #move it back left
@@ -61,25 +67,26 @@ def detect_line(x,y,lookup:callable,special=False,color=None):
         xcount == 0
         xusedsquares.clear()
     if xcount == 5: #Return if already a diamond
-        return xusedsquares, "H"
+        return xusedsquares, "H", 0
     if len(xusedsquares)+len(usedsquares) >= 6:
-        return xusedsquares+usedsquares,"HV"
+        return xusedsquares+usedsquares,"HV",(xpos,ypos)
     elif len(xusedsquares) >= 3:
-        return xusedsquares,"H"
+        return xusedsquares,"H",xpos
     elif len(usedsquares) >= 3:
-        return usedsquares,"V"
+        return usedsquares,"V",ypos
     #Now to check for left on its own
     while (col if (curx,cury) == (x,y) else lookup(curx,cury))  == col:
         if curx < 0: break
+        xpos += 1
         xcount += 1
         xusedsquares.append([curx,cury]) #add the current match to the list
         curx -= 1 #move it left one column
     if xcount == 5:
-        return xusedsquares, "V"
+        return xusedsquares, "V", 0
     if len(xusedsquares)+len(usedsquares) >= 6:
-        return xusedsquares+usedsquares,"HV"
+        return xusedsquares+usedsquares,"HV", (xpos,ypos)
     elif len(xusedsquares) >= 3:
-        return xusedsquares,"H"
+        return xusedsquares,"H",xpos
     elif len(usedsquares) >= 3:
-        return usedsquares,"V"
-    return [],"0"
+        return usedsquares,"V",ypos
+    return [],"0",0

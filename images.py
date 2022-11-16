@@ -61,7 +61,9 @@ bomb_create = create_animation(filepath+"Gem miner/Images/Animations/Bombs","bom
 
 hgembreaks = {}
 for ani in ["Red"]:
-    hgembreaks[ani.lower()] = create_animation(filepath+f"Gem miner/Images/Animations/Gems/Horizontal/{ani}/Center",ani.lower())
+    hgembreaks[ani.lower()] = {"center":create_animation(filepath+f"Gem miner/Images/Animations/Gems/Horizontal/{ani}/Center",ani.lower()),
+                                "left":create_animation(filepath+f"Gem miner/Images/Animations/Gems/Horizontal/{ani}/Left",ani.lower()),
+                                "right":create_animation(filepath+f"Gem miner/Images/Animations/Gems/Horizontal/{ani}/Right",ani.lower())}
 
 
 

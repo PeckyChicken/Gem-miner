@@ -789,7 +789,7 @@ def motion(event,outside=False):
                 c.itemconfig(indicator,image=cross,state=NORMAL)
                 return
 
-            lines, direction = detect_line(row,column,lookup,True,selcolor)
+            lines, direction, _ = detect_line(row,column,lookup,True,selcolor)
 
             if direction == "HV":
                 icon = bomb
@@ -1184,7 +1184,7 @@ def click(event):
                 selcolor = 0
                 canplace = False
                 c.itemconfig(selected,image=empty_block)
-                lines,direction = detect_line(row,column,lookup) #detects any lines
+                lines, direction, num = detect_line(row,column,lookup) #detects any lines
                 if mode == "obstacle":
                     moves -= 1
                 tempx, tempy = row,column
@@ -1197,9 +1197,7 @@ def click(event):
                     update_text()
                 if len (lines) >= 3:
                     if len(lines) == 3:
-                        if direction == "H":
-                            if square == 1:
-                                draw_animation(tempx,tempy,hgembreaks["red"],100,c,get_pos,window)
+                        handle_animation(square, direction, num, tempx, tempy)
                     play_sound_effect(sfx_on,remove)
                     for item in highlight:
                         c.delete(item)
@@ -1311,6 +1309,16 @@ def click(event):
                 helping = True
                 tutstage = 1
                 disp_help() 
+
+def handle_animation(square, direction, num, tempx, tempy):
+    if direction == "H":
+        if square == 1:
+            if num == 0:
+                draw_animation(tempx,tempy,hgembreaks["red"]["left"],100,c,get_pos,window)
+            elif num == 1:
+                draw_animation(tempx,tempy,hgembreaks["red"]["center"],100,c,get_pos,window)
+            elif num == 2:
+                pass
 
 def clear_dice_prev():
     for item in diceprev:
