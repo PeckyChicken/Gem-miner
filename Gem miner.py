@@ -1311,14 +1311,16 @@ def click(event):
                 disp_help() 
 
 def handle_animation(square, direction, num, tempx, tempy):
+    color = [None,"red","yellow","green","blue"][square]
     if direction == "H":
+        pos = ["left","center","right"][num]
         if square == 1:
-            if num == 0:
-                draw_animation(tempx,tempy,hgembreaks["red"]["left"],100,c,get_pos,window)
-            elif num == 1:
-                draw_animation(tempx,tempy,hgembreaks["red"]["center"],100,c,get_pos,window)
-            elif num == 2:
-                pass
+            draw_animation(tempx,tempy,hgembreaks[color][pos],100,c,get_pos,window)
+
+    elif direction == "V":
+        pos = ["top","center","bottom"][num]
+        if square == 1:
+            draw_animation(tempx,tempy,vgembreaks[color][pos],100,c,get_pos,window)
 
 def clear_dice_prev():
     for item in diceprev:

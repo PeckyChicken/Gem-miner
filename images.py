@@ -65,6 +65,12 @@ for ani in ["Red"]:
                                 "left":create_animation(filepath+f"Gem miner/Images/Animations/Gems/Horizontal/{ani}/Left",ani.lower()),
                                 "right":create_animation(filepath+f"Gem miner/Images/Animations/Gems/Horizontal/{ani}/Right",ani.lower())}
 
+vgembreaks = {}
+for ani in ["Red"]:
+    vgembreaks[ani.lower()] = {"center":create_animation(filepath+f"Gem miner/Images/Animations/Gems/Vertical/{ani}/Center",ani.lower()),
+                                "bottom":create_animation(filepath+f"Gem miner/Images/Animations/Gems/Vertical/{ani}/Bottom",ani.lower()),
+                                "top":create_animation(filepath+f"Gem miner/Images/Animations/Gems/Vertical/{ani}/Top",ani.lower())}
+
 
 
 vdiamonds = {}
