@@ -1197,7 +1197,7 @@ def click(event):
                     update_text()
                 if len (lines) >= 3:
                     if len(lines) == 3:
-                        handle_animation(square, direction, num, tempx, tempy)
+                        handle_gem_break(square, direction, num, tempx, tempy)
                     play_sound_effect(sfx_on,remove)
                     for item in highlight:
                         c.delete(item)
@@ -1312,16 +1312,16 @@ def click(event):
 
 
 
-def handle_animation(square, direction, num, tempx, tempy):
+def handle_gem_break(square, direction, num, tempx, tempy):
     color = [None,"red","yellow","green","blue"][square]
     if direction == "H":
         pos = ["left","center","right"][num]
-        if square in (1, 2):
+        if square in (1, 2, 3):
             draw_animation(tempx,tempy,hgembreaks[color][pos],100,c,get_pos,window,event=lambda x=tempx,y=tempy: draw_animation(x,y,gemvanish,100,c,get_pos,window))
 
     elif direction == "V":
         pos = ["top","center","bottom"][num]
-        if square in (1,2):
+        if square in (1,2,3):
             draw_animation(tempx,tempy,vgembreaks[color][pos],100,c,get_pos,window,event=lambda x=tempx,y=tempy: draw_animation(x,y,gemvanish,100,c,get_pos,window))
 
 def clear_dice_prev():
