@@ -79,6 +79,9 @@ for ani in ["Red","Green","Yellow","Blue"]:
     vdiamonds[ani.lower()] = [PhotoImage(file = filepath+f"Gem miner/Images/Animations/Diamonds/Vertical/{ani}/frame{i}.png") for i in range(1,10)]
     hdiamonds[ani.lower()] = [PhotoImage(file = filepath+f"Gem miner/Images/Animations/Diamonds/Horizontal/{ani}/frame{i}.png") for i in range(1,10)]
 
+reddrill = create_animation("Gem miner/Images/Animations/Drills/Horizontal/Red/Left","red")
+
+
 obstacle_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/obstacle_bg.png")
 survival_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/survival_bg.png")
 chroma_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/chroma_bg.png")

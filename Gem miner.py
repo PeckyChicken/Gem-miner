@@ -1227,7 +1227,11 @@ def click(event):
                         elif square == 4:
                             explode(tempx,tempy,1)
                 if len(lines) == 4: #Finds the lines with 4 gems and changes them into a drill with the opposite direction as the line.
-                    set_square(5 if direction == "H" else 6,row,column)
+                    if direction == "H" and square == 1:
+                        draw_animation(tempx,tempy,reddrill,100,c,get_pos,window,event=lambda: set_square(5 if direction == "H" else 6,row,column))
+                    else:
+                        set_square(5 if direction == "H" else 6,row,column)
+                    
                     play_sound_effect(sfx_on,drillcreated)
                 elif len(lines) == 5:
                     #finds the lines with 5 gems and changes them into a diamond
@@ -1337,7 +1341,7 @@ def display_modes(music=False):
     for item in [startb,helpb,fastb]:
         item.set_visible(FALSE)
 
-    for item in [survivalb,timeb,obstacleb,chromab]:
+    for item in [survivalb,timeb,obstacleb]:
         item.set_visible(True)
 
 def clear_diagonal_lines(row,column,clear=True):
