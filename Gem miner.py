@@ -342,13 +342,14 @@ def start_part_2(card, fade):
     set_brick()
 
 def start():
-    global repeats,track,powerups,powerupvalues, level, cutscene
+    global repeats,track,powerups,powerupvalues, level, cutscene, beathighscore
     reset_color()
     reset_color()
     draw_powerups()
     draw_board()
     draw_pit()
     cutscene = True
+    beathighscore = False
 
     powerups = powerupvalues = [1]*5
     draw_powerups()
@@ -476,11 +477,23 @@ def ask_close():
 def calc_font_size(text):
     return DEFAULTTEXTSIZE-len(text)*4
 
+beathighscore = False
+
 def update_text(nextlevel=True): #Updates the font size depending on how many points the player has.
+    global highscore, beathighscore
     c.itemconfig(scoredisp,font=(FONT,calc_font_size(str(score))))
     c.itemconfig(scoredisp,text=str(score))
     if nextlevel:
         next_level()
+    if score >= highscore and not beathighscore and started:
+        beathighscore = True
+        play_sound_effect(sfx_on,newhighscore)
+        c.itemconfig(scoredisp,font=(FONT,calc_font_size(str(score))+5))
+        window.after(250,lambda: c.itemconfig(scoredisp,font=(FONT,calc_font_size(str(score)))))
+        highscore = score
+        with open("Gem miner/highscore.txt","w+") as hsfile:
+            hsfile.write(str(highscore))
+            hsfile.close()
     c.itemconfig(leveldisp,text=str(level))
     c.itemconfig(leveldisp,font=(FONT,calc_font_size(str(level))))
     
@@ -641,6 +654,7 @@ def handle_items(item,row,column):
     update_text()
     return False
 
+
 def clear_colors(row,column):
     global score, busy, powerups, powerupvalues
     play_sound_effect(sfx_on,diamondused)
@@ -680,6 +694,7 @@ def clear_colors(row,column):
         elif square == 4:
             explode(row,column,1)
     score += 100*level
+    
     update_text()
     c.itemconfig(scoredisp,text=score)
     draw_animation(row,column,smokes[lookup(row,column)-6],100,c,get_pos,window)

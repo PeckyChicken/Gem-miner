@@ -66,6 +66,7 @@ main2 = mixer.Sound(filepath+"Gem miner/Music/main2.ogg")
 time1 = mixer.Sound(filepath+"Gem miner/Music/time1.ogg")
 time2 = mixer.Sound(filepath+"Gem miner/Music/time2.ogg")
 advance = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/nextlevel.wav")
+newhighscore = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/highscore.wav")
 gameover1 = mixer.Sound(filepath+"Gem miner/Music/gameover1.ogg")
 gameover2 = mixer.Sound(filepath+"Gem miner/Music/gameover2.ogg")
 obstacle = mixer.Sound(filepath+"Gem miner/Music/obstacle.ogg")
@@ -116,6 +117,7 @@ mixer.Sound.set_volume(clicked,sound_vol)
 mixer.Sound.set_volume(clocktick,sound_vol)
 mixer.Sound.set_volume(brickplaced,sound_vol)
 mixer.Sound.set_volume(startsound,sound_vol)
+mixer.Sound.set_volume(newhighscore,sound_vol)
 
 def play_sound_effect(sfx_on,effect):
     if sfx_on:
