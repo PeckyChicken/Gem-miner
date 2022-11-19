@@ -51,7 +51,7 @@ explosions = create_animation(filepath+"Gem miner/Images/Animations/Explosion","
 
 smokes = []
 for color in ["General","Red","Yellow","Green","Blue"]:
-    smokes.append(create_animation(filepath+f"Gem miner/Images/Animations/{color}/Smoke","smoke"))
+    smokes.append(create_animation(filepath+f"Gem miner/Images/Animations/Smoke/{color}","smoke"))
 
 
 

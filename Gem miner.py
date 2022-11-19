@@ -574,12 +574,12 @@ def convert_colors(item,row,column,samesquare):
         if grid[i] == lookup(diamondx,diamondy)-6: #sets all colors of the same to the item
             x = i%7
             y = i//7
-            draw_animation(x,y,smokes(lookup(x,y)),100,c,get_pos,window)
+            draw_animation(x,y,smokes[lookup(x,y)],100,c,get_pos,window)
             set_square(11 if item == "bomb" else randint(5,6),x,y)
             score += 10*level
             update_text()
     busy = False
-    draw_animation(diamondx,diamondy,smokes(lookup(diamondx,diamondy)),100,c,get_pos,window)
+    draw_animation(diamondx,diamondy,smokes[lookup(diamondx,diamondy)-6],100,c,get_pos,window)
     set_square(11 if item == "bomb" else randint(5,6),diamondx,diamondy)
 
 def clear_2_lines(row,column):
@@ -646,12 +646,12 @@ def clear_colors(row,column):
     play_sound_effect(sfx_on,diamondused)
     busy = False
     square = lookup(row,column)-6
+    play_sound_effect(sfx_on,remove)
     for i in range(len(grid)):
         if grid[i] == lookup(row,column)-6: #sets all colors of the same to gray
             currow, curcolumn = i%7,floor(i/7)
-            draw_animation(currow,curcolumn,smokes(lookup(currow,curcolumn)),75,c,get_pos,window)
+            draw_animation(currow,curcolumn,smokes[lookup(currow,curcolumn)],75,c,get_pos,window)
             
-            play_sound_effect(sfx_on,remove)
             set_square(0,currow,curcolumn)
             score += 10*level
             c.itemconfig(scoredisp,text=score)
@@ -682,7 +682,7 @@ def clear_colors(row,column):
     score += 100*level
     update_text()
     c.itemconfig(scoredisp,text=score)
-    draw_animation(row,column,smokes(lookup(row,column)),100,c,get_pos,window)
+    draw_animation(row,column,smokes[lookup(row,column)-6],100,c,get_pos,window)
     set_square(0,row,column) #removes the current diamond
     if all(0==x for x in grid):
         score += 50*level
