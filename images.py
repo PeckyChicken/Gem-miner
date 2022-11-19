@@ -94,6 +94,6 @@ for ani in []:
 obstacle_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/obstacle_bg.png")
 survival_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/survival_bg.png")
 chroma_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/chroma_bg.png")
-diceused = [PhotoImage(file = filepath+"Gem miner/Images/Animations/Dice/dice1.png")]
+diceused = create_animation("Gem miner/Images/Animations/Dice","dice")
 
 cross = PhotoImage(file = filepath+"Gem miner/Images/UI/cross.png")

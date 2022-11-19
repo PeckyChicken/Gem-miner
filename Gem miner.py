@@ -771,7 +771,9 @@ def motion(event,outside=False):
 
     row = floor((mousex-SQUAREMARGINY)//49-1)
     column = floor((mousey-SQUAREMARGINX)//49+1) #work out row and column of hovered space
-    c.moveto(indicator,*get_pos(row,column))
+    pos = get_pos(row,column)
+    c.moveto(indicator,pos[0]+SQUARELEN*outside/2,pos[1]+SQUARELEN*outside/2)
+    
     if all([GRIDROWS > row >= 0, GRIDROWS > column >= 0, started]):
         if selcolor != 0:
 
@@ -1030,9 +1032,9 @@ def click(event):
             c.itemconfig(selected,image=empty_block)
             #sets the pit to random colors
             color = pit[1]
+            #draw_animation(6,8,diceused,10,c,get_pos,window,event=lambda: draw_animation(3,8,diceused,10,c,get_pos,window,event=lambda: draw_animation(0,8,diceused,0,c,get_pos,window)))
             for i in range(2,-1,-1):
-                set_pit(choice([j for j in range(1,4) if j != pit[i]]),i)
-                draw_old_animation(i*3,8,diceused,20,c,get_pos,window)
+                draw_animation(i*3,8,diceused,100,c,get_pos,window,event=set_pit(choice([j for j in range(1,4) if j != pit[i]]),i))
                 draw_pit()
             gameover_check()
 
