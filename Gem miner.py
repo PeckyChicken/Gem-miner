@@ -1227,10 +1227,7 @@ def click(event):
                         elif square == 4:
                             explode(tempx,tempy,1)
                 if len(lines) == 4: #Finds the lines with 4 gems and changes them into a drill with the opposite direction as the line.
-                    if direction == "H" and square == 1:
-                        draw_animation(tempx,tempy,reddrill,100,c,get_pos,window,event=lambda: set_square(5 if direction == "H" else 6,row,column))
-                    else:
-                        set_square(5 if direction == "H" else 6,row,column)
+                    handle_drill_create(square, row, column,num, direction, tempx, tempy)
                     
                     play_sound_effect(sfx_on,drillcreated)
                 elif len(lines) == 5:
@@ -1313,6 +1310,23 @@ def click(event):
                 helping = True
                 tutstage = 1
                 disp_help() 
+
+def handle_drill_create(square, row, column, num, direction, tempx, tempy):
+    color = [None,"red","yellow","green","blue"][square]
+    if direction == "H":
+        if square in (1,):
+            pos = ["left","right"][num-1]
+            draw_animation(tempx,tempy,hdrills[color][pos],100,c,get_pos,window,event=lambda: set_square(5 if direction == "H" else 6,row,column))
+        else:
+            set_square(5 if direction == "H" else 6,row,column)
+
+    elif direction == "V":
+        if square in ():
+            pos = ["top","bottom"][num-1]
+            draw_animation(tempx,tempy,vgembreaks[color][pos],100,c,get_pos,window,event=lambda x=tempx,y=tempy: draw_animation(x,y,gemvanish,100,c,get_pos,window))
+        else: 
+            set_square(5 if direction == "H" else 6,row,column)
+
 
 
 
