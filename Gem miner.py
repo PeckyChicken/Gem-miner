@@ -203,15 +203,18 @@ def draw_powerups():
             c.itemconfig(tool,state=HIDDEN)
     c.itemconfig(restartsquare,state=NORMAL)
     
+reserved = set()
 
-
-
-
-def set_square(color,x,y):
-    global board
-    itemid = y*GRIDROWS + x #works out the id of the list given the x and y
-    grid[itemid] = color #replaces the current color with the new one
-    draw_board()
+def set_square(color,x,y,reserve=False):
+    global board, reserved
+    if reserve:
+        reserved.add((x,y))
+    else:
+        if (x,y) in reserved:
+            reserved.remove((x,y))
+        itemid = y*GRIDROWS + x #works out the id of the list given the x and y
+        grid[itemid] = color #replaces the current color with the new one
+        draw_board()
 
 def next_level():
     global level, powerups, reqscore, powerupvalues, moves, grid
@@ -283,12 +286,11 @@ def reset_color(): #sets a random square to a color
 def set_brick(): #sets a random square to a brick
     if 0 not in grid: return 1
     x, y = randint(0,6),randint(0,6)
-    while lookup(x,y) != 0:
+    while lookup(x,y) != 0 and lookup not in reserved:
         x, y = randint(0,6),randint(0,6)
-    draw_old_animation(x,y,brickplace,100,c,get_pos,window)
-    if lookup(x,y) == 0:
-        set_square(12,x,y)
-        return 0
+    set_square(12,x,y,reserve=True)
+    draw_animation(x,y,brickplace,100,c,get_pos,window,event=lambda: set_square(12,x,y))
+
     return 1
 
 def play_place_sound(): #only putting it in a function by itself so i can call it from a window.after
@@ -572,12 +574,12 @@ def convert_colors(item,row,column,samesquare):
         if grid[i] == lookup(diamondx,diamondy)-6: #sets all colors of the same to the item
             x = i%7
             y = i//7
-            draw_animation(x,y,breaking,100,c,get_pos,window)
+            draw_animation(x,y,smokes(lookup(x,y)),100,c,get_pos,window)
             set_square(11 if item == "bomb" else randint(5,6),x,y)
             score += 10*level
             update_text()
     busy = False
-    draw_animation(diamondx,diamondy,breaking,100,c,get_pos,window)
+    draw_animation(diamondx,diamondy,smokes(lookup(diamondx,diamondy)),100,c,get_pos,window)
     set_square(11 if item == "bomb" else randint(5,6),diamondx,diamondy)
 
 def clear_2_lines(row,column):
@@ -647,7 +649,7 @@ def clear_colors(row,column):
     for i in range(len(grid)):
         if grid[i] == lookup(row,column)-6: #sets all colors of the same to gray
             currow, curcolumn = i%7,floor(i/7)
-            draw_animation(currow,curcolumn,breaking,75,c,get_pos,window)
+            draw_animation(currow,curcolumn,smokes(lookup(currow,curcolumn)),75,c,get_pos,window)
             
             play_sound_effect(sfx_on,remove)
             set_square(0,currow,curcolumn)
@@ -680,7 +682,7 @@ def clear_colors(row,column):
     score += 100*level
     update_text()
     c.itemconfig(scoredisp,text=score)
-    draw_animation(row,column,breaking,100,c,get_pos,window)
+    draw_animation(row,column,smokes(lookup(row,column)),100,c,get_pos,window)
     set_square(0,row,column) #removes the current diamond
     if all(0==x for x in grid):
         score += 50*level
@@ -700,7 +702,7 @@ def clear_line(direction,row,column,sound=True):
         delete = True
         curx, cury = square if direction == "H" else row, square if direction == "V" else column
         cursquare = lookup(curx,cury)
-        draw_animation(curx,cury,breaking,100,c,get_pos,window)
+        draw_animation(curx,cury,smokes[0],100,c,get_pos,window)
         if cursquare != 0:
             score += 10*level
             
@@ -1031,11 +1033,14 @@ def click(event):
                 powerups[4] = 1
             c.itemconfig(selected,image=empty_block)
             #sets the pit to random colors
-            color = pit[1]
-            #draw_animation(6,8,diceused,10,c,get_pos,window,event=lambda: draw_animation(3,8,diceused,10,c,get_pos,window,event=lambda: draw_animation(0,8,diceused,0,c,get_pos,window)))
-            for i in range(2,-1,-1):
-                draw_animation(i*3,8,diceused,100,c,get_pos,window,event=set_pit(choice([j for j in range(1,4) if j != pit[i]]),i))
+            for item in pitobjects:
+                c.delete(item)
+            def finish(i):
+                set_pit(choice([j for j in range(1,4) if j != pit[i]]),i)
                 draw_pit()
+            for i in range(2,-1,-1):
+                draw_animation(i*3,8,diceused,70,c,get_pos,window,event=lambda i=i: finish(i))
+
             gameover_check()
 
         #* BUTTONS
@@ -1062,7 +1067,7 @@ def click(event):
                 c.itemconfig(selected,image=empty_block)    
                 
                 play_sound_effect(sfx_on,pickused)
-                draw_animation(row,column,breaking, 100,c,get_pos,window)
+                draw_animation(row,column,smokes[0], 100,c,get_pos,window)
                 if lookup(row,column) == 12:
                     next_level()
                     play_sound_effect(sfx_on,brickbreak)
@@ -1378,7 +1383,7 @@ def clear_diagonal_lines(row,column,clear=True):
                 play_sound_effect(sfx_on,remove)
             play_sound_effect(sfx_on,remove)
             set_square(0,currow,curcolumn)
-            draw_animation(currow,curcolumn,breaking,100,c,get_pos,window)
+            draw_animation(currow,curcolumn,smokes[0],100,c,get_pos,window)
         else:
             squares.append((currow,curcolumn))
 
@@ -1396,7 +1401,7 @@ def clear_diagonal_lines(row,column,clear=True):
 
         if clear:
             set_square(0,currow,curcolumn)
-            draw_animation(currow,curcolumn,breaking,100,c,get_pos,window)
+            draw_animation(currow,curcolumn,smokes[0],100,c,get_pos,window)
             if lookup(currow,curcolumn) == 12:
                 next_level()
                 play_sound_effect(sfx_on,brickbreak)

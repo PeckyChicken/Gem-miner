@@ -49,7 +49,11 @@ fade_image = PhotoImage(file = filepath+"Gem miner/Images/UI/fade.png")
 
 explosions = create_animation(filepath+"Gem miner/Images/Animations/Explosion","explosion")
 
-breaking = create_animation(filepath+"Gem miner/Images/Animations/Smoke","smoke")
+smokes = []
+for color in ["General","Red","Yellow","Green","Blue"]:
+    smokes.append(create_animation(filepath+f"Gem miner/Images/Animations/{color}/Smoke","smoke"))
+
+
 
 brickplace = create_animation(filepath+"Gem miner/Images/Animations/Bricks/Placing","brickplace")
 
@@ -94,6 +98,7 @@ for ani in []:
 obstacle_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/obstacle_bg.png")
 survival_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/survival_bg.png")
 chroma_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/chroma_bg.png")
+
 diceused = create_animation("Gem miner/Images/Animations/Dice","dice")
 
 cross = PhotoImage(file = filepath+"Gem miner/Images/UI/cross.png")
