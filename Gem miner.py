@@ -1032,7 +1032,6 @@ def click(event):
                     #if square != [row,column]:
                     diceprev.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
                 return
-            breakpoint()
             clear_toast()
             powerups = [1 if elem==2 else elem for elem in powerups]
             clear_dice_prev()
