@@ -1335,7 +1335,7 @@ def click(event):
 def handle_drill_create(square, row, column, num, direction, tempx, tempy):
     color = [None,"red","yellow","green","blue"][square]
     if direction == "H":
-        if square in (1,):
+        if square in (1,2):
             pos = ["left","right"][num-1]
             draw_animation(tempx,tempy,hdrills[color][pos],100,c,get_pos,window,event=lambda: set_square(5 if direction == "H" else 6,row,column))
         else:
@@ -1347,9 +1347,6 @@ def handle_drill_create(square, row, column, num, direction, tempx, tempy):
             draw_animation(tempx,tempy,vgembreaks[color][pos],100,c,get_pos,window,event=lambda x=tempx,y=tempy: draw_animation(x,y,gemvanish,100,c,get_pos,window))
         else: 
             set_square(5 if direction == "H" else 6,row,column)
-
-
-
 
 def handle_gem_break(square, direction, num, tempx, tempy):
     color = [None,"red","yellow","green","blue"][square]

@@ -85,7 +85,7 @@ for ani in ["Red","Green","Yellow","Blue"]:
 
 
 hdrills = {}
-for ani in ["Red"]:
+for ani in ["Red","Yellow"]:
     hdrills[ani.lower()] = {"left":create_animation(filepath+f"Gem miner/Images/Animations/Drills/Horizontal/{ani}/Left",ani.lower()),
                             "right":create_animation(filepath+f"Gem miner/Images/Animations/Drills/Horizontal/{ani}/Right",ani.lower())}
 
