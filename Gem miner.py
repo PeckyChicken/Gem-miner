@@ -283,15 +283,18 @@ def set_pit(color,pos):
 def reset_color(): #sets a random square to a color
     set_square(randint(1,4),randint(0,6),randint(0,6))
 
+def set_brick_2(x,y):
+    set_square(12,x,y)
+    gameover_check()
+
 def set_brick(): #sets a random square to a brick
     if 0 not in grid: return 1
     x, y = randint(0,6),randint(0,6)
     while lookup(x,y) != 0 and lookup not in reserved:
         x, y = randint(0,6),randint(0,6)
     set_square(12,x,y,reserve=True)
-    draw_animation(x,y,brickplace,100,c,get_pos,window,event=lambda: set_square(12,x,y))
-
-    return 1
+    draw_animation(x,y,brickplace,100,c,get_pos,window,event=lambda: set_brick_2(x,y))
+    return 0
 
 def play_place_sound(): #only putting it in a function by itself so i can call it from a window.after
     play_sound_effect(sfx_on,placed)
@@ -378,6 +381,9 @@ def start():
     timeb.set_visible(False)
     obstacleb.set_visible(False)
 
+    pit[:] = [randint(1,4),randint(1,4),randint(1,4)]
+    draw_pit()
+
     fade = [c.create_image(WIDTH/2,HEIGHT/2,image=fade_image)]
     if mode == "obstacle":
         c.itemconfig(bg_image,image=obstacle_bg)
@@ -392,8 +398,7 @@ def start():
         c.itemconfig(bg_image,image=chroma_bg)
         card = [c.create_image(WIDTH/2,HEIGHT/2,image=chromacard)]
 
-
-    
+       
     c.itemconfig(highscoretext,state=HIDDEN)
 
     stop_music(window)
@@ -1201,6 +1206,8 @@ def click(event):
                 pit = [randint(1,4) if elem==0 else elem for elem in pit]
                 draw_pit()
                 set_square(selcolor,row,column)
+                if gameover_check():
+                    return
                 colorsel = selcolor
                 selcolor = 0
                 canplace = False
