@@ -7,3 +7,4 @@ __pycache__/*
 theme.jsonc
 .vscode
 .vscode/*
+output/*
