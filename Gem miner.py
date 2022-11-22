@@ -97,10 +97,6 @@ selected = c.create_image(470,50,image=empty_block,state=HIDDEN)
 
 tutimage = c.create_image(WIDTH/2,HEIGHT/2,image=tut1,state=HIDDEN)
 
-
-
-
-
 powerups = [1,1,1,1,1] #sets up the powerup squares
 powerupvalues = [1,1,1,1,1]
 
@@ -1342,7 +1338,7 @@ def click(event):
 def handle_drill_create(square, row, column, num, direction, tempx, tempy):
     color = [None,"red","yellow","green","blue"][square]
     if direction == "H":
-        if square in (1,2):
+        if square in (1,2,3):
             pos = ["left","right"][num-1]
             draw_animation(tempx,tempy,hdrills[color][pos],100,c,get_pos,window,event=lambda: set_square(5 if direction == "H" else 6,row,column))
         else:
