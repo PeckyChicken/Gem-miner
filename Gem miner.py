@@ -100,18 +100,25 @@ tutimage = c.create_image(WIDTH/2,HEIGHT/2,image=tut1,state=HIDDEN)
 powerups = [1,1,1,1,1] #sets up the powerup squares
 powerupvalues = [1,1,1,1,1]
 
+
+pickholder = c.create_image(470,150,image=tool_bg,state=HIDDEN)
 pickaxesquare = c.create_image(470,150,image=pickaxe,state=HIDDEN)
 pickvalue = c.create_text(490,180,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
+axeholder = c.create_image(470,210,image=tool_bg,state=HIDDEN)
 throwingaxesquare = c.create_image(470,210,image=throwingaxe,state=HIDDEN)
 axevalue = c.create_text(490,240,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
+jackhammerholder = c.create_image(470,270,image=tool_bg,state=HIDDEN)
 jackhammersquare = c.create_image(470,270,image=jackhammer,state=HIDDEN)
 jackhammervalue = c.create_text(490,300,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
+
+starholder = c.create_image(470,330,image=tool_bg,state=HIDDEN)
 starsquare = c.create_image(470,330,image=star,state=HIDDEN)
 starvalue = c.create_text(490,360,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
+shuffleholder = c.create_image(470,390,image=tool_bg,state=HIDDEN)
 shufflesquare = c.create_image(470,390,image=dice,state=HIDDEN)
 shufflevalue = c.create_text(490,420,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
@@ -188,9 +195,9 @@ def draw_powerups():
     global pickaxesquare, throwingaxesquare, jackhammersquare, starsquare, shufflesquare, powerups
     tools = [pickaxesquare,throwingaxesquare,jackhammersquare,starsquare,shufflesquare]
     toolvalues = [pickvalue,axevalue,jackhammervalue,starvalue,shufflevalue]
+
     for tool, value in zip(tools,powerups):
         c.itemconfig(tool,state=[HIDDEN,NORMAL][value])
-
     for tool, value in zip(toolvalues,powerupvalues):
         c.itemconfig(tool,text=str(value))
         if value > 1:
@@ -349,7 +356,9 @@ def start():
     draw_pit()
     cutscene = True
     beathighscore = False
-
+    toolholders = [pickholder,axeholder,jackhammerholder,starholder,shuffleholder]
+    for holder in toolholders:
+        c.itemconfig(holder,state=NORMAL)
     powerups = powerupvalues = [1]*5
     draw_powerups()
 
@@ -915,7 +924,7 @@ def click(event):
             #Anything in these lists gets deleted or vanished
             for x in board+pitobjects:
                 c.delete(x)
-            for x in [scoredisp,scoretext,goaldisp,goaltext,leveldisp,leveltext,selected,pickaxesquare,throwingaxesquare,jackhammersquare,starsquare,shufflesquare,restartsquare]:
+            for x in [scoredisp,scoretext,goaldisp,goaltext,leveldisp,leveltext,selected,pickaxesquare,throwingaxesquare,jackhammersquare,starsquare,shufflesquare,restartsquare,pickholder,axeholder,jackhammerholder,starholder,shuffleholder]:
                 c.itemconfig(x,state=HIDDEN)
             selecting = True
             display_modes(True)

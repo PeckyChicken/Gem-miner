@@ -46,6 +46,8 @@ timecard = PhotoImage(file = filepath+"Gem miner/Images/UI/time_card.png")
 chromacard = PhotoImage(file = filepath+"Gem miner/Images/UI/chroma_card.png")
 fade_image = PhotoImage(file = filepath+"Gem miner/Images/UI/fade.png")
 
+tool_bg = PhotoImage(file = filepath+"Gem miner/Images/UI/tools_bg.png")
+
 
 explosions = create_animation(filepath+"Gem miner/Images/Animations/Explosion","explosion")
 
