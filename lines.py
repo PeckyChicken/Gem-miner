@@ -1,4 +1,4 @@
-def detect_line(x,y,lookup:callable,special=False,color=None):
+def detect_line(x,y,lookup:callable,*,special=False,color=None,minlen=3) :
     '''Given an x and y position, as well as the function lookup, this function will search all the squares around it to find lines of gems.'''
     count = 0
     
@@ -39,7 +39,7 @@ def detect_line(x,y,lookup:callable,special=False,color=None):
         cury -= 1 #move it up one row
     if count == 5: #Return if already a diamond
         return usedsquares, "V", 0
-    if count < 3: #If there were no lines that way they do not count
+    if count < minlen: #If there were no lines that way they do not count
         count == 0
         usedsquares.clear()
     #now for the horizontal lines
@@ -63,16 +63,16 @@ def detect_line(x,y,lookup:callable,special=False,color=None):
             xcount += 1
             xusedsquares.append([curx,cury]) #add the current match to the list
             curx -= 1 #move it back left
-    if xcount < 3: #If there were no lines that way they do not count
+    if xcount < minlen: #If there were no lines that way they do not count
         xcount == 0
         xusedsquares.clear()
     if xcount == 5: #Return if already a diamond
         return xusedsquares, "H", 0
     if len(xusedsquares)+len(usedsquares) >= 6:
         return xusedsquares+usedsquares,"HV",(xpos,ypos)
-    elif len(xusedsquares) >= 3:
+    elif len(xusedsquares) >= minlen:
         return xusedsquares,"H",xpos
-    elif len(usedsquares) >= 3:
+    elif len(usedsquares) >= minlen:
         return usedsquares,"V",ypos
     #Now to check for left on its own
     while (col if (curx,cury) == (x,y) else lookup(curx,cury))  == col:
@@ -85,8 +85,8 @@ def detect_line(x,y,lookup:callable,special=False,color=None):
         return xusedsquares, "V", 0
     if len(xusedsquares)+len(usedsquares) >= 6:
         return xusedsquares+usedsquares,"HV", (xpos,ypos)
-    elif len(xusedsquares) >= 3:
+    elif len(xusedsquares) >= minlen:
         return xusedsquares,"H",xpos
-    elif len(usedsquares) >= 3:
+    elif len(usedsquares) >= minlen:
         return usedsquares,"V",ypos
     return [],"0",0

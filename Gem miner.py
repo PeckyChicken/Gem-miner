@@ -1,5 +1,5 @@
 from math import floor
-from random import choice, randint, shuffle
+from random import choice, randint, shuffle, choices
 from statistics import mean
 from time import sleep
 from tkinter import *  # doing wildcard import to make it easier to use
@@ -821,7 +821,7 @@ def motion(event,outside=False):
                 c.itemconfig(indicator,image=cross,state=NORMAL)
                 return
 
-            lines, direction, _ = detect_line(row,column,lookup,True,selcolor)
+            lines, direction, _ = detect_line(row,column,lookup,special=True,color=selcolor)
 
             if direction == "HV":
                 icon = bomb
@@ -1045,30 +1045,7 @@ def click(event):
                     #if square != [row,column]:
                     diceprev.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
                 return
-            clear_toast()
-            powerups = [1 if elem==2 else elem for elem in powerups]
-            clear_dice_prev()
-            play_sound_effect(sfx_on,shufflesound)
-            c.itemconfig(scoredisp,text=score)
-            
-
-            powerupvalues[4] -= 1
-            if powerupvalues[4] == 0:
-                powerups[4] = 0
-                c.itemconfig(shufflesquare,state=HIDDEN)
-            else:
-                powerups[4] = 1
-            c.itemconfig(selected,image=empty_block)
-            #sets the pit to random colors
-            for item in pitobjects:
-                c.delete(item)
-            def finish(i):
-                set_pit(choice([j for j in range(1,4) if j != pit[i]]),i)
-                draw_pit()
-            for i in range(2,-1,-1):
-                draw_animation(i*3,8,diceused,70,c,get_pos,window,event=lambda i=i: finish(i))
-
-            gameover_check()
+            shuffle_pit()
 
         #* BUTTONS
         if inside(0,350,50,400,mousex,mousey): #Is restart clicked?
@@ -1346,6 +1323,48 @@ def click(event):
                 helping = True
                 tutstage = 1
                 disp_help() 
+
+def shuffle_pit():
+    global powerups,powerupvalues
+    clear_toast()
+    powerups = [1 if elem==2 else elem for elem in powerups]
+    clear_dice_prev()
+    play_sound_effect(sfx_on,shufflesound)
+    c.itemconfig(scoredisp,text=score)
+
+    #The program needs to find the best colors to set the pit to.
+    colors = []
+    values = []
+    for x in range(0,7):
+        for y in range(0,7):
+            color = lookup(x,y)
+            if detect_line(x,y,lookup,minlen=2)[1] != '0' and 1 <= color <= 4:
+                colors.append(color)
+
+    if len(colors) < 3:
+        values[:] = colors
+        for _ in range(3-len(values)):
+            values.append(randint(1,4))
+    else:
+        values[:] = choices(colors,k=3)
+    shuffle(values)
+    powerupvalues[4] -= 1
+    if powerupvalues[4] == 0:
+        powerups[4] = 0
+        c.itemconfig(shufflesquare,state=HIDDEN)
+    else:
+        powerups[4] = 1
+    c.itemconfig(selected,image=empty_block)
+    #sets the pit
+    for item in pitobjects:
+        c.delete(item)
+    def finish(i):
+        pit[:] = values
+        draw_pit()
+    for i in range(2,-1,-1):
+        draw_animation(i*3,8,diceused,70,c,get_pos,window,event=lambda i=i: finish(i))
+
+    gameover_check()
 
 def handle_drill_create(square, row, column, num, direction, tempx, tempy):
     color = [None,"red","yellow","green","blue"][square]
