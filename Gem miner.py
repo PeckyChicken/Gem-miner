@@ -1334,11 +1334,14 @@ def shuffle_pit():
 
     #The program needs to find the best colors to set the pit to.
     colors = []
+    lines = []
     values = []
     for x in range(0,7):
         for y in range(0,7):
             color = lookup(x,y)
-            if detect_line(x,y,lookup,minlen=2)[1] != '0' and 1 <= color <= 4:
+            line = detect_line(x,y,lookup,minlen=2)
+            if line[1] != '0' and 1 <= color <= 4 and not any(l in lines for l in line[0]):
+                lines.extend(line[0])
                 colors.append(color)
 
     if len(colors) < 3:
