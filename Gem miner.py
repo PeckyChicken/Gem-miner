@@ -78,6 +78,7 @@ leveltext = c.create_text(40,180,text="Level",font=(FONT,10),state=HIDDEN,fill=T
 leveldisp = c.create_text(40,210,text=1,font=(FONT,31),state=HIDDEN,fill=TEXTCOL)
 
 
+
 frame = 0
 
 gameovertext = c.create_text(WIDTH/2,HEIGHT/2-25,font=(FONT,50),fill=TEXTCOL)
@@ -100,6 +101,7 @@ tutimage = c.create_image(WIDTH/2,HEIGHT/2,image=tut1,state=HIDDEN)
 powerups = [1,1,1,1,1] #sets up the powerup squares
 powerupvalues = [1,1,1,1,1]
 
+tooltext = c.create_text(470,100,text="Tools",font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
 pickholder = c.create_image(470,150,image=tool_bg,state=HIDDEN)
 pickaxesquare = c.create_image(470,150,image=pickaxe,state=HIDDEN)
@@ -370,6 +372,7 @@ def start():
     c.itemconfig(goaldisp,state=NORMAL)
     c.itemconfig(goaltext,state=NORMAL)
 
+    c.itemconfig(tooltext,state=NORMAL)
     if mode == "obstacle":
         c.itemconfig(goaltext,text="Moves")
         c.itemconfig(goaldisp,text=str(moves))
@@ -924,7 +927,7 @@ def click(event):
             #Anything in these lists gets deleted or vanished
             for x in board+pitobjects:
                 c.delete(x)
-            for x in [scoredisp,scoretext,goaldisp,goaltext,leveldisp,leveltext,selected,pickaxesquare,throwingaxesquare,jackhammersquare,starsquare,shufflesquare,restartsquare,pickholder,axeholder,jackhammerholder,starholder,shuffleholder]:
+            for x in [scoredisp,scoretext,goaldisp,goaltext,leveldisp,leveltext,tooltext,selected,pickaxesquare,throwingaxesquare,jackhammersquare,starsquare,shufflesquare,restartsquare,pickholder,axeholder,jackhammerholder,starholder,shuffleholder]:
                 c.itemconfig(x,state=HIDDEN)
             selecting = True
             display_modes(True)
