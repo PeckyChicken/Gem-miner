@@ -1406,11 +1406,11 @@ def handle_gem_break(square, direction, num, tempx, tempy):
     color = [None,"red","yellow","green","blue"][square]
     if direction == "H":
         pos = ["left","center","right"][num]
-        draw_animation(tempx,tempy,hgembreaks[color][pos],10,c,get_pos,window,event=lambda x=tempx,y=tempy: draw_animation(x,y,gemvanish,10,c,get_pos,window))
+        draw_animation(tempx,tempy,hgembreaks[color][pos],100,c,get_pos,window,event=lambda x=tempx,y=tempy: draw_animation(x,y,gemvanish,100,c,get_pos,window))
 
     elif direction == "V":
         pos = ["top","center","bottom"][num]
-        draw_animation(tempx,tempy,vgembreaks[color][pos],10,c,get_pos,window,event=lambda x=tempx,y=tempy: draw_animation(x,y,gemvanish,10,c,get_pos,window))
+        draw_animation(tempx,tempy,vgembreaks[color][pos],100,c,get_pos,window,event=lambda x=tempx,y=tempy: draw_animation(x,y,gemvanish,100,c,get_pos,window))
 
 def clear_dice_prev():
     for item in diceprev:
