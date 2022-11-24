@@ -14,7 +14,8 @@ from sounds import *
 
 filepath = __file__+"/../"
 
-
+card = None
+fade = None
 
 window.title("Gem miner")
 window.iconbitmap(filepath+"Gem miner/icon.ico")
@@ -337,13 +338,8 @@ def time_bg(index = 0):
         c.itemconfig(bg_image,image=time_bgs[index])
         window.after(500,time_bg,(index+1)%4) 
 
-def start_part_2(card, fade):
-    global started, repeats, cutscene
-    started = True
-    cutscene = False
-    if mode == "time":
-        time_bg()
-        time_rush()
+def start_music():
+    global repeats
     if music_on:
         if mode == "survival":
             [game_music,game_music2][track].play()
@@ -354,6 +350,15 @@ def start_part_2(card, fade):
             obstacle_music.play()
         elif mode == "chroma":
             chroma_music.play()
+
+def start_part_2():
+    global started, repeats, cutscene
+    started = True
+    cutscene = False
+    if mode == "time":
+        time_bg()
+        time_rush()
+
     c.delete(card[0])
     c.delete(fade[0])
     if mode != "obstacle":
@@ -362,7 +367,7 @@ def start_part_2(card, fade):
     set_brick()
 
 def start():
-    global repeats,track,powerups,powerupvalues, level, cutscene, beathighscore
+    global repeats,track,powerups,powerupvalues, level, cutscene, beathighscore, card, fade, starter
     reset_color()
     reset_color()
     draw_powerups()
@@ -425,7 +430,8 @@ def start():
     if sfx_on:
         play_sound_effect(sfx_on,startsound)
     track = randint(0,1)
-    window.after(3600,start_part_2,card,fade)
+    starter = window.after(3600,start_part_2)
+    window.after(3600,start_music)
     update_text(nextlevel=False)
 
 
@@ -878,6 +884,10 @@ def click(event):
     #next_level()
     mouseb = event.num
     # print(mousex,mousey)
+    if cutscene:
+        window.after_cancel(starter)
+        start_part_2()
+        
     if helping:
         tutstage += 1
         
