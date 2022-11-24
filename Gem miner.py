@@ -220,11 +220,16 @@ def set_square(color,x,y,reserve=False):
         itemid = y*GRIDROWS + x #works out the id of the list given the x and y
         grid[itemid] = color #replaces the current color with the new one
         draw_board()
-
+inuse = False
 def next_level():
-    global level, powerups, reqscore, powerupvalues, moves, grid
+    global level, powerups, reqscore, powerupvalues, moves, grid, inuse
+    if inuse: return False
+    print(f"Nextlevel called, inuse is {inuse}")
+    inuse = True
     if mode == "obstacle" and started: #Different level system in obstacle mode
         level_complete = 12 not in grid
+        if level_complete:
+            set_brick()
     else:
         #This complicated setup means that the player will advance a level when they get to 500, 1000, 5000, etc.
         reqscore = (((level+1)%2)+1) * 500 * 10 ** (1+(level - 3) // 2)
@@ -255,11 +260,14 @@ def next_level():
         if mode == "obstacle":
             moves += level
             update_text(False)
-            for _ in range(level):
+            for _ in range(level-1):
                 set_brick()
         update_text(False)
+        inuse = False
         return True
-    return False
+    else:
+        inuse = False
+        return False
             
 def lookup(x,y):
     try:
@@ -1338,18 +1346,18 @@ def shuffle_pit():
     values = []
     for x in range(0,7):
         for y in range(0,7):
-            if 1 <= lookup(x,y) <= 4:
+            if lookup(x,y) in (0,12):
                 for col in [1,2,3,4]:
                     line = detect_line(x,y,lookup,special=True,color=col)
                     if line[1] != '0' and not any(l in lines for l in line[0]):
                         lines.extend(line[0])
-                        colors.append(color)
+                        colors.append(col)
     if len(colors) == 0:
-        clrs = [item in grid for item in [1,2,3,4]]
-        if len(clrs) != 0:
-            clr = choice(clrs)
-        else:
+        clrs = [item for item in [1,2,3,4] if item in grid]
+        if len(clrs) == 0:
             clr = randint(1,4)
+        else:
+            clr = choice(clrs)
         values.extend((clr,clr,randint(1,4)))
 
     elif len(colors) < 3:
