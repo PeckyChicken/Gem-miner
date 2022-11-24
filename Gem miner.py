@@ -224,7 +224,7 @@ inuse = False
 def next_level():
     global level, powerups, reqscore, powerupvalues, moves, grid, inuse
     if inuse: return False
-    print(f"Nextlevel called, inuse is {inuse}")
+    #print(f"Nextlevel called, inuse is {inuse}")
     inuse = True
     if mode == "obstacle" and started: #Different level system in obstacle mode
         level_complete = 12 not in grid
@@ -262,8 +262,10 @@ def next_level():
             update_text(False)
             for _ in range(level-1):
                 set_brick()
+        else:
+            inuse = False
         update_text(False)
-        inuse = False
+        
         return True
     else:
         inuse = False
@@ -297,7 +299,9 @@ def reset_color(): #sets a random square to a color
     set_square(randint(1,4),randint(0,6),randint(0,6))
 
 def set_brick_2(x,y):
+    global inuse
     set_square(12,x,y)
+    inuse = False
     gameover_check()
 
 def set_brick(): #sets a random square to a brick
@@ -685,7 +689,7 @@ def clear_colors(row,column):
     for i in range(len(grid)):
         if grid[i] == lookup(row,column)-6: #sets all colors of the same to gray
             currow, curcolumn = i%7,floor(i/7)
-            draw_animation(currow,curcolumn,smokes[lookup(currow,curcolumn)],75,c,get_pos,window)
+            draw_animation(currow,curcolumn,smokes[lookup(currow,curcolumn)],100,c,get_pos,window)
             
             set_square(0,currow,curcolumn)
             score += 10*level
@@ -871,7 +875,7 @@ diceprev = []
 def click(event):
     global selcolor,diceprev, pit, canplace, pitobjects, grid, score, gameover, powerups, started, helping, tutstage, level, highscore, music_on, sfx_on, repeats, busy, track, mode, moves, selecting, powerupvalues
 
-    next_level()
+    #next_level()
     mouseb = event.num
     # print(mousex,mousey)
     if helping:
@@ -1388,11 +1392,8 @@ def shuffle_pit():
 def handle_drill_create(square, row, column, num, direction, tempx, tempy):
     color = [None,"red","yellow","green","blue"][square]
     if direction == "H":
-        if square in (1,2,3):
-            pos = ["left","right"][num-1]
-            draw_animation(tempx,tempy,hdrills[color][pos],100,c,get_pos,window,event=lambda: set_square(5 if direction == "H" else 6,row,column))
-        else:
-            set_square(5 if direction == "H" else 6,row,column)
+        pos = ["left","right"][num-1]
+        draw_animation(tempx,tempy,hdrills[color][pos],100,c,get_pos,window,event=lambda: set_square(5 if direction == "H" else 6,row,column))
 
     elif direction == "V":
         if square in ():
@@ -1405,11 +1406,11 @@ def handle_gem_break(square, direction, num, tempx, tempy):
     color = [None,"red","yellow","green","blue"][square]
     if direction == "H":
         pos = ["left","center","right"][num]
-        draw_animation(tempx,tempy,hgembreaks[color][pos],100,c,get_pos,window,event=lambda x=tempx,y=tempy: draw_animation(x,y,gemvanish,100,c,get_pos,window))
+        draw_animation(tempx,tempy,hgembreaks[color][pos],10,c,get_pos,window,event=lambda x=tempx,y=tempy: draw_animation(x,y,gemvanish,10,c,get_pos,window))
 
     elif direction == "V":
         pos = ["top","center","bottom"][num]
-        draw_animation(tempx,tempy,vgembreaks[color][pos],100,c,get_pos,window,event=lambda x=tempx,y=tempy: draw_animation(x,y,gemvanish,100,c,get_pos,window))
+        draw_animation(tempx,tempy,vgembreaks[color][pos],10,c,get_pos,window,event=lambda x=tempx,y=tempy: draw_animation(x,y,gemvanish,10,c,get_pos,window))
 
 def clear_dice_prev():
     for item in diceprev:
