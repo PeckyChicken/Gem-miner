@@ -1338,13 +1338,21 @@ def shuffle_pit():
     values = []
     for x in range(0,7):
         for y in range(0,7):
-            color = lookup(x,y)
-            line = detect_line(x,y,lookup,minlen=2)
-            if line[1] != '0' and 1 <= color <= 4 and not any(l in lines for l in line[0]):
-                lines.extend(line[0])
-                colors.append(color)
+            if 1 <= lookup(x,y) <= 4:
+                for col in [1,2,3,4]:
+                    line = detect_line(x,y,lookup,special=True,color=col)
+                    if line[1] != '0' and not any(l in lines for l in line[0]):
+                        lines.extend(line[0])
+                        colors.append(color)
+    if len(colors) == 0:
+        clrs = [item in grid for item in [1,2,3,4]]
+        if len(clrs) != 0:
+            clr = choice(clrs)
+        else:
+            clr = randint(1,4)
+        values.extend((clr,clr,randint(1,4)))
 
-    if len(colors) < 3:
+    elif len(colors) < 3:
         values[:] = colors
         for _ in range(3-len(values)):
             values.append(randint(1,4))
