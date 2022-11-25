@@ -692,9 +692,11 @@ def clear_colors(row,column):
     busy = False
     square = lookup(row,column)-6
     play_sound_effect(sfx_on,remove)
+    soundplayed = False
     for i in range(len(grid)):
         if grid[i] == lookup(row,column)-6: #sets all colors of the same to gray
             currow, curcolumn = i%7,floor(i/7)
+            soundplayed = clear_bricks((currow,curcolumn),soundplayed)
             draw_animation(currow,curcolumn,smokes[lookup(currow,curcolumn)],100,c,get_pos,window)
             
             set_square(0,currow,curcolumn)
@@ -881,7 +883,7 @@ diceprev = []
 def click(event):
     global selcolor,diceprev, pit, canplace, pitobjects, grid, score, gameover, powerups, started, helping, tutstage, level, highscore, music_on, sfx_on, repeats, busy, track, mode, moves, selecting, powerupvalues
 
-    #next_level()
+    next_level()
     mouseb = event.num
     # print(mousex,mousey)
     if cutscene:

@@ -16,21 +16,6 @@ def create_animation(path: str,name: str) -> list[PhotoImage]:
         framelist.append(PhotoImage(file=f"{frame}"))
     return framelist
 
-#! Depricated function
-def draw_old_animation(x,y,frames,fps,c: Canvas,get_pos: callable,window: Tk):
-    frametime = 1/fps
-    DrawX, DrawY = get_pos(x,y)
-    DrawX += SQUARELEN/2
-    DrawY += SQUARELEN/2
-    sprite = c.create_image(DrawX,DrawY,image=frames[0])
-    frame = 0
-    while frame < len(frames):
-        c.itemconfig(sprite,state=NORMAL,image=frames[frame])
-        frame += 1
-        sleep(frametime)
-        window.update()
-    c.delete(sprite)
-
 def draw_animation(x,y,frames,fps,c: Canvas,get_pos:callable,window: Tk,frame=0,sprite=None,event:callable=None):
     '''Draws an animation at a given grid position. X and Y are the grid position of the animation, frames is a list of the frames to play, fps is how fast the animation plays.
     
