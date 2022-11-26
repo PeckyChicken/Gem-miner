@@ -128,7 +128,7 @@ shufflevalue = c.create_text(490,420,text='',font=(FONT,15),state=HIDDEN,fill=TE
 indicator = c.create_image(0,0)
 
 #Sets up the button squares
-restartsquare = c.create_image(25,375,image=restart,state=HIDDEN)
+backsquare = c.create_image(25,375,image=backbutton,state=HIDDEN)
 sfxsquare = c.create_image(25,425,image=sfx)
 musicsquare = c.create_image(25,475,image=music)
 
@@ -207,7 +207,7 @@ def draw_powerups():
             c.itemconfig(tool,state=NORMAL)
         else:
             c.itemconfig(tool,state=HIDDEN)
-    c.itemconfig(restartsquare,state=NORMAL)
+    c.itemconfig(backsquare,state=NORMAL)
     
 reserved = set()
 
@@ -466,42 +466,46 @@ def toast(msg,time=-1):
         window.after(time*1000,clear_toast)
 
 def ask_close():
-    global grid, clickcount, score, level, highscore, selcolor, gameover, powerups, powerupvalues
+    global grid, clickcount, score, level, highscore, selcolor, gameover, powerups, powerupvalues, selecting, track, moves
     
     play_sound_effect(sfx_on,clicked)
     clickcount += 1
-    toast("Click again if you really want to restart.",2)
+    toast("Click again if you want to return to the title.",2)
     if clickcount == 2:
+        clear_toast()
         if score > highscore:
             highscore = score
         with open("Gem miner/highscore.txt","w+") as hsfile:
             hsfile.write(str(highscore))
             hsfile.close()
+        stop_music(window)
+        #Anything in these lists gets deleted or vanished
+        for x in board+pitobjects:
+            c.delete(x)
+        for x in [scoredisp,scoretext,goaldisp,goaltext,leveldisp,leveltext,tooltext,selected,pickaxesquare,throwingaxesquare,jackhammersquare,starsquare,shufflesquare,backsquare,pickholder,axeholder,jackhammerholder,starholder,shuffleholder]:
+            c.itemconfig(x,state=HIDDEN)
+        play_sound_effect(sfx_on,clicked)
         grid = [0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0]
-        reset_color()
-        reset_color()
-        powerups = [1]*5
-        powerupvalues = powerups
-        draw_powerups()
+                0,0,0,0,0,0,0,
+                0,0,0,0,0,0,0,
+                0,0,0,0,0,0,0,
+                0,0,0,0,0,0,0,
+                0,0,0,0,0,0,0,
+                0,0,0,0,0,0,0]
         selcolor = 0
         c.itemconfig(selected,image=empty_block)
         score = 0
         level = 1
-        update_text()
         gameover = False
-        draw_board()
+        c.itemconfig(titlebg,state=NORMAL)
+        for button in [startb,helpb]:
+            button.set_visible(True)
+        
         c.itemconfig(scoredisp,text=score)
         c.itemconfig(gameovertext,text="")
         c.itemconfig(finalscoretext,text="")
-        c.itemconfig(toasttext, state=HIDDEN)
-        clickcount = 0
-        return
+        track = randint(0,1)
+        moves = 15
     else:
         window.after(2000, reset_count)
 
@@ -951,7 +955,7 @@ def click(event):
             #Anything in these lists gets deleted or vanished
             for x in board+pitobjects:
                 c.delete(x)
-            for x in [scoredisp,scoretext,goaldisp,goaltext,leveldisp,leveltext,tooltext,selected,pickaxesquare,throwingaxesquare,jackhammersquare,starsquare,shufflesquare,restartsquare,pickholder,axeholder,jackhammerholder,starholder,shuffleholder]:
+            for x in [scoredisp,scoretext,goaldisp,goaltext,leveldisp,leveltext,tooltext,selected,pickaxesquare,throwingaxesquare,jackhammersquare,starsquare,shufflesquare,backsquare,pickholder,axeholder,jackhammerholder,starholder,shuffleholder]:
                 c.itemconfig(x,state=HIDDEN)
             selecting = True
             display_modes(True)
@@ -1072,7 +1076,7 @@ def click(event):
             shuffle_pit()
 
         #* BUTTONS
-        if inside(0,350,50,400,mousex,mousey): #Is restart clicked?
+        if inside(0,350,50,400,mousex,mousey): #Is back button clicked?
             ask_close()
 
         row = floor((mousex-SQUAREMARGINY)//49-1) 

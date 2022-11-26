@@ -27,7 +27,7 @@ throwingaxe = PhotoImage(file = filepath+"Gem miner/Images/Tools/axe.png")
 star = PhotoImage(file = filepath+"Gem miner/Images/Tools/star.png")
 dice = PhotoImage(file = filepath+"Gem miner/Images/Tools/shuffle.png")
 
-restart = PhotoImage(file = filepath+"Gem miner/Images/UI/restartbutton.png")
+backbutton = PhotoImage(file = filepath+"Gem miner/Images/UI/backbutton.png")
 button = PhotoImage(file = filepath+"Gem miner/Images/UI/button.png")
 titlebgimage = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/titlebg.png")
 
