@@ -320,7 +320,7 @@ def play_place_sound(): #only putting it in a function by itself so i can call i
 def time_rush():
     base_time = 1000
     loop3 = window.after(floor(base_time),time_rush)
-    if gameover_check():
+    if gameover or gameover_check() or not started:
         c.itemconfig(bg_image,image=bg)
         window.after_cancel(loop3)
         return
@@ -332,7 +332,7 @@ def time_rush():
 def time_bg(index = 0):
     #if not music_on:
         #play_sound_effect(sfx_on,clocktick)
-    if gameover:
+    if gameover or not started:
         return
     else:
         c.itemconfig(bg_image,image=time_bgs[index])
@@ -367,7 +367,7 @@ def start_part_2():
     set_brick()
 
 def start():
-    global repeats,track,powerups,powerupvalues, level, cutscene, beathighscore, card, fade, starter
+    global repeats,track,powerups,powerupvalues, level, cutscene, beathighscore, card, fade, starters
     reset_color()
     reset_color()
     draw_powerups()
@@ -430,8 +430,7 @@ def start():
     if sfx_on:
         play_sound_effect(sfx_on,startsound)
     track = randint(0,1)
-    starter = window.after(3600,start_part_2)
-    window.after(3600,start_music)
+    starters = [window.after(3600,start_part_2),window.after(3600,start_music)]
     update_text(nextlevel=False)
 
 
@@ -466,7 +465,7 @@ def toast(msg,time=-1):
         window.after(time*1000,clear_toast)
 
 def ask_close():
-    global grid, clickcount, score, level, highscore, selcolor, gameover, powerups, powerupvalues, selecting, track, moves
+    global grid, clickcount, score, level, highscore, selcolor, gameover, powerups, powerupvalues, selecting, track, moves, started, display
     
     play_sound_effect(sfx_on,clicked)
     clickcount += 1
@@ -479,12 +478,22 @@ def ask_close():
             hsfile.write(str(highscore))
             hsfile.close()
         stop_music(window)
+        c.itemconfig(bg_image,image=bg)
+        display = False
+        started = False
+        for starter in starters:
+            window.after_cancel(starter)
         #Anything in these lists gets deleted or vanished
         for x in board+pitobjects:
             c.delete(x)
         for x in [scoredisp,scoretext,goaldisp,goaltext,leveldisp,leveltext,tooltext,selected,pickaxesquare,throwingaxesquare,jackhammersquare,starsquare,shufflesquare,backsquare,pickholder,axeholder,jackhammerholder,starholder,shuffleholder]:
             c.itemconfig(x,state=HIDDEN)
         play_sound_effect(sfx_on,clicked)
+        if music_on:
+            title_music.play()
+        powerups = [0]*5
+        powerupvalues = [0]*5
+        update_text(False)
         grid = [0,0,0,0,0,0,0,
                 0,0,0,0,0,0,0,
                 0,0,0,0,0,0,0,
@@ -819,10 +828,12 @@ def motion(event,outside=False):
     for item in highlight:
         c.delete(item)
     highlight.clear()
-    if not outside:
+    if outside:
+        mousex -= SQUARELEN/2
+        mousey -= SQUARELEN/2
+    else:
         mousex = event.x
         mousey = event.y #get mouse x and y
-
     row = floor((mousex-SQUAREMARGINY)//49-1)
     column = floor((mousey-SQUAREMARGINX)//49+1) #work out row and column of hovered space
     pos = get_pos(row,column)
@@ -891,7 +902,7 @@ def click(event):
     mouseb = event.num
     # print(mousex,mousey)
     if cutscene:
-        window.after_cancel(starter)
+        window.after_cancel(starters[0])
         start_part_2()
         
     if helping:
