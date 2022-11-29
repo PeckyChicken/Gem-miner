@@ -76,6 +76,7 @@ clocktick = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/clocktick.wav")
 brickplaced = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/brick_placed.wav")
 specialadvance = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/you_know_not_what_this_is.wav")
 startsound = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/start.wav")
+warning = mixer.Sound(filepath+"Gem miner/Sounds/Gameplay/warning.wav")
 
 #Sets the volume of the music
 music_vol = 0.25
@@ -117,6 +118,7 @@ mixer.Sound.set_volume(clicked,sound_vol)
 mixer.Sound.set_volume(clocktick,sound_vol)
 mixer.Sound.set_volume(brickplaced,sound_vol)
 mixer.Sound.set_volume(startsound,sound_vol)
+mixer.Sound.set_volume(warning,sound_vol)
 mixer.Sound.set_volume(newhighscore,sound_vol)
 
 def play_sound_effect(sfx_on,effect):

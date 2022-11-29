@@ -1239,6 +1239,9 @@ def click(event):
                 lines, direction, num = detect_line(row,column,lookup) #detects any lines
                 if mode == "obstacle":
                     moves -= 1
+                    next_level()
+                    if moves == 3:
+                        play_sound_effect(sfx_on,warning)
                 tempx, tempy = row,column
                 square = lookup(tempx,tempy)
 
