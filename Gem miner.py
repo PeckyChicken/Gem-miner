@@ -856,7 +856,7 @@ def motion(event,outside=False):
                 c.itemconfig(indicator,image=cross,state=NORMAL)
                 return
 
-            lines, direction, _ = detect_line(row,column,lookup,special=True,color=selcolor)
+            lines, direction, _, _ = detect_line(row,column,lookup,special=True,color=selcolor)
 
             if direction == "HV":
                 icon = bomb
@@ -1236,7 +1236,7 @@ def click(event):
                 selcolor = 0
                 canplace = False
                 c.itemconfig(selected,image=empty_block)
-                lines, direction, num = detect_line(row,column,lookup) #detects any lines
+                lines, direction, num, linelens = detect_line(row,column,lookup) #detects any lines
                 if mode == "obstacle":
                     moves -= 1
                     next_level()
@@ -1298,8 +1298,19 @@ def click(event):
                     elif colorsel == 4: #Blue
                         draw_animation(row,column,diamonds["blue"],100,c,get_pos,window,event=lambda:set_square(colorsel+6,row,column))
                     
-                elif len(lines) >= 6: #finds the lines with 6 or more gems and changes them into a bomb. gems used in 2 lines count twice
-                    draw_animation(row,column,explosions,100,c,get_pos,window,event=lambda: set_square(11,row,column))
+                elif direction == "HV": #finds the lines going in both directions, and makes a bomb
+                    xpos, ypos = num
+                    xlen, ylen = linelens
+                    if xlen == 3:
+                        handle_gem_break(square,"H",xpos,tempx,tempy,bomb=True)
+                    else:
+                        handle_drill_create(square,row,column,xpos,"H",tempx,tempy,bomb=True)
+                    
+                    if ylen == 3:
+                        handle_gem_break(square,"V",ypos,tempx,tempy,bomb=True)
+                    else:
+                        handle_drill_create(square,row,column,ypos,"V",tempx,tempy,bomb=True)
+                        
                     
                     play_sound_effect(sfx_on,bombcreated)
                 soundplayed = False
@@ -1419,28 +1430,33 @@ def shuffle_pit():
 
     gameover_check()
 
-def handle_drill_create(square, row, column, num, direction, tempx, tempy):
+def handle_drill_create(square, row, column, num, direction, tempx, tempy,bomb=False):
     color = [None,"red","yellow","green","blue"][square]
     if direction == "H":
         pos = ["left","right"][num-1]
-        draw_animation(tempx,tempy,hdrills[color][pos],100,c,get_pos,window,event=lambda: set_square(5 if direction == "H" else 6,row,column))
+        draw_animation(tempx,tempy,hdrills[color][pos],100,c,get_pos,window,event=lambda: set_square(11 if bomb else 5,row,column))
 
     elif direction == "V":
-        if square in ():
-            pos = ["top","bottom"][num-1]
-            draw_animation(tempx,tempy,vgembreaks[color][pos],100,c,get_pos,window,event=lambda x=tempx,y=tempy: draw_animation(x,y,gemvanish,100,c,get_pos,window))
-        else: 
-            set_square(5 if direction == "H" else 6,row,column)
+        pos = ["top","bottom"][num-1]
+        draw_animation(tempx,tempy,vdrills[color][pos],100,c,get_pos,window,event=lambda: set_square(11 if bomb else 6,row,column))
 
-def handle_gem_break(square, direction, num, tempx, tempy):
+def handle_gem_break(square, direction, num, tempx, tempy,bomb=False):
     color = [None,"red","yellow","green","blue"][square]
+
     if direction == "H":
         pos = ["left","center","right"][num]
-        draw_animation(tempx,tempy,hgembreaks[color][pos],100,c,get_pos,window,event=lambda x=tempx,y=tempy: draw_animation(x,y,gemvanish,100,c,get_pos,window))
+        draw_animation(tempx,tempy,hgembreaks[color][pos],100,c,get_pos,window,event=lambda tempx=tempx,tempy=tempy,bomb=bomb: finish(tempx, tempy, bomb))
 
     elif direction == "V":
         pos = ["top","center","bottom"][num]
-        draw_animation(tempx,tempy,vgembreaks[color][pos],100,c,get_pos,window,event=lambda x=tempx,y=tempy: draw_animation(x,y,gemvanish,100,c,get_pos,window))
+        draw_animation(tempx,tempy,vgembreaks[color][pos],100,c,get_pos,window,event=lambda tempx=tempx,tempy=tempy,bomb=bomb: finish(tempx, tempy, bomb))
+
+def finish(x,y,bomb):
+    if bomb:
+        set_square(11,x,y)
+    else:
+        draw_animation(x,y,gemvanish,100,c,get_pos,window)
+
 
 def clear_dice_prev():
     for item in diceprev:
