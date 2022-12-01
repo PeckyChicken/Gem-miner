@@ -146,24 +146,31 @@ pitobjects: list[Button] = list()
 
 loop = 0
 
+def get_pos(gridx,gridy):
+    x = gridx*SQUARELEN+SQUAREMARGINX
+    y = gridy*SQUARELEN+SQUAREMARGINY
+    #Both of these are very similar, so I will talk about both together.
+    #The gridx/y * squarelen works out the relative position of the square, then the distance from the wall is added on.
+    #The distance from the wall is multiplied by the value so that the predicted position is in the center of the square.
 
+    return x,y
 
 
 #Makes all the title screen buttons
-startb = GameButton("Start",-35,c,False)
-helpb = GameButton("How to play",35,c,False)
-fastb = GameButton("Fast Game",105,c,True)
+startb = GameButton("Start",-35,c,get_pos,window,False)
+helpb = GameButton("How to play",35,c,get_pos,window,False)
+fastb = GameButton("Fast Game",105,c,get_pos,window,True)
 
 fastmode = False
 
-survivalb = GameButton("Survival",-35,c,True)
-timeb = GameButton("Time Rush",35,c,True)
-obstacleb = GameButton("Obstacles",105,c,True)
-chromab = GameButton("Chromablitz",-105,c,True)
+survivalb = GameButton("Survival",-35,c,get_pos,window,True)
+timeb = GameButton("Time Rush",35,c,get_pos,window,True)
+obstacleb = GameButton("Obstacles",105,c,get_pos,window,True)
+chromab = GameButton("Chromablitz",-105,c,get_pos,window,True)
 
 
 
-playb = GameButton("Play again",95,c,True)
+playb = GameButton("Play again",95,c,get_pos,window,True)
 
 started = False
 helping = False
@@ -281,15 +288,6 @@ def lookup(x,y):
 
 def Get_ID(x,y):
     return board[y*GRIDROWS+x]
-
-def get_pos(gridx,gridy):
-    x = gridx*SQUARELEN+SQUAREMARGINX
-    y = gridy*SQUARELEN+SQUAREMARGINY
-    #Both of these are very similar, so I will talk about both together.
-    #The gridx/y * squarelen works out the relative position of the square, then the distance from the wall is added on.
-    #The distance from the wall is multiplied by the value so that the predicted position is in the center of the square.
-
-    return x,y
 
 def set_pit(color,pos):
     pit[pos] = color #changes color of the pit objects

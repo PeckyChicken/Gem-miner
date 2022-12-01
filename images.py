@@ -96,6 +96,7 @@ for ani in ["Red","Yellow","Green","Blue"]:
     vdrills[ani.lower()] = {"top":create_animation(filepath+f"Gem miner/Images/Animations/Drills/Vertical/{ani}/Top",ani.lower()),
                             "bottom":create_animation(filepath+f"Gem miner/Images/Animations/Drills/Vertical/{ani}/Bottom",ani.lower())}
 
+buttonclick = create_animation("Gem miner/Images/Animations/Buttons","button")
 
 obstacle_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/obstacle_bg.png")
 survival_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/survival_bg.png")
