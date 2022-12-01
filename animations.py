@@ -1,5 +1,4 @@
 from pathlib import Path
-from time import sleep
 from tkinter import NORMAL, Canvas, PhotoImage, Tk
 
 from constants import *
