@@ -29,7 +29,6 @@ class GameButton:
         clicked = inside(x1,y1,x2,y2,mousex, mousey)
         if clicked:
             draw_animation(WIDTH/2,HEIGHT/2+self.offset,buttonclick,100,self.canvas,self.get_pos,self.window,direct=True)
-        sleep(2)
         return clicked
 
     def set_visible(self,visible:bool):
