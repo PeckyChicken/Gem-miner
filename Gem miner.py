@@ -908,7 +908,7 @@ def flash(item,rate=0.15,/,*,times=0,pulse=False,delete=False,frames=[None]):
     pulse = not pulse
     if times < 3:
         window.after(round(rate*1000),lambda: flash(item,rate,times=times,pulse=pulse,frames=frames))
-    if delete: 
+    if delete:
         c.delete(item)
 
 diceprev = []
