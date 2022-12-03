@@ -217,7 +217,7 @@ def draw_powerups():
     c.itemconfig(backsquare,state=NORMAL)
     
 reserved = set()
-
+itemid
 def set_square(color,x,y,reserve=False):
     global board, reserved
     if reserve:
@@ -822,13 +822,14 @@ def key_press(event):
         pick_color(keyvalue*3)
 
 def motion(event,outside=False):
-    global indicator,mousex,mousey,highlight
+    global indicator,mousex,mousey,highlight,tempmousex,tempmousey
     for item in highlight:
         c.delete(item)
     highlight.clear()
+    tempmousex, tempmousey = mousex,mousey
     if outside:
-        mousex -= SQUARELEN/2
-        mousey -= SQUARELEN/2
+        tempmousex -= SQUARELEN/2
+        tempmousey -= SQUARELEN/2
     else:
         mousex = event.x
         mousey = event.y #get mouse x and y
