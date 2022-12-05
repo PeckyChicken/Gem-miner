@@ -893,7 +893,6 @@ def motion(event,outside=False):
         c.itemconfig(indicator,state=HIDDEN)
 
 def flash(item,rate=0.15,/,*,times=0,pulse=False,delete=False,frames=[None]):
-    print(f"{frames=}")
     if pulse:
         if frames[0] is None:
             c.itemconfig(item,fill="#FF0000")
