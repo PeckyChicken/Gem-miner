@@ -905,10 +905,15 @@ def flash(item,rate=0.15,/,*,times=0,pulse=False,delete=False,frames=[None]):
         else:
             c.itemconfig(item,image=frames[1])
     pulse = not pulse
-    if times < 3:
+    if times < 4:
         window.after(round(rate*1000),lambda: flash(item,rate,times=times,pulse=pulse,frames=frames))
-    if delete:
-        c.delete(item)
+    else:
+        if frames[0] is None:
+            c.itemconfig(item,fill=TEXTCOL)
+        else:
+            c.itemconfig(item,image=frames[1])
+        if delete:
+            c.delete(item)
 
 diceprev = []
 #Main event
@@ -1260,7 +1265,8 @@ def click(event):
                     if moves <= 3:
                         if moves == 3:
                             play_sound_effect(sfx_on,warning)
-                if mode == "survival":
+                        flash(goaldisp)
+                elif mode == "survival":
                     if grid.count(0) <= level+1:
                         play_sound_effect(sfx_on,warning)
                         squares = []
@@ -1268,7 +1274,7 @@ def click(event):
                             if item == 0:
                                 squares.append(c.create_image(get_pos(idx//7,idx%7),image=careful))
                         for square in squares:
-                            flash(square,frames=[careful,empty_block])
+                            flash(square,frames=[careful,empty_block],delete=True)
 
                 tempx, tempy = row,column
                 square = lookup(tempx,tempy)
