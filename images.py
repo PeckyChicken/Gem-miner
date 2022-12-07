@@ -104,3 +104,4 @@ diceused = create_animation("Gem miner/Images/Animations/Dice","dice")
 
 cross = PhotoImage(file = filepath+"Gem miner/Images/UI/cross.png")
 careful = PhotoImage(file = filepath+"Gem miner/Images/UI/warning.png")
+air = PhotoImage(file = filepath+"Gem miner/Images/UI/air.png")

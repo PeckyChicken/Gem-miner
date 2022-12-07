@@ -1273,7 +1273,7 @@ def click(event):
                                 coords = get_pos(*get_2d_pos(idx))
                                 squares.append(c.create_image(coords[0]+SQUARELEN/2,coords[1]+SQUARELEN/2,image=careful))
                         for square in squares:
-                            flash(square,frames=[careful,None],delete=True)
+                            flash(square,frames=[careful,air],delete=True)
 
                 tempx, tempy = row,column
                 square = lookup(tempx,tempy)
