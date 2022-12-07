@@ -259,7 +259,7 @@ def next_level():
             for _ in range(level):
                 index = choice(list(indices))
                 indices.remove(index)
-                tempx, tempy = index//7, index%7
+                tempx, tempy = get_2d_pos(index)
                 breakbrick(tempx,tempy,True)
         else:
             powerups = [1]*5
@@ -627,8 +627,7 @@ def convert_colors(item,row,column,samesquare):
     
     for i in range(len(grid)):
         if grid[i] == lookup(diamondx,diamondy)-6: #sets all colors of the same to the item
-            x = i%7
-            y = i//7
+            x,y = get_2d_pos(i)
             draw_animation(x,y,smokes[lookup(x,y)],100,c,get_pos,window)
             set_square(11 if item == "bomb" else randint(5,6),x,y)
             score += 10*level
@@ -696,6 +695,8 @@ def handle_items(item,row,column):
     update_text()
     return False
 
+def get_2d_pos(index):
+    return index%7, index//7
 
 def clear_colors(row,column):
     global score, busy, powerups, powerupvalues
@@ -706,7 +707,7 @@ def clear_colors(row,column):
     soundplayed = False
     for i in range(len(grid)):
         if grid[i] == lookup(row,column)-6: #sets all colors of the same to gray
-            currow, curcolumn = i%7,floor(i/7)
+            currow, curcolumn = get_2d_pos(i)
             soundplayed = clear_bricks((currow,curcolumn),soundplayed)
             draw_animation(currow,curcolumn,smokes[lookup(currow,curcolumn)],100,c,get_pos,window)
             
@@ -906,7 +907,7 @@ def flash(item,rate=0.15,/,*,times=0,pulse=False,delete=False,frames=[None]):
             c.itemconfig(item,image=frames[1])
     pulse = not pulse
     if times < 4:
-        window.after(round(rate*1000),lambda: flash(item,rate,times=times,pulse=pulse,frames=frames))
+        window.after(round(rate*1000),lambda: flash(item,rate,times=times,pulse=pulse,frames=frames,delete=delete))
     else:
         if frames[0] is None:
             c.itemconfig(item,fill=TEXTCOL)
@@ -1262,19 +1263,17 @@ def click(event):
                 if mode == "obstacle":
                     moves -= 1
                     next_level()
-                    if moves <= 3:
-                        if moves == 3:
-                            play_sound_effect(sfx_on,warning)
-                        flash(goaldisp)
+
                 elif mode == "survival":
-                    if grid.count(0) <= level+1:
+                    if grid.count(0) <= level+2:
                         play_sound_effect(sfx_on,warning)
                         squares = []
                         for idx,item in enumerate(grid):
                             if item == 0:
-                                squares.append(c.create_image(get_pos(idx//7,idx%7),image=careful))
+                                coords = get_pos(*get_2d_pos(idx))
+                                squares.append(c.create_image(coords[0]+SQUARELEN/2,coords[1]+SQUARELEN/2,image=careful))
                         for square in squares:
-                            flash(square,frames=[careful,empty_block],delete=True)
+                            flash(square,frames=[careful,None],delete=True)
 
                 tempx, tempy = row,column
                 square = lookup(tempx,tempy)
@@ -1368,6 +1367,10 @@ def click(event):
                         for _ in range(level): #Puts more bricks on the board
                             set_brick()
                 next_level()
+                if moves <= 3:
+                    if moves == 3:
+                        play_sound_effect(sfx_on,warning)
+                    flash(goaldisp)
                 if gameover_check():
                         return
             else:
