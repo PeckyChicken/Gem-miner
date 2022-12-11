@@ -322,6 +322,16 @@ def time_rush():
         c.itemconfig(bg_image,image=bg)
         window.after_cancel(loop3)
         return
+    if grid.count(0) <= level*3 + 1:
+        if grid.count(0) == level*3 + 1:
+            play_sound_effect(sfx_on,warning)
+        squares = []
+        for idx,item in enumerate(grid):
+            if item == 0:
+                coords = get_pos(*get_2d_pos(idx))
+                squares.append(c.create_image(coords[0]+SQUARELEN/2,coords[1]+SQUARELEN/2,image=careful))
+        for square in squares:
+            flash(square,frames=[careful,air],delete=True)
     if 0 in grid:
         play_sound_effect(sfx_on,brickplaced)
     for _ in range(level):
@@ -1274,7 +1284,6 @@ def click(event):
                                 squares.append(c.create_image(coords[0]+SQUARELEN/2,coords[1]+SQUARELEN/2,image=careful))
                         for square in squares:
                             flash(square,frames=[careful,air],delete=True)
-
                 tempx, tempy = row,column
                 square = lookup(tempx,tempy)
 
