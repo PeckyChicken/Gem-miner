@@ -4,11 +4,11 @@ from tkinter import NORMAL, Canvas, PhotoImage, Tk
 from constants import *
 
 
-def create_animation(path: str,name: str) -> list[PhotoImage]:
+def create_animation(path: str,name: str,filetype="png") -> list[PhotoImage]:
     '''This function creates a list of animation frames, from just giving the file path and the name of the file.
     The program will automatically determine how many frames there are, as long as they are named in the style <title>1, <title>2, <title>3, and so on
     '''
-    files = Path(path).glob(f"{name}*.png")
+    files = Path(path).glob(f"{name}*.{filetype}")
     files = sorted(files)
     framelist: list[PhotoImage] = []
     for frame in files:
@@ -21,7 +21,7 @@ def draw_animation(x,y,frames,fps,c: Canvas,get_pos:callable,window: Tk,frame=0,
     For c, get_pos, and window, just pass those exact words in, for frame and sprite, leave those alone, and event is the function which will be called on animation completing.'''
     frametime = 1000//fps
     if direct:
-        DrawX, DrawY = x,y
+        DrawX, DrawY = x-SQUARELEN/2,y-SQUARELEN/2
     else:
         DrawX, DrawY = get_pos(x,y)
     if sprite is None:
@@ -34,7 +34,7 @@ def draw_animation(x,y,frames,fps,c: Canvas,get_pos:callable,window: Tk,frame=0,
     window.update()
     if frame < len(frames):
 
-        window.after(frametime,draw_animation,x,y,frames,fps,c,get_pos,window,frame,sprite,event)
+        window.after(frametime,draw_animation,x,y,frames,fps,c,get_pos,window,frame,sprite,event,direct)
     else:
         if event is not None:
             event()

@@ -55,7 +55,7 @@ smokes = []
 for color in ["General","Red","Yellow","Green","Blue"]:
     smokes.append(create_animation(filepath+f"Gem miner/Images/Animations/Smoke/{color}","smoke"))
 
-
+transition = create_animation(path="Gem miner/Images/Animations/Transitions/Enter",name="Frame",filetype="PNG")
 
 brickplace = create_animation(filepath+"Gem miner/Images/Animations/Bricks/Placing","brickplace")
 

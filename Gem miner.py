@@ -1415,6 +1415,7 @@ def click(event):
                 start()
         else:
             if startb.is_clicked(mousex,mousey):
+                draw_animation(WIDTH/2,HEIGHT/2,transition,1000,c,get_pos,window,direct=True)
                 display_modes()
                 play_sound_effect(sfx_on,clicked)
             if helpb.is_clicked(mousex,mousey) and not helping:
