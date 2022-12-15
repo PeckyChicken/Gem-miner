@@ -1687,7 +1687,6 @@ def draw_pit():
         #works out how to draw the pit
 
 
-
 window.bind("<Button>",click)
 window.bind("<Key>",key_press)
 window.bind("<Motion>",motion)
