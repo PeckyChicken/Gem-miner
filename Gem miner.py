@@ -68,7 +68,7 @@ chroma_music = Music({chromablitz:57600},window)
 if randint(0,1):
     title_music.play()
 else:
-    title_music2.play
+    title_music2.play()
 
 canplace = False
 selcolor = 0
