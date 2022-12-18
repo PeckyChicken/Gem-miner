@@ -57,6 +57,7 @@ except (FileNotFoundError, ValueError):
 
 select_music = Music({mode_select:69818},window)
 title_music = Music({title1:13300,title2:54850},window)
+title_music2 = Music({title3:51200},window)
 game_music = Music({main1:52377},window)
 game_music2 = Music({main2:61075},window)
 time_music = Music({time1:8000,time2:32000},window)
@@ -64,7 +65,10 @@ obstacle_music = Music({obstacle:56000},window)
 game_over_music = Music({gameover1:643,gameover2:13714},window)
 chroma_music = Music({chromablitz:57600},window)
 
-title_music.play()
+if randint(0,1):
+    title_music.play()
+else:
+    title_music2.play
 
 canplace = False
 selcolor = 0
@@ -498,7 +502,10 @@ def ask_close():
             c.itemconfig(x,state=HIDDEN)
         play_sound_effect(sfx_on,clicked)
         if music_on:
-            title_music.play()
+            if randint(0,1):
+                title_music.play()
+            else:
+                title_music2.play()
         powerups = [0]*5
         powerupvalues = [0]*5
         update_text(False)
@@ -976,7 +983,10 @@ def click(event):
                 if selecting:
                     select_music.play()
                 else:
-                    title_music.play()
+                    if randint(0,1):
+                        title_music.play()
+                    else:
+                        title_music2.play()
             c.itemconfig(musicsquare, image = music)
 
     if inside(0,400,50,450,mousex,mousey): #Is sfx clicked?
