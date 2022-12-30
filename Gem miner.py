@@ -255,16 +255,7 @@ def next_level():
         if mode == "obstacle":
             powerupvalues[randint(0,len(powerupvalues)-1)] += 1
             powerups[:] = [1 if i else 0 for i in powerupvalues]
-        elif mode == "chroma":
-            indices = set()
-            for index,item in enumerate(grid):
-                if item == 12:
-                    indices.add(index)
-            for _ in range(level):
-                index = choice(list(indices))
-                indices.remove(index)
-                tempx, tempy = get_2d_pos(index)
-                breakbrick(tempx,tempy,True)
+
         else:
             powerups = [1]*5
             powerupvalues = [1]*5
@@ -733,28 +724,7 @@ def clear_colors(row,column):
             c.itemconfig(scoredisp,text=score)
             update_text()
     if mode == "chroma":
-        if square == 1:
-            play_sound_effect(sfx_on,axeused)
-            clear_line("V",row,column,False)
-            clear_line("H",row,column,False)
-        elif square == 2:
-            play_sound_effect(sfx_on,axeused)
-            clear_line(choice(["V","R"]),row,column,sound=False)
-        elif square == 3:
-            play_sound_effect(sfx_on,powerupselected)
-            for _ in range(3):
-                powerups = [0]*5
-                powerupvalues = powerups
-                draw_powerups()
-                window.update()
-                sleep(0.05)
-                powerups = [1]*5
-                powerupvalues = powerups
-                draw_powerups()
-                window.update()               
-                sleep(0.05)
-        elif square == 4:
-            explode(row,column,1)
+        print("")
     score += 100*level
     
     update_text()
@@ -1310,29 +1280,6 @@ def click(event):
                         c.delete(item)
                     highlight.clear()
                     c.itemconfig(indicator, state=HIDDEN)
-                    if mode == "chroma":
-                        if square == 1:
-                            play_sound_effect(sfx_on,axeused)
-                            clear_line("V",tempx,tempy,False)
-                            clear_line("H",tempx,tempy,False)
-                        elif square == 2:
-                            play_sound_effect(sfx_on,axeused)
-                            clear_line(direction,tempx,tempy,sound=False)
-                        elif square == 3:
-                            play_sound_effect(sfx_on,powerupselected)
-                            for _ in range(3):
-                                powerups = [0]*5
-                                powerupvalues = powerups
-                                draw_powerups()
-                                window.update()
-                                sleep(0.05)
-                                powerups = [1]*5
-                                powerupvalues = powerups
-                                draw_powerups()
-                                window.update()               
-                                sleep(0.05)
-                        elif square == 4:
-                            explode(tempx,tempy,1)
                 if len(lines) == 4: #Finds the lines with 4 gems and changes them into a drill with the opposite direction as the line.
                     handle_drill_create(square, row, column,num, direction, tempx, tempy)
                     
@@ -1530,7 +1477,7 @@ def display_modes(music=False):
     for item in [startb,helpb,fastb]:
         item.set_visible(FALSE)
 
-    for item in [survivalb,timeb,obstacleb]:
+    for item in [survivalb,timeb,obstacleb,chromab]:
         item.set_visible(True)
 
 def clear_diagonal_lines(row,column,clear=True):

@@ -20,7 +20,7 @@ blue_diamond = PhotoImage(file = filepath+"Gem miner/Images/Tools/Diamonds/blue_
 rainbow_diamond = PhotoImage(file = filepath+"Gem miner/Images/Tools/Diamonds/rainbow_diamond.png")
 bomb = PhotoImage(file = filepath+"Gem miner/Images/Tools/bomb.png")
 
-bricks = PhotoImage(file = filepath+"Gem miner/Images/Animations/Bricks/bricks.png")
+bricks = PhotoImage(file = filepath+"Gem miner/Images/Bricks/bricks.png")
 jackhammer = PhotoImage(file = filepath+"Gem miner/Images/Tools/jackhammer.png")
 pickaxe = PhotoImage(file = filepath+"Gem miner/Images/Tools/pickaxe.png")
 throwingaxe = PhotoImage(file = filepath+"Gem miner/Images/Tools/axe.png")
