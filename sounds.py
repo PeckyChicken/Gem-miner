@@ -122,11 +122,14 @@ mixer.Sound.set_volume(brickplaced,sound_vol)
 mixer.Sound.set_volume(startsound,sound_vol)
 mixer.Sound.set_volume(warning,sound_vol)
 mixer.Sound.set_volume(newhighscore,sound_vol)
-
+soundchannels: list[mixer.Channel] = []
 def play_sound_effect(sfx_on,effect):
+    global soundchannels
     if sfx_on:
         try:
-            mixer.find_channel().play(effect)
+            channel = mixer.find_channel()
+            soundchannels.append(channel)
+            channel.play(effect)
         except AttributeError:
             mixer.Channel(20).play(effect)
 
@@ -137,6 +140,13 @@ def get_channel() -> mixer.Channel:
     channels.add(channel)
     return channel
 repeats = 0
+
+def stop_sounds():
+    global soundchannels
+    for channel in soundchannels:
+        channel.stop()
+    soundchannels.clear()
+
 def stop_music(window):
     global repeats, channels
     for channel in channels:
@@ -147,7 +157,6 @@ def stop_music(window):
         window.after_cancel(loop2)
     except NameError: 
         errors += 1
-    if errors != 1:
+    #if errors != 1:
         #print(f"LOG: Error found in function stop_music(), the number of errors were:\n{errors}.\nExpected:\n0.")
-        pass
     repeats = 0

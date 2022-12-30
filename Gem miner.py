@@ -332,14 +332,7 @@ def time_rush():
     for _ in range(level):
         set_brick()
 
-def time_bg(index = 0):
-    #if not music_on:
-        #play_sound_effect(sfx_on,clocktick)
-    if gameover or not started:
-        return
-    else:
-        c.itemconfig(bg_image,image=time_bgs[index])
-        window.after(500,time_bg,(index+1)%4) 
+
 
 def start_music():
     global repeats
@@ -358,8 +351,7 @@ def start_part_2():
     global started, repeats, cutscene
     started = True
     cutscene = False
-    if mode == "time":
-        time_bg()
+    if mode == "time":        
         time_rush()
 
     c.delete(card[0])
@@ -417,7 +409,7 @@ def start():
         c.itemconfig(bg_image,image=obstacle_bg)
         card = [c.create_image(WIDTH/2,HEIGHT/2,image=obstaclecard)]
     elif mode == "time":
-        c.itemconfig(bg_image,image=time_bgs[0])
+        c.itemconfig(bg_image,image=time_bg)
         card = [c.create_image(WIDTH/2,HEIGHT/2,image=timecard)]
     elif mode == "survival":
         c.itemconfig(bg_image,image=survival_bg)
@@ -467,13 +459,14 @@ def toast(msg,time=-1):
     if time >= 0:
         window.after(time*1000,clear_toast)
 
-def ask_close():
+def ask_quit():
     global grid, clickcount, score, level, highscore, selcolor, gameover, powerups, powerupvalues, selecting, track, moves, started, display
     
     play_sound_effect(sfx_on,clicked)
     clickcount += 1
     toast("Click again if you want to return to the title.",2)
     if clickcount == 2:
+        stop_sounds()
         clear_toast()
         if score > highscore:
             highscore = score
@@ -913,6 +906,10 @@ def click(event):
     # print(mousex,mousey)
     if cutscene:
         window.after_cancel(starters[0])
+        window.after_cancel(starters[1])
+        stop_sounds()
+        start_music()
+            
         start_part_2()
         
     if helping:
@@ -1101,7 +1098,7 @@ def click(event):
 
         #* BUTTONS
         if inside(0,350,50,400,mousex,mousey): #Is back button clicked?
-            ask_close()
+            ask_quit()
 
         row = floor((mousex-SQUAREMARGINY)//49-1) 
         column = floor((mousey-SQUAREMARGINX)//49+1) #work out row and column of clicked space

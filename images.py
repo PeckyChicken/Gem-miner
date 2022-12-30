@@ -61,8 +61,6 @@ brickplace = create_animation(filepath+"Gem miner/Images/Animations/Bricks/Placi
 
 brickbreaking = create_animation(filepath+"Gem miner/Images/Animations/Bricks/Breaking","brickbreak")
 
-time_bgs = create_animation(filepath+"Gem miner/Images/Backgrounds/Time","time_bg")
-
 bomb_create = create_animation(filepath+"Gem miner/Images/Animations/Bombs","bomb")
 
 hgembreaks = {}
@@ -99,6 +97,7 @@ for ani in ["Red","Yellow","Green","Blue"]:
 obstacle_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/obstacle_bg.png")
 survival_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/survival_bg.png")
 chroma_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/chroma_bg.png")
+time_bg = PhotoImage(file=filepath+"Gem miner/Images/Backgrounds/time_bg.png")
 
 diceused = create_animation("Gem miner/Images/Animations/Dice","dice")
 
