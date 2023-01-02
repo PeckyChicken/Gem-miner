@@ -1441,7 +1441,7 @@ def handle_gem_break(square, direction, num, tempx, tempy,bomb=False):
 
     if direction == "H":
         pos = ["left","center","right"][num]
-        draw_animation(tempx,tempy,hgembreaks[color][pos],900,c,get_pos,window,event=lambda tempx=tempx,tempy=tempy,bomb=bomb: finish(tempx, tempy, bomb))
+        draw_animation(tempx,tempy,hgembreaks[color][pos],500,c,get_pos,window,event=lambda tempx=tempx,tempy=tempy,bomb=bomb: finish(tempx, tempy, bomb))
 
     elif direction == "V":
         pos = ["top","center","bottom"][num]
