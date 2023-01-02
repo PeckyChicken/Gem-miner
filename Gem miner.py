@@ -141,7 +141,7 @@ musicsquare = c.create_image(25,475,image=music)
 grid = [0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,
+        0,0,0,15,0,0,0,
         0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,
         0,0,0,0,0,0,0] #defines the game board
@@ -181,7 +181,7 @@ helping = False
 tutstage = 0
 
 #*IDS
-itemid = {0:empty_block,1:red_block,2:yellow_block,3:green_block,4:blue_block,5:vdrill,6:hdrill,7:red_diamond,8:yellow_diamond,9:green_diamond,10:blue_diamond,11:bomb,12:bricks} #sets up the item ids
+itemid = {0:empty_block,1:red_block,2:yellow_block,3:green_block,4:blue_block,5:vdrill,6:hdrill,7:red_diamond,8:yellow_diamond,9:green_diamond,10:blue_diamond,11:bomb,12:bricks,13:redbricks,14:yellowbricks,15:greenbricks,16:bluebricks} #sets up the item ids
 '''1 is red, 2 is yellow, 3 is green, 4 is blue'''
 
 
@@ -1230,14 +1230,9 @@ def click(event):
         #works out if the clicked area was inside the grid, that the player can place a color there, that it is empty, and that there is a square next to it
         if row >= 0 and row < GRIDROWS and column >= 0 and column < GRIDROWS and selcolor != 0:
             # print(f'Row: {row}, Column: {column}, Row+1: {row+1}, Column+1: {column+1}, Row-1: {row-1}, Column-1: {column-1}')
-            if (lookup(row,column) == 0 and
-                    (
-                    (row > 0 and lookup(row-1,column)) or
-                    (row < 6 and lookup(row+1,column)) or
-                    (column < 6 and lookup(row,column+1)) or
-                    (column > 0 and lookup(row,column-1))
-                    )):
+            if lookup(row,column) == 0 and any((lookup(row-1,column), lookup(row+1,column), lookup(row,column+1), lookup(row,column-1))):
                 pit = [randint(1,4) if elem==0 else elem for elem in pit]
+                
                 draw_pit()
                 set_square(selcolor,row,column)
                 if gameover_check():
@@ -1252,7 +1247,7 @@ def click(event):
                     next_level()
 
                 elif mode == "survival":
-                    if grid.count(0) <= level+2:
+                    if grid.count(0) <= level + 1:
                         play_sound_effect(sfx_on,warning)
                         squares = []
                         for idx,item in enumerate(grid):
@@ -1313,7 +1308,7 @@ def click(event):
                 #Need to go through all the lines again to remove all the bricks
                 for line in lines:
 
-                    soundplayed = clear_bricks(line,soundplayed)
+                    soundplayed = clear_bricks(line,soundplayed,colorsel)
 
                 c.itemconfig(scoredisp,text=score)
                 if all(0==x for x in grid):
@@ -1446,7 +1441,7 @@ def handle_gem_break(square, direction, num, tempx, tempy,bomb=False):
 
     if direction == "H":
         pos = ["left","center","right"][num]
-        draw_animation(tempx,tempy,hgembreaks[color][pos],100,c,get_pos,window,event=lambda tempx=tempx,tempy=tempy,bomb=bomb: finish(tempx, tempy, bomb))
+        draw_animation(tempx,tempy,hgembreaks[color][pos],500,c,get_pos,window,event=lambda tempx=tempx,tempy=tempy,bomb=bomb: finish(tempx, tempy, bomb))
 
     elif direction == "V":
         pos = ["top","center","bottom"][num]
@@ -1572,26 +1567,33 @@ def explode(row, column, radius):
         window.after(1000,play_place_sound)
     update_text()
 
-def clear_bricks(line,soundplayed=False):
-    #This next part checks all the blocks around where the line was.
+def clear_bricks(gem,soundplayed=False,color=0):
+    #This next part checks all the blocks around where the gem is.
     #If any bricks were there it breaks them
+    x, y = gem[0], gem[1]+1
+    soundplayed = breakbrick(x,y,not soundplayed,color) or soundplayed
 
-    x, y = line[0], line[1]+1
-    soundplayed = breakbrick(x,y,not soundplayed) or soundplayed
+    x, y = gem[0], gem[1]-1
+    soundplayed = breakbrick(x,y,not soundplayed,color) or soundplayed
 
-    x, y = line[0], line[1]-1
-    soundplayed = breakbrick(x,y,not soundplayed) or soundplayed
+    x, y = gem[0]+1, gem[1]
+    soundplayed = breakbrick(x,y,not soundplayed,color) or soundplayed
 
-    x, y = line[0]+1, line[1]
-    soundplayed = breakbrick(x,y,not soundplayed) or soundplayed
-
-    x, y = line[0]-1, line[1]
-    soundplayed = breakbrick(x,y,not soundplayed) or soundplayed
+    x, y = gem[0]-1, gem[1]
+    soundplayed = breakbrick(x,y,not soundplayed,color) or soundplayed
     return soundplayed
 
 
-def breakbrick(x,y,sound):
+def breakbrick(x,y,sound,color):
     if lookup(x,y) == 12:
+        if 0 <= y <= 6 and 0 <= x <= 6:
+            set_square(0,x,y)
+            draw_animation(x,y,brickbreaking,100,c,get_pos,window)
+            if sound:
+                play_sound_effect(sfx_on,brickbreak)
+            next_level()
+            return True
+    elif lookup(x,y) == color+12:
         if 0 <= y <= 6 and 0 <= x <= 6:
             set_square(0,x,y)
             draw_animation(x,y,brickbreaking,100,c,get_pos,window)

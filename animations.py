@@ -31,7 +31,6 @@ def draw_animation(x,y,frames,fps,c: Canvas,get_pos:callable,window: Tk,frame=0,
     c.itemconfig(sprite,state=NORMAL,image=frames[frame])
     #print(f"FPS is {fps}, frame time is {frametime/1000}, waiting {frametime} ms before next frame, current frame number is {frame}")
     frame += 1
-    window.update()
     if frame < len(frames):
 
         window.after(frametime,draw_animation,x,y,frames,fps,c,get_pos,window,frame,sprite,event,direct)
