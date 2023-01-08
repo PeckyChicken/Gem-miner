@@ -29,6 +29,7 @@ bluebricks = PhotoImage(file = filepath+"Gem miner/Images/Bricks/blue_bricks.png
 jackhammer = PhotoImage(file = filepath+"Gem miner/Images/Tools/jackhammer.png")
 pickaxe = PhotoImage(file = filepath+"Gem miner/Images/Tools/pickaxe.png")
 throwingaxe = PhotoImage(file = filepath+"Gem miner/Images/Tools/axe.png")
+bucket = PhotoImage(file = filepath+"Gem miner/Images/Tools/bucket.png")
 star = PhotoImage(file = filepath+"Gem miner/Images/Tools/star.png")
 dice = PhotoImage(file = filepath+"Gem miner/Images/Tools/shuffle.png")
 
@@ -65,8 +66,12 @@ transition = create_animation(path="Gem miner/Images/Animations/Transitions/Ente
 brickplace = create_animation(filepath+"Gem miner/Images/Animations/Bricks/Placing","brickplace")
 
 brickbreaking = create_animation(filepath+"Gem miner/Images/Animations/Bricks/Breaking","brickbreak")
+brickin = create_animation(filepath+"Gem miner/Images/Animations/Bricks/Changing/In","dice")
+brickout = create_animation(filepath+"Gem miner/Images/Animations/Bricks/Changing/Out","dice")
 
 bomb_create = create_animation(filepath+"Gem miner/Images/Animations/Bombs","bomb")
+
+
 
 hgembreaks = {}
 for ani in ["Red","Yellow","Green","Blue"]:

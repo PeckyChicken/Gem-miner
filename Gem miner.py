@@ -129,6 +129,10 @@ shuffleholder = c.create_image(470,390,image=tool_bg,state=HIDDEN)
 shufflesquare = c.create_image(470,390,image=dice,state=HIDDEN)
 shufflevalue = c.create_text(490,420,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
+bucketholder = c.create_image(470,330,image=tool_bg,state=HIDDEN)
+bucketsquare = c.create_image(470,330,image=bucket,state=HIDDEN)
+bucketvalue = c.create_text(490,360,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
+
 indicator = c.create_image(0,0)
 
 #Sets up the button squares
@@ -141,7 +145,7 @@ musicsquare = c.create_image(25,475,image=music)
 grid = [0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,
-        0,0,0,15,0,0,0,
+        0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,
         0,0,0,0,0,0,0] #defines the game board
@@ -206,9 +210,11 @@ def draw_board():
             #SQUAREMARGINX is how far it starts off the left of the screen.
 
 def draw_powerups():
-    global pickaxesquare, throwingaxesquare, jackhammersquare, starsquare, shufflesquare, powerups
+    global pickaxesquare, throwingaxesquare, jackhammersquare, starsquare, shufflesquare, bucketsquare, powerups
     tools = [pickaxesquare,throwingaxesquare,jackhammersquare,starsquare,shufflesquare]
     toolvalues = [pickvalue,axevalue,jackhammervalue,starvalue,shufflevalue]
+    if mode == "chroma":
+        tools[3], toolvalues[3] = bucketsquare,bucketvalue
 
     for tool, value in zip(tools,powerups):
         c.itemconfig(tool,state=[HIDDEN,NORMAL][value])
@@ -292,19 +298,19 @@ def set_pit(color,pos):
 def reset_color(): #sets a random square to a color
     set_square(randint(1,4),randint(0,6),randint(0,6))
 
-def set_brick_2(x,y):
+def set_brick_2(color,x,y):
     global inuse
-    set_square(12,x,y)
+    set_square(12+color,x,y)
     inuse = False
     gameover_check()
 
-def set_brick(): #sets a random square to a brick
+def set_brick(color=0): #sets a random square to a brick
     if 0 not in grid: return 1
     x, y = randint(0,6),randint(0,6)
     while lookup(x,y) != 0 and lookup not in reserved:
         x, y = randint(0,6),randint(0,6)
-    set_square(12,x,y,reserve=True)
-    draw_animation(x,y,brickplace,100,c,get_pos,window,event=lambda: set_brick_2(x,y))
+    set_square(12+color,x,y,reserve=True)
+    draw_animation(x,y,brickplace,100,c,get_pos,window,event=lambda: set_brick_2(color,x,y))
     return 0
 
 def play_place_sound(): #only putting it in a function by itself so i can call it from a window.after
@@ -332,7 +338,11 @@ def time_rush():
     for _ in range(level):
         set_brick()
 
-
+def pausedloop(event:callable,times:int,pause:int,/,*,interation=0) -> None:
+    event()
+    interation += 1
+    if interation < times:
+        window.after(pause,lambda:pausedloop(event,times,pause,interation=interation))
 
 def start_music():
     global repeats
@@ -358,8 +368,14 @@ def start_part_2():
     c.delete(fade[0])
     if mode != "obstacle":
         for _ in range(4):
-            set_brick()
-    set_brick()
+            if mode == 'chroma':
+                set_brick(randint(1,4))
+            else:
+                set_brick(0)
+    if mode == 'chroma':
+        set_brick(randint(1,4))
+    else:
+        set_brick(0)
 
 def start():
     global repeats,track,powerups,powerupvalues, level, cutscene, beathighscore, card, fade, starters
@@ -482,7 +498,7 @@ def ask_quit():
         #Anything in these lists gets deleted or vanished
         for x in board+pitobjects:
             c.delete(x)
-        for x in [scoredisp,scoretext,goaldisp,goaltext,leveldisp,leveltext,tooltext,selected,pickaxesquare,throwingaxesquare,jackhammersquare,starsquare,shufflesquare,backsquare,pickholder,axeholder,jackhammerholder,starholder,shuffleholder]:
+        for x in [scoredisp,scoretext,goaldisp,goaltext,leveldisp,leveltext,tooltext,selected,pickaxesquare,throwingaxesquare,jackhammersquare,starsquare,bucketsquare,shufflesquare,backsquare,pickholder,axeholder,jackhammerholder,starholder,shuffleholder]:
             c.itemconfig(x,state=HIDDEN)
         play_sound_effect(sfx_on,clicked)
         if music_on:
@@ -976,7 +992,7 @@ def click(event):
             #Anything in these lists gets deleted or vanished
             for x in board+pitobjects:
                 c.delete(x)
-            for x in [scoredisp,scoretext,goaldisp,goaltext,leveldisp,leveltext,tooltext,selected,pickaxesquare,throwingaxesquare,jackhammersquare,starsquare,shufflesquare,backsquare,pickholder,axeholder,jackhammerholder,starholder,shuffleholder]:
+            for x in [scoredisp,scoretext,goaldisp,goaltext,leveldisp,leveltext,tooltext,selected,pickaxesquare,throwingaxesquare,jackhammersquare,starsquare,bucketsquare,shufflesquare,backsquare,pickholder,axeholder,jackhammerholder,starholder,shuffleholder]:
                 c.itemconfig(x,state=HIDDEN)
             selecting = True
             display_modes(True)
@@ -1059,7 +1075,7 @@ def click(event):
             c.itemconfig(selected,image=jackhammer)
             toast("Clear a whole column with the Jackhammer.")
             return
-        if inside(445,305,495,355,mousex,mousey) and powerups[3] != 0: #is star clicked?
+        if inside(445,305,495,355,mousex,mousey) and powerups[3] != 0: #is star or bucket clicked?
             clear_dice_prev()
             if powerups[3] == 2:
                 powerups[3] = 1
@@ -1074,8 +1090,12 @@ def click(event):
                 draw_pit()
             powerups = [1 if elem==2 else elem for elem in powerups]
             powerups[3] = 2
-            c.itemconfig(selected,image=star)
-            toast("Clear a line in every direction from the Star.")
+            if mode == "chroma":
+                c.itemconfig(selected,image=bucket)
+                toast("The Bucket changes the color of bricks.")
+            else:
+                c.itemconfig(selected,image=star)
+                toast("Clear a line in every direction from the Star.")
             return
         if inside(445,365,495,415,mousex,mousey) and powerups[4] != 0: #is shuffle clicked?
             if powerups[4] == 1:
@@ -1166,25 +1186,48 @@ def click(event):
             clear_line("V",row,column,False)
             next_level()
             return
-        if powerups[3] == 2 and 0 <= column <= 6 and 0 <= row <= 6: #Clears the starline
+        if powerups[3] == 2 and 0 <= column <= 6 and 0 <= row <= 6: #Clears the starline, or fills with the bucket, depending on the mode
             clear_toast()
             powerupvalues[3] -= 1
             if powerupvalues[3] == 0:
                 powerups[3] = 0
-                c.itemconfig(starsquare,state=HIDDEN)
+                if mode == "chroma":
+                    c.itemconfig(bucketsquare,state=HIDDEN)
+                else:
+                    c.itemconfig(starsquare,state=HIDDEN)
             else:
                 powerups[3] = 1
             c.itemconfig(selected,image=empty_block)
-            
-            play_sound_effect(sfx_on,starused)
-            score += 300*level
-            update_text()
-            c.itemconfig(scoredisp,text=score)
-            clear_line("V",row,column,False)
-            clear_line("H",row,column,False)
-            clear_diagonal_lines(row,column)
-            next_level()
-            return
+            if mode == 'chroma':
+                brick = lookup(row, column)
+                if not 12 <= brick <= 16:
+                    return
+
+                colors = set(range(13, 17))
+                colors.remove(brick)
+                new_color = choice(list(colors))
+
+                def change_color(brick, new_color):
+                    global grid
+                    play_sound_effect(sfx_on, bucketused)
+                    idx = grid.index(brick)
+
+                    grid[idx] = new_color
+                    draw_board()
+
+
+                pausedloop(lambda: change_color(brick, new_color), grid.count(brick), 100)
+                
+            else:
+                play_sound_effect(sfx_on,starused)
+                score += 300*level
+                update_text()
+                c.itemconfig(scoredisp,text=score)
+                clear_line("V",row,column,False)
+                clear_line("H",row,column,False)
+                clear_diagonal_lines(row,column)
+                next_level()
+                return
         try:
             if not busy:
                 # *ITEM
@@ -1322,8 +1365,12 @@ def click(event):
                     score += level
                     update_text()
                     if mode in ("survival","chroma"):
+                        if mode == "chroma":
+                            color = randint(1,4)
+                        else:
+                            color = 0
                         for _ in range(level): #Puts more bricks on the board
-                            set_brick()
+                            set_brick(color)
                 next_level()
                 if moves <= 3:
                     if moves == 3:

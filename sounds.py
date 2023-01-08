@@ -58,6 +58,7 @@ powerupselected = mixer.Sound(filepath+"Gem miner/Sounds/Tools/powerupselected.w
 shufflesound = mixer.Sound(filepath+"Gem miner/Sounds/Tools/shuffleused.wav")
 axeused = mixer.Sound(filepath+"Gem miner/Sounds/Tools/axeused.wav")
 starused = mixer.Sound(filepath+"Gem miner/Sounds/Tools/starused.wav")
+bucketused = mixer.Sound(filepath+"Gem miner/Sounds/Tools/bucketused.wav")
 title1 = mixer.Sound(filepath+"Gem miner/Music/title1.ogg")
 title2 = mixer.Sound(filepath+"Gem miner/Music/title2.ogg")
 title3 = mixer.Sound(filepath+"Gem miner/Music/title3.ogg")
