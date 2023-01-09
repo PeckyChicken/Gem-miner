@@ -94,7 +94,7 @@ vdiamonds = {}
 hdiamonds = {}
 for ani in ["Red","Green","Yellow","Blue"]:
     vdiamonds[ani.lower()] = CreateAnimation(f"Gem miner/Images/Animations/Diamonds/Vertical/{ani}","frame")
-    hdiamonds[ani.lower()] = CreateAnimation(f"Gem miner/Images/Animations/Diamonds/Vertical/{ani}","frame")
+    hdiamonds[ani.lower()] = CreateAnimation(f"Gem miner/Images/Animations/Diamonds/Horizontal/{ani}","frame")
 
 
 hdrills = {}
