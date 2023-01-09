@@ -976,7 +976,7 @@ def click(event):
                 return
             switchcolors(*storedcoords,16)
         choosing = False
-        powerupvalues[3] -= 1
+        #powerupvalues[3] -= 1
         if powerupvalues[3] == 0:
             powerups[3] = 0
             c.itemconfig(bucketsquare,state=HIDDEN)
