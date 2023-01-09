@@ -1,6 +1,6 @@
 from tkinter import PhotoImage, Tk
 
-from animations import create_animation
+from animations import CreateAnimation
 
 window = Tk() #sets up window
 filepath = __file__+"/../"
@@ -31,13 +31,14 @@ pickaxe = PhotoImage(file = filepath+"Gem miner/Images/Tools/pickaxe.png")
 throwingaxe = PhotoImage(file = filepath+"Gem miner/Images/Tools/axe.png")
 bucket = PhotoImage(file = filepath+"Gem miner/Images/Tools/bucket.png")
 star = PhotoImage(file = filepath+"Gem miner/Images/Tools/star.png")
+wand = PhotoImage(file = filepath+"Gem miner/Images/Tools/wand.png")
 dice = PhotoImage(file = filepath+"Gem miner/Images/Tools/shuffle.png")
 
 backbutton = PhotoImage(file = filepath+"Gem miner/Images/UI/backbutton.png")
 button = PhotoImage(file = filepath+"Gem miner/Images/UI/button.png")
 titlebgimage = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/titlebg.png")
 
-tut1,tut2,tut3,tut4,tut5,tut6 = create_animation(filepath+"Gem miner/Images/Tutorial","tutorial")
+tut1,tut2,tut3,tut4,tut5,tut6 = CreateAnimation(filepath+"Gem miner/Images/Tutorial","tutorial")
 
 
 
@@ -54,62 +55,64 @@ fade_image = PhotoImage(file = filepath+"Gem miner/Images/UI/fade.png")
 
 tool_bg = PhotoImage(file = filepath+"Gem miner/Images/UI/tools_bg.png")
 
+colorselection = PhotoImage(file = filepath+"Gem miner/Images/UI/colorselection.png")
 
-explosions = create_animation(filepath+"Gem miner/Images/Animations/Explosion","explosion")
+explosions = CreateAnimation(filepath+"Gem miner/Images/Animations/Explosion","explosion")
 
 smokes = []
 for color in ["General","Red","Yellow","Green","Blue"]:
-    smokes.append(create_animation(filepath+f"Gem miner/Images/Animations/Smoke/{color}","smoke"))
+    smokes.append(CreateAnimation(filepath+f"Gem miner/Images/Animations/Smoke/{color}","smoke"))
 
-transition = create_animation(path="Gem miner/Images/Animations/Transitions/Enter",name="Frame",filetype="PNG")
+transition = CreateAnimation(path="Gem miner/Images/Animations/Transitions/Enter",name="Frame",filetype="PNG")
 
-brickplace = create_animation(filepath+"Gem miner/Images/Animations/Bricks/Placing","brickplace")
+brickplace = CreateAnimation(filepath+"Gem miner/Images/Animations/Bricks/Placing","brickplace")
 
-brickbreaking = create_animation(filepath+"Gem miner/Images/Animations/Bricks/Breaking","brickbreak")
-brickin = create_animation(filepath+"Gem miner/Images/Animations/Bricks/Changing/In","dice")
-brickout = create_animation(filepath+"Gem miner/Images/Animations/Bricks/Changing/Out","dice")
+brickbreaking = CreateAnimation(filepath+"Gem miner/Images/Animations/Bricks/Breaking","brickbreak")
+brickin = CreateAnimation(filepath+"Gem miner/Images/Animations/Bricks/Changing/In","dice")
+brickout = CreateAnimation(filepath+"Gem miner/Images/Animations/Bricks/Changing/Out","dice")
 
-bomb_create = create_animation(filepath+"Gem miner/Images/Animations/Bombs","bomb")
+bomb_create = CreateAnimation(filepath+"Gem miner/Images/Animations/Bombs","bomb")
+
 
 
 
 hgembreaks = {}
 for ani in ["Red","Yellow","Green","Blue"]:
-    hgembreaks[ani.lower()] = {"center":create_animation(filepath+f"Gem miner/Images/Animations/Gems/Horizontal/{ani}/Center",ani.lower()),
-                                "left":create_animation(filepath+f"Gem miner/Images/Animations/Gems/Horizontal/{ani}/Left",ani.lower()),
-                                "right":create_animation(filepath+f"Gem miner/Images/Animations/Gems/Horizontal/{ani}/Right",ani.lower())}
+    hgembreaks[ani.lower()] = {"center":CreateAnimation(filepath+f"Gem miner/Images/Animations/Gems/Horizontal/{ani}/Center",ani.lower()),
+                                "left":CreateAnimation(filepath+f"Gem miner/Images/Animations/Gems/Horizontal/{ani}/Left",ani.lower()),
+                                "right":CreateAnimation(filepath+f"Gem miner/Images/Animations/Gems/Horizontal/{ani}/Right",ani.lower())}
 
 vgembreaks = {}
 for ani in ["Red","Yellow","Green","Blue"]:
-    vgembreaks[ani.lower()] = {"center":create_animation(filepath+f"Gem miner/Images/Animations/Gems/Vertical/{ani}/Center",ani.lower()),
-                                "bottom":create_animation(filepath+f"Gem miner/Images/Animations/Gems/Vertical/{ani}/Bottom",ani.lower()),
-                                "top":create_animation(filepath+f"Gem miner/Images/Animations/Gems/Vertical/{ani}/Top",ani.lower())}
+    vgembreaks[ani.lower()] = {"center":CreateAnimation(filepath+f"Gem miner/Images/Animations/Gems/Vertical/{ani}/Center",ani.lower()),
+                                "bottom":CreateAnimation(filepath+f"Gem miner/Images/Animations/Gems/Vertical/{ani}/Bottom",ani.lower()),
+                                "top":CreateAnimation(filepath+f"Gem miner/Images/Animations/Gems/Vertical/{ani}/Top",ani.lower())}
 
-gemvanish = create_animation(filepath+f"Gem miner/Images/Animations/Gems/Vanish","vanish")
+gemvanish = CreateAnimation(filepath+f"Gem miner/Images/Animations/Gems/Vanish","vanish")
 
 vdiamonds = {}
 hdiamonds = {}
 for ani in ["Red","Green","Yellow","Blue"]:
-    vdiamonds[ani.lower()] = [PhotoImage(file = filepath+f"Gem miner/Images/Animations/Diamonds/Vertical/{ani}/frame{i}.png") for i in range(1,10)]
-    hdiamonds[ani.lower()] = [PhotoImage(file = filepath+f"Gem miner/Images/Animations/Diamonds/Horizontal/{ani}/frame{i}.png") for i in range(1,10)]
+    vdiamonds[ani.lower()] = CreateAnimation(f"Gem miner/Images/Animations/Diamonds/Vertical/{ani}","frame")
+    hdiamonds[ani.lower()] = CreateAnimation(f"Gem miner/Images/Animations/Diamonds/Vertical/{ani}","frame")
 
 
 hdrills = {}
 for ani in ["Red","Yellow","Green","Blue"]:
-    hdrills[ani.lower()] = {"left":create_animation(filepath+f"Gem miner/Images/Animations/Drills/Horizontal/{ani}/Left",ani.lower()),
-                            "right":create_animation(filepath+f"Gem miner/Images/Animations/Drills/Horizontal/{ani}/Right",ani.lower())}
+    hdrills[ani.lower()] = {"left":CreateAnimation(filepath+f"Gem miner/Images/Animations/Drills/Horizontal/{ani}/Left",ani.lower()),
+                            "right":CreateAnimation(filepath+f"Gem miner/Images/Animations/Drills/Horizontal/{ani}/Right",ani.lower())}
 
 vdrills = {}
 for ani in ["Red","Yellow","Green","Blue"]:
-    vdrills[ani.lower()] = {"top":create_animation(filepath+f"Gem miner/Images/Animations/Drills/Vertical/{ani}/Top",ani.lower()),
-                            "bottom":create_animation(filepath+f"Gem miner/Images/Animations/Drills/Vertical/{ani}/Bottom",ani.lower())}
+    vdrills[ani.lower()] = {"top":CreateAnimation(filepath+f"Gem miner/Images/Animations/Drills/Vertical/{ani}/Top",ani.lower()),
+                            "bottom":CreateAnimation(filepath+f"Gem miner/Images/Animations/Drills/Vertical/{ani}/Bottom",ani.lower())}
 
 obstacle_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/obstacle_bg.png")
 survival_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/survival_bg.png")
 chroma_bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/chroma_bg.png")
 time_bg = PhotoImage(file=filepath+"Gem miner/Images/Backgrounds/time_bg.png")
 
-diceused = create_animation("Gem miner/Images/Animations/Dice","dice")
+diceused = CreateAnimation("Gem miner/Images/Animations/Dice","dice")
 
 cross = PhotoImage(file = filepath+"Gem miner/Images/UI/cross.png")
 careful = PhotoImage(file = filepath+"Gem miner/Images/UI/warning.png")

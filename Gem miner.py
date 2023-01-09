@@ -55,6 +55,18 @@ try:
 except (FileNotFoundError, ValueError):
     highscore = 0
 
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.coords = x,y
+
+    def distance(self, other):
+        return ((self.x - other.x)**2 + (self.y - other.y)**2)**0.5
+
+    def inside(self, p1, p2):
+        return p1.x <= self.x <= p2.x and p1.y <= self.y <= p2.y
+
 select_music = Music({mode_select:69818},window)
 title_music = Music({title1:13300,title2:54850},window)
 title_music2 = Music({title3:51200},window)
@@ -64,6 +76,7 @@ time_music = Music({time1:8000,time2:32000},window)
 obstacle_music = Music({obstacle:56000},window)
 game_over_music = Music({gameover1:643,gameover2:13714},window)
 chroma_music = Music({chromablitz:57600},window)
+
 
 if randint(0,1):
     title_music.play()
@@ -82,7 +95,7 @@ goaldisp = c.create_text(40,130,text=500,font=(FONT,23),state=HIDDEN,fill=TEXTCO
 leveltext = c.create_text(40,180,text="Level",font=(FONT,10),state=HIDDEN,fill=TEXTCOL)
 leveldisp = c.create_text(40,210,text=1,font=(FONT,31),state=HIDDEN,fill=TEXTCOL)
 
-
+colorselbox = [None,None]
 
 frame = 0
 
@@ -109,7 +122,7 @@ powerupvalues = [1,1,1,1,1]
 tooltext = c.create_text(470,100,text="Tools",font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
 pickholder = c.create_image(470,150,image=tool_bg,state=HIDDEN)
-pickaxesquare = c.create_image(470,150,image=pickaxe,state=HIDDEN)
+pickaxesquare = c.create_image(470,150,image=wand,state=HIDDEN)
 pickvalue = c.create_text(490,180,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
 axeholder = c.create_image(470,210,image=tool_bg,state=HIDDEN)
@@ -142,13 +155,7 @@ musicsquare = c.create_image(25,475,image=music)
 
 
 #Buttons
-grid = [0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0] #defines the game board
+grid = [0]*49 #defines the game board
 pit = [randint(1,4),randint(1,4),randint(1,4)] #sets up the pit
 pitobjects: list[Button] = list()
 
@@ -241,44 +248,50 @@ def set_square(color,x,y,reserve=False):
 inuse = False
 def next_level():
     global level, powerups, reqscore, powerupvalues, moves, grid, inuse
-    if inuse: return False
-    #print(f"Nextlevel called, inuse is {inuse}")
+    
+    if inuse:
+        return False
     inuse = True
-    if mode == "obstacle" and started: #Different level system in obstacle mode
+    
+    # Different level system in obstacle mode
+    if mode == "obstacle" and started:
         level_complete = 12 not in grid
         if level_complete:
             set_brick()
     else:
-        #This complicated setup means that the player will advance a level when they get to 500, 1000, 5000, etc.
+        # Calculate required score for next level
         reqscore = (((level+1)%2)+1) * 500 * 10 ** (1+(level - 3) // 2)
         level_complete = score >= reqscore
+    
     if level_complete:
         level += 1
-        if mode == "survival" and level%10 == 0:
-            play_sound_effect(sfx_on,specialadvance)
+        if mode == "survival" and level % 10 == 0:
+            play_sound_effect(sfx_on, specialadvance)
         else:
-            play_sound_effect(sfx_on,advance)
+            play_sound_effect(sfx_on, advance)
+        
         if mode == "obstacle":
-            powerupvalues[randint(0,len(powerupvalues)-1)] += 1
+            powerupvalues[randint(0, len(powerupvalues)-1)] += 1
             powerups[:] = [1 if i else 0 for i in powerupvalues]
-
-        else:
-            powerups = [1]*5
-            powerupvalues = [1]*5
-        draw_powerups()
-        if mode == "obstacle":
             moves += level
             update_text(False)
             for _ in range(level-1):
                 set_brick()
+        elif mode == "chroma":
+            powerupvalues = [min(value+1,5) for value in powerupvalues]
+            powerups[:] = [1 if i else 0 for i in powerupvalues]
         else:
-            inuse = False
+            powerups = [1]*5
+            powerupvalues = [1]*5
+        draw_powerups()
         update_text(False)
         
+        inuse = False
         return True
     else:
         inuse = False
         return False
+
             
 def lookup(x,y):
     try:
@@ -509,13 +522,7 @@ def ask_quit():
         powerups = [0]*5
         powerupvalues = [0]*5
         update_text(False)
-        grid = [0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0]
+        grid = [0]*49
         selcolor = 0
         c.itemconfig(selected,image=empty_block)
         score = 0
@@ -568,7 +575,7 @@ def update_text(nextlevel=True): #Updates the font size depending on how many po
         if value > 1: #Only write the value if it is greater than 1
             text = value
         #The list index is so python knows which value to modify
-        c.itemconfig([pickvalue,axevalue,jackhammervalue,starvalue,shufflevalue][idx],text=text)
+        c.itemconfig([pickvalue,axevalue,jackhammervalue,bucketvalue,starvalue,shufflevalue][idx],text=text)
         
 update_text()
 
@@ -818,6 +825,28 @@ def key_press(event):
         keyvalue = int(key)-1
         pick_color(keyvalue*3)
 
+def switchcolors(row,column,color):
+    brick = lookup(row, column)
+    if not 12 <= brick <= 16:
+        print("Not a brick")
+        return
+
+    def change_color(brick, new_color):
+        global grid, score
+        play_sound_effect(sfx_on, bucketused)
+        score += 10*level
+        idx = grid.index(brick)
+
+        grid[idx] = new_color
+        update_text()
+        draw_board()
+
+
+    pausedloop(lambda: change_color(brick, color), grid.count(brick), 100)
+
+storedcoords = []
+choosing = False
+
 def motion(event,outside=False):
     global indicator,mousex,mousey,highlight,tempmousex,tempmousey
     for item in highlight:
@@ -912,14 +941,52 @@ def flash(item,rate=0.15,/,*,times=0,pulse=False,delete=False,frames=[None]):
         if delete:
             c.delete(item)
 
+redzone = (125,245,175,395)
+yellowzone = (190,245,240,395)
+greenzone = (260,245,310,395)
+bluezone = (330,245,380,395)
+
 diceprev = []
 #Main event
 def click(event):
-    global selcolor,diceprev, pit, canplace, pitobjects, grid, score, gameover, powerups, started, helping, tutstage, level, highscore, music_on, sfx_on, repeats, busy, track, mode, moves, selecting, powerupvalues
+    global selcolor,diceprev, pit, canplace, pitobjects, grid, score, gameover, powerups, started, helping, tutstage, level, highscore, music_on, sfx_on, repeats, busy, track, mode, moves, selecting, powerupvalues, storedcoords, choosing, colorselbox
 
     next_level()
     mouseb = event.num
     # print(mousex,mousey)
+
+    if choosing:
+        if inside(*redzone,mousex,mousey):
+            if lookup(*storedcoords) == 13:
+                return
+            switchcolors(*storedcoords,13)
+
+        if inside(*yellowzone,mousex,mousey):
+            if lookup(*storedcoords) == 14:
+                return
+            switchcolors(*storedcoords,14)
+
+        if inside(*greenzone,mousex,mousey):
+            if lookup(*storedcoords) == 15:
+                return
+            switchcolors(*storedcoords,15)
+
+        if inside(*bluezone,mousex,mousey):
+            if lookup(*storedcoords) == 16:
+                return
+            switchcolors(*storedcoords,16)
+        choosing = False
+        powerupvalues[3] -= 1
+        if powerupvalues[3] == 0:
+            powerups[3] = 0
+            c.itemconfig(bucketsquare,state=HIDDEN)
+        else:
+            powerups[3] = 1
+        for item in colorselbox:
+            c.delete(item)
+        colorselbox[:] = [None]*2
+        return
+
     if cutscene:
         window.after_cancel(starters[0])
         window.after_cancel(starters[1])
@@ -1186,39 +1253,23 @@ def click(event):
             clear_line("V",row,column,False)
             next_level()
             return
-        if powerups[3] == 2 and 0 <= column <= 6 and 0 <= row <= 6: #Clears the starline, or fills with the bucket, depending on the mode
+        if (powerups[3] == 2 and 0 <= column <= 6 and 0 <= row <= 6 ) and (13 <= lookup(row,column) <= 16 if mode == "chroma" else True): #Clears the starline, or fills with the bucket, depending on the mode
             clear_toast()
-            powerupvalues[3] -= 1
-            if powerupvalues[3] == 0:
-                powerups[3] = 0
-                if mode == "chroma":
-                    c.itemconfig(bucketsquare,state=HIDDEN)
-                else:
-                    c.itemconfig(starsquare,state=HIDDEN)
-            else:
-                powerups[3] = 1
             c.itemconfig(selected,image=empty_block)
             if mode == 'chroma':
-                brick = lookup(row, column)
-                if not 12 <= brick <= 16:
-                    return
+                powerups[3] = 0
+                storedcoords[:] = [row,column]
+                choosing = True
+                colorselbox[0] = c.create_image(WIDTH/2,HEIGHT/2,image=fade_image)
+                colorselbox[1] = c.create_image(WIDTH/2,HEIGHT/2,image=colorselection)
 
-                colors = set(range(13, 17))
-                colors.remove(brick)
-                new_color = choice(list(colors))
-
-                def change_color(brick, new_color):
-                    global grid
-                    play_sound_effect(sfx_on, bucketused)
-                    idx = grid.index(brick)
-
-                    grid[idx] = new_color
-                    draw_board()
-
-
-                pausedloop(lambda: change_color(brick, new_color), grid.count(brick), 100)
-                
             else:
+                powerupvalues[3] -= 1
+                if powerupvalues[3] == 0:
+                    powerups[3] = 0
+                    c.itemconfig(starsquare,state=HIDDEN)
+                else:
+                    powerups[3] = 1
                 play_sound_effect(sfx_on,starused)
                 score += 300*level
                 update_text()
