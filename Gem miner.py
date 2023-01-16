@@ -946,6 +946,8 @@ yellowzone = (190,245,240,395)
 greenzone = (260,245,310,395)
 bluezone = (330,245,380,395)
 
+
+
 diceprev = []
 #Main event
 def click(event):
@@ -976,7 +978,7 @@ def click(event):
                 return
             switchcolors(*storedcoords,16)
         choosing = False
-        #powerupvalues[3] -= 1
+        powerupvalues[3] -= 1
         if powerupvalues[3] == 0:
             powerups[3] = 0
             c.itemconfig(bucketsquare,state=HIDDEN)
