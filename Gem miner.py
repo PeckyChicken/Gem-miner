@@ -69,7 +69,7 @@ class Point:
 
 select_music = Music({mode_select:69818},window)
 title_music = Music({title1:13300,title2:54850},window)
-title_music2 = Music({title3:51200},window)
+title_music2 = Music({title1:13300,title2:54850},window)
 game_music = Music({main1:52377},window)
 game_music2 = Music({main2:61075},window)
 time_music = Music({time1:8000,time2:32000},window)
