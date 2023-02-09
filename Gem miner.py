@@ -122,7 +122,7 @@ powerupvalues = [1,1,1,1,1]
 tooltext = c.create_text(470,100,text="Tools",font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
 pickholder = c.create_image(470,150,image=tool_bg,state=HIDDEN)
-pickaxesquare = c.create_image(470,150,image=wand,state=HIDDEN)
+pickaxesquare = c.create_image(470,150,image=pickaxe,state=HIDDEN)
 pickvalue = c.create_text(490,180,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
 axeholder = c.create_image(470,210,image=tool_bg,state=HIDDEN)
