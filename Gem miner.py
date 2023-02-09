@@ -258,13 +258,16 @@ def next_level():
         level_complete = 12 not in grid
         if level_complete:
             set_brick()
+            #print(f"brick has been set, level complete is: {12 not in grid}")
     else:
         # Calculate required score for next level
         reqscore = (((level+1)%2)+1) * 500 * 10 ** (1+(level - 3) // 2)
         level_complete = score >= reqscore
     
     if level_complete:
+        level_complete = False
         level += 1
+        #print(f"Level completed, the level is {level}")
         if mode == "survival" and level % 10 == 0:
             play_sound_effect(sfx_on, specialadvance)
         else:
