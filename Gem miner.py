@@ -2,6 +2,7 @@ from math import floor
 from random import choice, randint, shuffle, choices
 from statistics import mean
 from time import sleep
+from typing import Literal,Self
 from tkinter import *  # doing wildcard import to make it easier to use
 
 from animations import *
@@ -121,30 +122,41 @@ powerupvalues = [1,1,1,1,1]
 
 tooltext = c.create_text(470,100,text="Tools",font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
-pickholder = c.create_image(470,150,image=tool_bg,state=HIDDEN)
-pickaxesquare = c.create_image(470,150,image=pickaxe,state=HIDDEN)
-pickvalue = c.create_text(490,180,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
+class Tool:
+    objects = []
+    def __init__(self,image:PhotoImage,pos:int) -> None:
+        self.objects.append(self)
+        self.holder = c.create_image(470,(pos+1)*60+90,image=tool_bg,state=HIDDEN)
+        self.image = c.create_image(470,(pos+1)*60+90,image=image,state=HIDDEN)
+        self.value_display = c.create_text(490,180,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
+        #self.value = 1
+    def show(self):
+        for item in (self.holder,self.image,self.value_display):
+            c.itemconfig(item,state=NORMAL)
+    def hide(self):
+        for item in (self.holder,self.image,self.value_display):
+            c.itemconfig(item,state=HIDDEN)
 
-axeholder = c.create_image(470,210,image=tool_bg,state=HIDDEN)
-throwingaxesquare = c.create_image(470,210,image=throwingaxe,state=HIDDEN)
-axevalue = c.create_text(490,240,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
+#pickholder = c.create_image(470,150,image=tool_bg,state=HIDDEN)
+#pickaxesquare = c.create_image(470,150,image=pickaxe_img,state=HIDDEN)
+#pickvalue = c.create_text(490,180,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
-jackhammerholder = c.create_image(470,270,image=tool_bg,state=HIDDEN)
-jackhammersquare = c.create_image(470,270,image=jackhammer,state=HIDDEN)
-jackhammervalue = c.create_text(490,300,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
+pickaxe = Tool(pickaxe_img,0)
+#axeholder = c.create_image(470,210,image=tool_bg,state=HIDDEN)
+#throwingaxesquare = c.create_image(470,210,image=axe_img,state=HIDDEN)
+#axevalue = c.create_text(490,240,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
+axe = Tool(axe_img,1)
 
-starholder = c.create_image(470,330,image=tool_bg,state=HIDDEN)
-starsquare = c.create_image(470,330,image=star,state=HIDDEN)
-starvalue = c.create_text(490,360,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
+jackhammer = Tool(jackhammer_img,2)
 
-shuffleholder = c.create_image(470,390,image=tool_bg,state=HIDDEN)
-shufflesquare = c.create_image(470,390,image=dice,state=HIDDEN)
-shufflevalue = c.create_text(490,420,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
+star = Tool(star_img,3)
 
-bucketholder = c.create_image(470,330,image=tool_bg,state=HIDDEN)
-bucketsquare = c.create_image(470,330,image=bucket,state=HIDDEN)
-bucketvalue = c.create_text(490,360,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
+dice = Tool(dice_img,4)
+
+bucket = Tool(bucket_img,3)
+
+wand = Tool(wand_img,4)
 
 indicator = c.create_image(0,0)
 
@@ -217,11 +229,12 @@ def draw_board():
             #SQUAREMARGINX is how far it starts off the left of the screen.
 
 def draw_powerups():
-    global pickaxesquare, throwingaxesquare, jackhammersquare, starsquare, shufflesquare, bucketsquare, powerups
-    tools = [pickaxesquare,throwingaxesquare,jackhammersquare,starsquare,shufflesquare]
-    toolvalues = [pickvalue,axevalue,jackhammervalue,starvalue,shufflevalue]
+    global powerups
+    tools = [pickaxe.image,axe.image,jackhammer.image,star.image,dice.image]
+    toolvalues = [pickaxe.value_display,axe.value_display,jackhammer.value_display,star.value_display,dice.value_display]
     if mode == "chroma":
-        tools[3], toolvalues[3] = bucketsquare,bucketvalue
+        tools[3], toolvalues[3] = bucket.image,bucket.value_display
+        tools[4], toolvalues[4] = wand.image, wand.value_display
 
     for tool, value in zip(tools,powerups):
         c.itemconfig(tool,state=[HIDDEN,NORMAL][value])
@@ -402,7 +415,7 @@ def start():
     draw_pit()
     cutscene = True
     beathighscore = False
-    toolholders = [pickholder,axeholder,jackhammerholder,starholder,shuffleholder]
+    toolholders = [pickaxe.holder,axe.holder,jackhammer.holder,star.holder,dice.holder]
     for holder in toolholders:
         c.itemconfig(holder,state=NORMAL)
     powerups = powerupvalues = [1]*5
@@ -514,8 +527,10 @@ def ask_quit():
         #Anything in these lists gets deleted or vanished
         for x in board+pitobjects:
             c.delete(x)
-        for x in [scoredisp,scoretext,goaldisp,goaltext,leveldisp,leveltext,tooltext,selected,pickaxesquare,throwingaxesquare,jackhammersquare,starsquare,bucketsquare,shufflesquare,backsquare,pickholder,axeholder,jackhammerholder,starholder,shuffleholder]:
+        for x in [scoredisp,scoretext,goaldisp,goaltext,leveldisp,leveltext,tooltext,selected,backsquare]:
             c.itemconfig(x,state=HIDDEN)
+        for tool in Tool.objects:
+            tool.hide()
         play_sound_effect(sfx_on,clicked)
         if music_on:
             if randint(0,1):
@@ -578,7 +593,7 @@ def update_text(nextlevel=True): #Updates the font size depending on how many po
         if value > 1: #Only write the value if it is greater than 1
             text = value
         #The list index is so python knows which value to modify
-        c.itemconfig([pickvalue,axevalue,jackhammervalue,bucketvalue,starvalue,shufflevalue][idx],text=text)
+        c.itemconfig([pickaxe.value_display,axe.value_display,jackhammer.value_display,bucket.value_display,star.value_display,dice.value_display][idx],text=text)
         
 update_text()
 
@@ -867,7 +882,7 @@ def motion(event,outside=False):
     pos = get_pos(row,column)
     c.moveto(indicator,pos[0]+SQUARELEN*outside/2,pos[1]+SQUARELEN*outside/2)
     
-    if all([GRIDROWS > row >= 0, GRIDROWS > column >= 0, started]):
+    if can_place(row,column):
         if selcolor != 0:
 
             if lookup(row,column) != 0:
@@ -900,6 +915,7 @@ def motion(event,outside=False):
                     highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
             c.itemconfig(indicator,image=icon,state=NORMAL)
         elif 2 in powerups:
+            hovered = lookup(row,column)
             if powerups[0] == 2:
                 if lookup(row,column) == 0:
                     highlight.append(c.create_image(get_pos(row,column)[0]+SQUARELEN/2,get_pos(row,column)[1]+SQUARELEN/2,image=cross))
@@ -907,16 +923,26 @@ def motion(event,outside=False):
                     highlight.append(c.create_image(get_pos(row,column)[0]+SQUARELEN/2,get_pos(row,column)[1]+SQUARELEN/2,image=empty_block))
             elif powerups[1] == 2:
                 for square in [(i,column) for i in range(7)]:
-                    #if square != [row,column]:
                     highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
             elif powerups[2] == 2:
                 for square in [(row,i) for i in range(7)]:
-                    #if square != [row,column]:
                     highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
             elif powerups[3] == 2:
-                for square in [(row,i) for i in range(7)]+[(i,column) for i in range(7)]+clear_diagonal_lines(row,column,False):
-                    #if square != [row,column]:
-                    highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
+                if mode == "chroma":
+
+                    if hovered in (13,14,15,16):
+                        for currow in range(7):
+                            for curcolumn in range(7):
+                                square = (currow,curcolumn)
+                                if lookup(*square) == hovered:
+                                    highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
+                    else:
+                        highlight.append(c.create_image(get_pos(row,column)[0]+SQUARELEN/2,get_pos(row,column)[1]+SQUARELEN/2,image=cross))
+                else:
+                    for square in [(row,i) for i in range(7)]+[(i,column) for i in range(7)]+clear_diagonal_lines(row,column,False):
+                        #if square != [row,column]:
+                        highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
+            
         else: c.itemconfig(indicator,state=HIDDEN)
     else:
         c.itemconfig(indicator,state=HIDDEN)
@@ -984,7 +1010,7 @@ def click(event):
         powerupvalues[3] -= 1
         if powerupvalues[3] == 0:
             powerups[3] = 0
-            c.itemconfig(bucketsquare,state=HIDDEN)
+            c.itemconfig(bucket.image,state=HIDDEN)
         else:
             powerups[3] = 1
         for item in colorselbox:
@@ -1064,8 +1090,10 @@ def click(event):
             #Anything in these lists gets deleted or vanished
             for x in board+pitobjects:
                 c.delete(x)
-            for x in [scoredisp,scoretext,goaldisp,goaltext,leveldisp,leveltext,tooltext,selected,pickaxesquare,throwingaxesquare,jackhammersquare,starsquare,bucketsquare,shufflesquare,backsquare,pickholder,axeholder,jackhammerholder,starholder,shuffleholder]:
+            for x in [scoredisp,scoretext,goaldisp,goaltext,leveldisp,leveltext,tooltext,selected,backsquare]:
                 c.itemconfig(x,state=HIDDEN)
+            for tool in Tool.objects:
+                tool.hide()
             selecting = True
             display_modes(True)
             play_sound_effect(sfx_on,clicked)
@@ -1104,7 +1132,7 @@ def click(event):
                 selcolor = 0
                 canplace = False
                 draw_pit()
-            c.itemconfig(selected,image=pickaxe)
+            c.itemconfig(selected,image=pickaxe_img)
             powerups = [1 if elem==2 else elem for elem in powerups]
             powerups[0] = 2
             toast("The Pickaxe clears the square you click on.")
@@ -1125,7 +1153,7 @@ def click(event):
                 draw_pit()
             powerups = [1 if elem==2 else elem for elem in powerups]
             powerups[1] = 2
-            c.itemconfig(selected,image=throwingaxe)
+            c.itemconfig(selected,image=axe_img)
             toast("Click on any square to clear a row with the Axe.")
             return
         if inside(445,245,495,295,mousex,mousey) and powerups[2] != 0: #is jackhammer clicked?
@@ -1144,7 +1172,7 @@ def click(event):
                 draw_pit()
             powerups = [1 if elem==2 else elem for elem in powerups]
             powerups[2] = 2
-            c.itemconfig(selected,image=jackhammer)
+            c.itemconfig(selected,image=jackhammer_img)
             toast("Clear a whole column with the Jackhammer.")
             return
         if inside(445,305,495,355,mousex,mousey) and powerups[3] != 0: #is star or bucket clicked?
@@ -1163,10 +1191,10 @@ def click(event):
             powerups = [1 if elem==2 else elem for elem in powerups]
             powerups[3] = 2
             if mode == "chroma":
-                c.itemconfig(selected,image=bucket)
+                c.itemconfig(selected,image=bucket_img)
                 toast("The Bucket changes the color of bricks.")
             else:
-                c.itemconfig(selected,image=star)
+                c.itemconfig(selected,image=star_img)
                 toast("Clear a line in every direction from the Star.")
             return
         if inside(445,365,495,415,mousex,mousey) and powerups[4] != 0: #is shuffle clicked?
@@ -1181,7 +1209,7 @@ def click(event):
                 powerups[4] = 2
                 toast("Use the Dice to replenish your pit.")
                 play_sound_effect(sfx_on,powerupselected)
-                c.itemconfig(selected,image=dice)
+                c.itemconfig(selected,image=dice_img)
                 for square in [(0,8),(3,8),(6,8)]:
                     #if square != [row,column]:
                     diceprev.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
@@ -1205,10 +1233,9 @@ def click(event):
                 powerupvalues[0] -= 1
                 if powerupvalues[0] == 0:
                     powerups[0] = 0
-                    c.itemconfig(pickaxesquare,state=HIDDEN)
                 else:
                     powerups[0] = 1
-                    c.itemconfig(pickaxesquare,state=HIDDEN)
+                c.itemconfig(pickaxe.image,state=HIDDEN)
                 c.itemconfig(selected,image=empty_block)    
                 
                 play_sound_effect(sfx_on,pickused)
@@ -1229,7 +1256,7 @@ def click(event):
             powerupvalues[1] -= 1
             if powerupvalues[1] == 0:
                 powerups[1] = 0
-                c.itemconfig(throwingaxesquare,state=HIDDEN)
+                c.itemconfig(axe.image,state=HIDDEN)
             else:
                 powerups[1] = 1
             c.itemconfig(selected,image=empty_block)
@@ -1246,7 +1273,7 @@ def click(event):
             powerupvalues[2] -= 1
             if powerupvalues[2] == 0:
                 powerups[2] = 0
-                c.itemconfig(jackhammersquare,state=HIDDEN)
+                c.itemconfig(jackhammer.image,state=HIDDEN)
             else:
                 powerups[2] = 1
             c.itemconfig(selected,image=empty_block)
@@ -1272,7 +1299,7 @@ def click(event):
                 powerupvalues[3] -= 1
                 if powerupvalues[3] == 0:
                     powerups[3] = 0
-                    c.itemconfig(starsquare,state=HIDDEN)
+                    c.itemconfig(star.image,state=HIDDEN)
                 else:
                     powerups[3] = 1
                 play_sound_effect(sfx_on,starused)
@@ -1326,8 +1353,7 @@ def click(event):
                     return
         except IndexError:
             pass
-        #works out if the clicked area was inside the grid, that the player can place a color there, that it is empty, and that there is a square next to it
-        if row >= 0 and row < GRIDROWS and column >= 0 and column < GRIDROWS and selcolor != 0:
+        if can_place(row, column) and selcolor != 0:
             # print(f'Row: {row}, Column: {column}, Row+1: {row+1}, Column+1: {column+1}, Row-1: {row-1}, Column-1: {column-1}')
             if lookup(row,column) == 0 and any((lookup(row-1,column), lookup(row+1,column), lookup(row,column+1), lookup(row,column-1))):
                 pit = [randint(1,4) if elem==0 else elem for elem in pit]
@@ -1476,6 +1502,9 @@ def click(event):
                 tutstage = 1
                 disp_help() 
 
+def can_place(row, column):
+    return row >= 0 and row < GRIDROWS and column >= 0 and column < GRIDROWS
+
 def shuffle_pit():
     global powerups,powerupvalues
     clear_toast()
@@ -1514,7 +1543,7 @@ def shuffle_pit():
     powerupvalues[4] -= 1
     if powerupvalues[4] == 0:
         powerups[4] = 0
-        c.itemconfig(shufflesquare,state=HIDDEN)
+        c.itemconfig(dice.image,state=HIDDEN)
     else:
         powerups[4] = 1
     c.itemconfig(selected,image=empty_block)
