@@ -117,8 +117,8 @@ selected = c.create_image(470,50,image=empty_block,state=HIDDEN)
 
 tutimage = c.create_image(WIDTH/2,HEIGHT/2,image=tut1,state=HIDDEN)
 
-powerups = [1,1,1,1,1] #sets up the powerup squares
-powerupvalues = [1,1,1,1,1]
+tools = [1,1,1,1,1] #sets up the tool squares
+toolvalues = [1,1,1,1,1]
 
 tooltext = c.create_text(470,100,text="Tools",font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
 
@@ -228,17 +228,17 @@ def draw_board():
             #It uses modulo to stop it going too far as the board is only 7x7. For the y it works out what row it is on and draws the image there. 
             #SQUAREMARGINX is how far it starts off the left of the screen.
 
-def draw_powerups():
-    global powerups
+def draw_tools():
+    global tools
     tools = [pickaxe.image,axe.image,jackhammer.image,star.image,dice.image]
     toolvalues = [pickaxe.value_display,axe.value_display,jackhammer.value_display,star.value_display,dice.value_display]
     if mode == "chroma":
         tools[3], toolvalues[3] = bucket.image,bucket.value_display
         tools[4], toolvalues[4] = wand.image, wand.value_display
 
-    for tool, value in zip(tools,powerups):
+    for tool, value in zip(tools,tools):
         c.itemconfig(tool,state=[HIDDEN,NORMAL][value])
-    for tool, value in zip(toolvalues,powerupvalues):
+    for tool, value in zip(toolvalues,toolvalues):
         c.itemconfig(tool,text=str(value))
         if value > 1:
             c.itemconfig(tool,state=NORMAL)
@@ -260,7 +260,7 @@ def set_square(color,x,y,reserve=False):
         draw_board()
 inuse = False
 def next_level():
-    global level, powerups, reqscore, powerupvalues, moves, grid, inuse
+    global level, tools, reqscore, toolvalues, moves, grid, inuse
     
     if inuse:
         return False
@@ -287,19 +287,19 @@ def next_level():
             play_sound_effect(sfx_on, advance)
         
         if mode == "obstacle":
-            powerupvalues[randint(0, len(powerupvalues)-1)] += 1
-            powerups[:] = [1 if i else 0 for i in powerupvalues]
+            toolvalues[randint(0, len(toolvalues)-1)] += 1
+            tools[:] = [1 if i else 0 for i in toolvalues]
             moves += level
             update_text(False)
             for _ in range(level-1):
                 set_brick()
         elif mode == "chroma":
-            powerupvalues = [min(value+1,5) for value in powerupvalues]
-            powerups[:] = [1 if i else 0 for i in powerupvalues]
+            toolvalues = [min(value+1,5) for value in toolvalues]
+            tools[:] = [1 if i else 0 for i in toolvalues]
         else:
-            powerups = [1]*5
-            powerupvalues = [1]*5
-        draw_powerups()
+            tools = [1]*5
+            toolvalues = [1]*5
+        draw_tools()
         update_text(False)
         
         inuse = False
@@ -407,10 +407,10 @@ def start_part_2():
         set_brick(0)
 
 def start():
-    global repeats,track,powerups,powerupvalues, level, cutscene, beathighscore, card, fade, starters
+    global repeats,track,tools,toolvalues, level, cutscene, beathighscore, card, fade, starters
     reset_color()
     reset_color()
-    draw_powerups()
+    draw_tools()
     draw_board()
     draw_pit()
     cutscene = True
@@ -418,8 +418,8 @@ def start():
     toolholders = [pickaxe.holder,axe.holder,jackhammer.holder,star.holder,dice.holder]
     for holder in toolholders:
         c.itemconfig(holder,state=NORMAL)
-    powerups = powerupvalues = [1]*5
-    draw_powerups()
+    tools = toolvalues = [1]*5
+    draw_tools()
 
     c.itemconfig(scoredisp,state=NORMAL)
     c.itemconfig(scoretext,state=NORMAL)
@@ -505,7 +505,7 @@ def toast(msg,time=-1):
         window.after(time*1000,clear_toast)
 
 def ask_quit():
-    global grid, clickcount, score, level, highscore, selcolor, gameover, powerups, powerupvalues, selecting, track, moves, started, display
+    global grid, clickcount, score, level, highscore, selcolor, gameover, tools, toolvalues, selecting, track, moves, started, display
     
     play_sound_effect(sfx_on,clicked)
     clickcount += 1
@@ -537,8 +537,8 @@ def ask_quit():
                 title_music.play()
             else:
                 title_music2.play()
-        powerups = [0]*5
-        powerupvalues = [0]*5
+        tools = [0]*5
+        toolvalues = [0]*5
         update_text(False)
         grid = [0]*49
         selcolor = 0
@@ -588,7 +588,7 @@ def update_text(nextlevel=True): #Updates the font size depending on how many po
         c.itemconfig(goaldisp,text=str(reqscore))
         c.itemconfig(goaldisp,font=(FONT,calc_font_size(str(reqscore))))
 
-    for idx, value in enumerate(powerupvalues):
+    for idx, value in enumerate(toolvalues):
         text = ''
         if value > 1: #Only write the value if it is greater than 1
             text = value
@@ -741,7 +741,7 @@ def get_2d_pos(index):
     return index%7, index//7
 
 def clear_colors(row,column):
-    global score, busy, powerups, powerupvalues
+    global score, busy, tools, toolvalues
     play_sound_effect(sfx_on,diamondused)
     busy = False
     square = lookup(row,column)-6
@@ -825,11 +825,11 @@ def close():
     window.destroy()
 
 def pick_color(row):
-    global canplace, powerups, selcolor
+    global canplace, tools, selcolor
     if row not in [0,3,6]: return
     clear_toast()
     clear_dice_prev()
-    powerups = [1 if elem==2 else elem for elem in powerups]
+    tools = [1 if elem==2 else elem for elem in tools]
     canplace = True #make sure that the player can place a color
     c.itemconfig(pitobjects[row//3],image=itemid[selcolor]) #sets the color to gray temporarily
     selcolor, pit[row//3] = pit[row//3], selcolor #swaps the selected color with the one in the pit
@@ -914,20 +914,20 @@ def motion(event,outside=False):
                 if square != [row,column]:
                     highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
             c.itemconfig(indicator,image=icon,state=NORMAL)
-        elif 2 in powerups:
+        elif 2 in tools:
             hovered = lookup(row,column)
-            if powerups[0] == 2:
+            if tools[0] == 2:
                 if lookup(row,column) == 0:
                     highlight.append(c.create_image(get_pos(row,column)[0]+SQUARELEN/2,get_pos(row,column)[1]+SQUARELEN/2,image=cross))
                 else:
                     highlight.append(c.create_image(get_pos(row,column)[0]+SQUARELEN/2,get_pos(row,column)[1]+SQUARELEN/2,image=empty_block))
-            elif powerups[1] == 2:
+            elif tools[1] == 2:
                 for square in [(i,column) for i in range(7)]:
                     highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
-            elif powerups[2] == 2:
+            elif tools[2] == 2:
                 for square in [(row,i) for i in range(7)]:
                     highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
-            elif powerups[3] == 2:
+            elif tools[3] == 2:
                 if mode == "chroma":
 
                     if hovered in (13,14,15,16):
@@ -980,7 +980,7 @@ bluezone = (330,245,380,395)
 diceprev = []
 #Main event
 def click(event):
-    global selcolor,diceprev, pit, canplace, pitobjects, grid, score, gameover, powerups, started, helping, tutstage, level, highscore, music_on, sfx_on, repeats, busy, track, mode, moves, selecting, powerupvalues, storedcoords, choosing, colorselbox
+    global selcolor,diceprev, pit, canplace, pitobjects, grid, score, gameover, tools, started, helping, tutstage, level, highscore, music_on, sfx_on, repeats, busy, track, mode, moves, selecting, toolvalues, storedcoords, choosing, colorselbox
 
     next_level()
     mouseb = event.num
@@ -1007,12 +1007,12 @@ def click(event):
                 return
             switchcolors(*storedcoords,16)
         choosing = False
-        powerupvalues[3] -= 1
-        if powerupvalues[3] == 0:
-            powerups[3] = 0
+        toolvalues[3] -= 1
+        if toolvalues[3] == 0:
+            tools[3] = 0
             c.itemconfig(bucket.image,state=HIDDEN)
         else:
-            powerups[3] = 1
+            tools[3] = 1
         for item in colorselbox:
             c.delete(item)
         colorselbox[:] = [None]*2
@@ -1118,78 +1118,78 @@ def click(event):
 
 
         #TODO: TURN THIS INTO A FUNCTION
-        if inside(445,125,495,175,mousex,mousey) and powerups[0] != 0: #is pickaxe clicked?
+        if inside(445,125,495,175,mousex,mousey) and tools[0] != 0: #is pickaxe clicked?
             clear_dice_prev()
-            if powerups[0] == 2:
-                powerups[0] = 1
+            if tools[0] == 2:
+                tools[0] = 1
                 clear_toast()
                 clear_selection()
                 return
             
-            play_sound_effect(sfx_on,powerupselected)
+            play_sound_effect(sfx_on,toolselected)
             if selcolor != 0:
                 pit = [selcolor if elem==0 else elem for elem in pit]
                 selcolor = 0
                 canplace = False
                 draw_pit()
             c.itemconfig(selected,image=pickaxe_img)
-            powerups = [1 if elem==2 else elem for elem in powerups]
-            powerups[0] = 2
+            tools = [1 if elem==2 else elem for elem in tools]
+            tools[0] = 2
             toast("The Pickaxe clears the square you click on.")
             return
-        if inside(445,185,495,235,mousex,mousey) and powerups[1] != 0: #is throwing axe clicked?
+        if inside(445,185,495,235,mousex,mousey) and tools[1] != 0: #is throwing axe clicked?
             clear_dice_prev()
-            if powerups[1] == 2:
-                powerups[1] = 1
+            if tools[1] == 2:
+                tools[1] = 1
                 clear_toast()
                 clear_selection()
                 return
             
-            play_sound_effect(sfx_on,powerupselected)
+            play_sound_effect(sfx_on,toolselected)
             if selcolor != 0:
                 pit = [selcolor if elem==0 else elem for elem in pit]
                 selcolor = 0
                 canplace = False
                 draw_pit()
-            powerups = [1 if elem==2 else elem for elem in powerups]
-            powerups[1] = 2
+            tools = [1 if elem==2 else elem for elem in tools]
+            tools[1] = 2
             c.itemconfig(selected,image=axe_img)
             toast("Click on any square to clear a row with the Axe.")
             return
-        if inside(445,245,495,295,mousex,mousey) and powerups[2] != 0: #is jackhammer clicked?
+        if inside(445,245,495,295,mousex,mousey) and tools[2] != 0: #is jackhammer clicked?
             clear_dice_prev()
-            if powerups[2] == 2:
-                powerups[2] = 1
+            if tools[2] == 2:
+                tools[2] = 1
                 clear_toast()
                 clear_selection()
                 return
             
-            play_sound_effect(sfx_on,powerupselected)
+            play_sound_effect(sfx_on,toolselected)
             if selcolor != 0:
                 pit = [selcolor if elem==0 else elem for elem in pit]
                 selcolor = 0
                 canplace = False
                 draw_pit()
-            powerups = [1 if elem==2 else elem for elem in powerups]
-            powerups[2] = 2
+            tools = [1 if elem==2 else elem for elem in tools]
+            tools[2] = 2
             c.itemconfig(selected,image=jackhammer_img)
             toast("Clear a whole column with the Jackhammer.")
             return
-        if inside(445,305,495,355,mousex,mousey) and powerups[3] != 0: #is star or bucket clicked?
+        if inside(445,305,495,355,mousex,mousey) and tools[3] != 0: #is star or bucket clicked?
             clear_dice_prev()
-            if powerups[3] == 2:
-                powerups[3] = 1
+            if tools[3] == 2:
+                tools[3] = 1
                 clear_toast()
                 clear_selection()
                 return
-            play_sound_effect(sfx_on,powerupselected)
+            play_sound_effect(sfx_on,toolselected)
             if selcolor != 0:
                 pit = [selcolor if elem==0 else elem for elem in pit]
                 selcolor = 0
                 canplace = False
                 draw_pit()
-            powerups = [1 if elem==2 else elem for elem in powerups]
-            powerups[3] = 2
+            tools = [1 if elem==2 else elem for elem in tools]
+            tools[3] = 2
             if mode == "chroma":
                 c.itemconfig(selected,image=bucket_img)
                 toast("The Bucket changes the color of bricks.")
@@ -1197,18 +1197,18 @@ def click(event):
                 c.itemconfig(selected,image=star_img)
                 toast("Clear a line in every direction from the Star.")
             return
-        if inside(445,365,495,415,mousex,mousey) and powerups[4] != 0: #is shuffle clicked?
-            if powerups[4] == 1:
-                powerups = [1 if elem==2 else elem for elem in powerups]
+        if inside(445,365,495,415,mousex,mousey) and tools[4] != 0: #is shuffle clicked?
+            if tools[4] == 1:
+                tools = [1 if elem==2 else elem for elem in tools]
                 if selcolor != 0:
                     pit = [selcolor if elem==0 else elem for elem in pit]
                     selcolor = 0
                     canplace = False
                     draw_pit()
                 update_text()
-                powerups[4] = 2
+                tools[4] = 2
                 toast("Use the Dice to replenish your pit.")
-                play_sound_effect(sfx_on,powerupselected)
+                play_sound_effect(sfx_on,toolselected)
                 c.itemconfig(selected,image=dice_img)
                 for square in [(0,8),(3,8),(6,8)]:
                     #if square != [row,column]:
@@ -1222,7 +1222,7 @@ def click(event):
 
         row = floor((mousex-SQUAREMARGINY)//49-1) 
         column = floor((mousey-SQUAREMARGINX)//49+1) #work out row and column of clicked space
-        if powerups[0] == 2: #Removes the square for the pickaxe
+        if tools[0] == 2: #Removes the square for the pickaxe
             clear_toast()
             if row < 0 or row > 6 or column < 0 or column > 6:
                 pass
@@ -1230,11 +1230,11 @@ def click(event):
                 
                 play_sound_effect(sfx_on,nomatch)
             else:
-                powerupvalues[0] -= 1
-                if powerupvalues[0] == 0:
-                    powerups[0] = 0
+                toolvalues[0] -= 1
+                if toolvalues[0] == 0:
+                    tools[0] = 0
                 else:
-                    powerups[0] = 1
+                    tools[0] = 1
                 c.itemconfig(pickaxe.image,state=HIDDEN)
                 c.itemconfig(selected,image=empty_block)    
                 
@@ -1251,14 +1251,14 @@ def click(event):
                 set_square(0,row,column)
                 next_level()
                 return
-        if powerups[1] == 2 and 0 <= column <= 6 and 0 <= row <= 6: #Removes the line for the throwing axe after checking that it is within bounds
+        if tools[1] == 2 and 0 <= column <= 6 and 0 <= row <= 6: #Removes the line for the throwing axe after checking that it is within bounds
             clear_toast()
-            powerupvalues[1] -= 1
-            if powerupvalues[1] == 0:
-                powerups[1] = 0
+            toolvalues[1] -= 1
+            if toolvalues[1] == 0:
+                tools[1] = 0
                 c.itemconfig(axe.image,state=HIDDEN)
             else:
-                powerups[1] = 1
+                tools[1] = 1
             c.itemconfig(selected,image=empty_block)
             
             play_sound_effect(sfx_on,axeused)
@@ -1268,14 +1268,14 @@ def click(event):
             clear_line("H",row,column,False)
             next_level()
             return
-        if powerups[2] == 2 and 0 <= column <= 6 and 0 <= row <= 6: #Removes the column for the jackhammer after checking that it is within bounds
+        if tools[2] == 2 and 0 <= column <= 6 and 0 <= row <= 6: #Removes the column for the jackhammer after checking that it is within bounds
             clear_toast()
-            powerupvalues[2] -= 1
-            if powerupvalues[2] == 0:
-                powerups[2] = 0
+            toolvalues[2] -= 1
+            if toolvalues[2] == 0:
+                tools[2] = 0
                 c.itemconfig(jackhammer.image,state=HIDDEN)
             else:
-                powerups[2] = 1
+                tools[2] = 1
             c.itemconfig(selected,image=empty_block)
             
             play_sound_effect(sfx_on,jackhammerused)
@@ -1285,23 +1285,23 @@ def click(event):
             clear_line("V",row,column,False)
             next_level()
             return
-        if (powerups[3] == 2 and 0 <= column <= 6 and 0 <= row <= 6 ) and (13 <= lookup(row,column) <= 16 if mode == "chroma" else True): #Clears the starline, or fills with the bucket, depending on the mode
+        if (tools[3] == 2 and 0 <= column <= 6 and 0 <= row <= 6 ) and (13 <= lookup(row,column) <= 16 if mode == "chroma" else True): #Clears the starline, or fills with the bucket, depending on the mode
             clear_toast()
             c.itemconfig(selected,image=empty_block)
             if mode == 'chroma':
-                powerups[3] = 0
+                tools[3] = 0
                 storedcoords[:] = [row,column]
                 choosing = True
                 colorselbox[0] = c.create_image(WIDTH/2,HEIGHT/2,image=fade_image)
                 colorselbox[1] = c.create_image(WIDTH/2,HEIGHT/2,image=colorselection)
 
             else:
-                powerupvalues[3] -= 1
-                if powerupvalues[3] == 0:
-                    powerups[3] = 0
+                toolvalues[3] -= 1
+                if toolvalues[3] == 0:
+                    tools[3] = 0
                     c.itemconfig(star.image,state=HIDDEN)
                 else:
-                    powerups[3] = 1
+                    tools[3] = 1
                 play_sound_effect(sfx_on,starused)
                 score += 300*level
                 update_text()
@@ -1506,9 +1506,9 @@ def can_place(row, column):
     return row >= 0 and row < GRIDROWS and column >= 0 and column < GRIDROWS
 
 def shuffle_pit():
-    global powerups,powerupvalues
+    global tools,toolvalues
     clear_toast()
-    powerups = [1 if elem==2 else elem for elem in powerups]
+    tools = [1 if elem==2 else elem for elem in tools]
     clear_dice_prev()
     play_sound_effect(sfx_on,shufflesound)
     c.itemconfig(scoredisp,text=score)
@@ -1540,12 +1540,12 @@ def shuffle_pit():
     else:
         values[:] = choices(colors,k=3)
     shuffle(values)
-    powerupvalues[4] -= 1
-    if powerupvalues[4] == 0:
-        powerups[4] = 0
+    toolvalues[4] -= 1
+    if toolvalues[4] == 0:
+        tools[4] = 0
         c.itemconfig(dice.image,state=HIDDEN)
     else:
-        powerups[4] = 1
+        tools[4] = 1
     c.itemconfig(selected,image=empty_block)
     #sets the pit
     for item in pitobjects:
@@ -1739,13 +1739,13 @@ def clear_selection():
 
 #RETURN HERE
 def gameover_check():
-    global gameover, highscore, display, score, powerups, powerupvalues
+    global gameover, highscore, display, score, tools, toolvalues
     if (0 not in grid and any(x in grid for x in [5,6,7,8,9,10,11]) == 0) or (moves <= 0 and mode == "obstacle"):  #game is over
         stop_music(window)
         if music_on or sfx_on:
             game_over_music.play()
-        powerups = [0]*5
-        powerupvalues = [0]*5
+        tools = [0]*5
+        toolvalues = [0]*5
         playb.set_visible(True)
         c.itemconfig(gameovertext,text="GAME OVER")
         c.itemconfig(finalscoretext, text="Your score was "+str(score))
