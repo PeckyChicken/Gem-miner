@@ -230,13 +230,13 @@ def draw_board():
 
 def draw_tools():
     global tools
-    tools = [pickaxe.image,axe.image,jackhammer.image,star.image,dice.image]
+    tool_imgs = [pickaxe.image,axe.image,jackhammer.image,star.image,dice.image]
     toolvalues = [pickaxe.value_display,axe.value_display,jackhammer.value_display,star.value_display,dice.value_display]
     if mode == "chroma":
         tools[3], toolvalues[3] = bucket.image,bucket.value_display
         tools[4], toolvalues[4] = wand.image, wand.value_display
 
-    for tool, value in zip(tools,tools):
+    for tool, value in zip(tool_imgs,tools):
         c.itemconfig(tool,state=[HIDDEN,NORMAL][value])
     for tool, value in zip(toolvalues,toolvalues):
         c.itemconfig(tool,text=str(value))

@@ -32,7 +32,7 @@ axe_img = PhotoImage(file = filepath+"Gem miner/Images/Tools/axe.png")
 bucket_img = PhotoImage(file = filepath+"Gem miner/Images/Tools/bucket.png")
 star_img = PhotoImage(file = filepath+"Gem miner/Images/Tools/star.png")
 wand_img = PhotoImage(file = filepath+"Gem miner/Images/Tools/wand.png")
-dice_img = PhotoImage(file = filepath+"Gem miner/Images/Tools/shuffle.png")
+dice_img = PhotoImage(file = filepath+"Gem miner/Images/Tools/dice.png")
 
 backbutton = PhotoImage(file = filepath+"Gem miner/Images/UI/backbutton.png")
 button = PhotoImage(file = filepath+"Gem miner/Images/UI/button.png")
