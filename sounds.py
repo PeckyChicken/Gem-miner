@@ -145,7 +145,10 @@ repeats = 0
 def stop_sounds():
     global soundchannels
     for channel in soundchannels:
-        channel.stop()
+        try:
+            channel.stop()
+        except AttributeError:
+            pass
     soundchannels.clear()
 
 def stop_music(window):
