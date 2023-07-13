@@ -988,35 +988,44 @@ def click(event):
     # print(mousex,mousey)
 
     if choosing:
-        if inside(*redzone,mousex,mousey):
-            if lookup(*storedcoords) == 13:
-                return
-            switchcolors(*storedcoords,13)
-
-        if inside(*yellowzone,mousex,mousey):
-            if lookup(*storedcoords) == 14:
-                return
-            switchcolors(*storedcoords,14)
-
-        if inside(*greenzone,mousex,mousey):
-            if lookup(*storedcoords) == 15:
-                return
-            switchcolors(*storedcoords,15)
-
-        if inside(*bluezone,mousex,mousey):
-            if lookup(*storedcoords) == 16:
-                return
-            switchcolors(*storedcoords,16)
         choosing = False
         toolvalues[3] -= 1
+        for item in colorselbox:
+            c.delete(item)
+        colorselbox[:] = [None]*2
         if toolvalues[3] == 0:
             tools[3] = 0
             c.itemconfig(bucket.image,state=HIDDEN)
         else:
             tools[3] = 1
-        for item in colorselbox:
-            c.delete(item)
-        colorselbox[:] = [None]*2
+        if inside(*redzone,mousex,mousey):
+            if lookup(*storedcoords) == 13:
+                return
+            switchcolors(*storedcoords,13)
+
+        elif inside(*yellowzone,mousex,mousey):
+            if lookup(*storedcoords) == 14:
+                return
+            switchcolors(*storedcoords,14)
+
+        elif inside(*greenzone,mousex,mousey):
+            if lookup(*storedcoords) == 15:
+                return
+            switchcolors(*storedcoords,15)
+
+        elif inside(*bluezone,mousex,mousey):
+            if lookup(*storedcoords) == 16:
+                return
+            switchcolors(*storedcoords,16)
+        else:
+            toolvalues[3] = 1
+            c.itemconfig(bucket.image,state=NORMAL)
+            tools[3] = 1
+
+            return
+        
+
+
         return
 
     if cutscene:
