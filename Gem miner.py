@@ -1,9 +1,10 @@
+import inspect
 from math import floor
-from random import choice, randint, shuffle, choices
+from random import choice, choices, randint, shuffle
 from statistics import mean
 from time import sleep
-from typing import Literal,Self
 from tkinter import *  # doing wildcard import to make it easier to use
+from typing import Literal, Self
 
 from animations import *
 from classes import *
@@ -234,10 +235,9 @@ def draw_tools():
     toolvalues = [pickaxe.value_display,axe.value_display,jackhammer.value_display,star.value_display,dice.value_display]
     if mode == "chroma":
         tool_imgs[3], toolvalues[3] = bucket.image,bucket.value_display
-        #tool_imgs[4], toolvalues[4] = wand.image, wand.value_display
 
     for tool, value in zip(tool_imgs,tools):
-        print(value)
+        #print(value)
         c.itemconfig(tool,state=[HIDDEN,NORMAL][value])
     for tool, value in zip(toolvalues,toolvalues):
         c.itemconfig(tool,text=str(value))
@@ -246,7 +246,7 @@ def draw_tools():
         else:
             c.itemconfig(tool,state=HIDDEN)
     c.itemconfig(backsquare,state=NORMAL)
-    
+
 reserved = set()
 itemid
 def set_square(color,x,y,reserve=False):
@@ -263,7 +263,9 @@ inuse = False
 def next_level():
     global level, tools, reqscore, toolvalues, moves, grid, inuse
     
+    #caller = inspect.currentframe().f_back.f_code
     if inuse:
+        print("Attempted next_level, caught busy.")
         return False
     inuse = True
     
@@ -272,11 +274,11 @@ def next_level():
         level_complete = 12 not in grid
         if level_complete:
             set_brick()
-            #print(f"brick has been set, level complete is: {12 not in grid}")
     else:
         # Calculate required score for next level
         reqscore = (((level+1)%2)+1) * 500 * 10 ** (1+(level - 3) // 2)
         level_complete = score >= reqscore
+    #print(f"next_level() called from {caller.co_name} with completed level {level_complete}")
     
     if level_complete:
         level_complete = False
@@ -479,13 +481,7 @@ def clear_board():
     global score, grid, busy
     busy = False
     toast("Board cleared!", 1)
-    grid =  [0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0]
+    grid = [0]*49
     score += 500*level
     update_text()
     c.itemconfig(scoredisp,text=score)
@@ -1733,7 +1729,7 @@ def breakbrick(x,y,sound,color):
             draw_animation(x,y,brickbreaking,100,c,get_pos,window)
             if sound:
                 play_sound_effect(sfx_on,brickbreak)
-            next_level()
+            #next_level()
             return True
     elif lookup(x,y) == color+12:
         if 0 <= y <= 6 and 0 <= x <= 6:
@@ -1741,7 +1737,7 @@ def breakbrick(x,y,sound,color):
             draw_animation(x,y,brickbreaking,100,c,get_pos,window)
             if sound:
                 play_sound_effect(sfx_on,brickbreak)
-            next_level()
+            #next_level()
             return True
     return False
 def clear_selection():
