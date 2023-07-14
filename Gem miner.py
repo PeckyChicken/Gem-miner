@@ -74,7 +74,7 @@ title_music = Music({title1:13300,title2:54850},window)
 title_music2 = Music({title1:13300,title2:54850},window)
 game_music = Music({main1:52377},window)
 game_music2 = Music({main2:61075},window)
-time_music = Music({time1:8000,time2:32000},window)
+time_music = Music({time3:40000,time4:36000},window)
 obstacle_music = Music({obstacle:56000},window)
 game_over_music = Music({gameover1:643,gameover2:13714},window)
 chroma_music = Music({chromablitz:57600},window)
@@ -391,9 +391,12 @@ def start_music():
 
 def start_part_2():
     global started, repeats, cutscene
+
+    start_music()
     started = True
     cutscene = False
     if mode == "time":        
+        #window.after(50,time_rush)
         time_rush()
 
     c.delete(card[0])
@@ -473,7 +476,7 @@ def start():
     if sfx_on:
         play_sound_effect(sfx_on,startsound)
     track = randint(0,1)
-    starters = [window.after(3600,start_part_2),window.after(3600,start_music)]
+    starters = [window.after(3600,start_part_2)]
     update_text(nextlevel=False)
 
 
@@ -1026,9 +1029,9 @@ def click(event):
 
     if cutscene:
         window.after_cancel(starters[0])
-        window.after_cancel(starters[1])
+        #window.after_cancel(starters[1])
         stop_sounds()
-        start_music()
+        #start_music()
             
         start_part_2()
         
