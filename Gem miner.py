@@ -78,7 +78,7 @@ time_music = Music({time3:40000,time4:36000},window)
 obstacle_music = Music({obstacle:56000},window)
 game_over_music = Music({gameover1:643,gameover2:13714},window)
 chroma_music = Music({chromablitz:57600},window)
-
+ 
 
 if randint(0,1):
     title_music.play()
