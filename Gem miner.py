@@ -259,29 +259,31 @@ def set_square(color,x,y,reserve=False):
         itemid = y*GRIDROWS + x #works out the id of the list given the x and y
         grid[itemid] = color #replaces the current color with the new one
         draw_board()
-inuse = False
-def next_level():
-    global level, tools, reqscore, toolvalues, moves, grid, inuse
+
+def calc_reqscore(level):
+    return (((level+1)%2)+1) * 500 * 10 ** (1+(level - 3) // 2)
+
+def level_complete():
     
     #caller = inspect.currentframe().f_back.f_code
-    if inuse:
-        print("Attempted next_level, caught busy.")
-        return False
-    inuse = True
+
     
     # Different level system in obstacle mode
     if mode == "obstacle" and started:
-        level_complete = 12 not in grid
-        if level_complete:
-            set_brick()
+        complete = 12 not in grid
+
     else:
         # Calculate required score for next level
-        reqscore = (((level+1)%2)+1) * 500 * 10 ** (1+(level - 3) // 2)
-        level_complete = score >= reqscore
+        reqscore = calc_reqscore(level)
+        complete = score >= reqscore
     #print(f"next_level() called from {caller.co_name} with completed level {level_complete}")
-    
-    if level_complete:
-        level_complete = False
+
+    return complete
+
+def update_level(complete):
+    global level, tools, reqscore, toolvalues, moves
+
+    if complete:
         level += 1
         #print(f"Level completed, the level is {level}")
         if mode == "survival" and level % 10 == 0:
@@ -293,22 +295,20 @@ def next_level():
             toolvalues[randint(0, len(toolvalues)-1)] += 1
             tools[:] = [1 if i else 0 for i in toolvalues]
             moves += level
-            update_text(False)
-            for _ in range(level-1):
+            for _ in range(level):
                 set_brick()
+            update_text(False)
         elif mode == "chroma":
             toolvalues = [min(value+1,5) for value in toolvalues]
             tools[:] = [1 if i else 0 for i in toolvalues]
         else:
-            tools = [1]*5
+            tools[:] = [1]*5
             toolvalues = [1]*5
         draw_tools()
         update_text(False)
         
-        inuse = False
         return True
     else:
-        inuse = False
         return False
 
             
@@ -331,9 +331,7 @@ def reset_color(): #sets a random square to a color
     set_square(randint(1,4),randint(0,6),randint(0,6))
 
 def set_brick_2(color,x,y):
-    global inuse
     set_square(12+color,x,y)
-    inuse = False
     gameover_check()
 
 def set_brick(color=0): #sets a random square to a brick
@@ -565,10 +563,13 @@ beathighscore = False
 
 def update_text(nextlevel=True): #Updates the font size depending on how many points the player has.
     global highscore, beathighscore
+    reqscore = calc_reqscore(level)
+
     c.itemconfig(scoredisp,font=(FONT,calc_font_size(str(score))))
     c.itemconfig(scoredisp,text=str(score))
-    if nextlevel:
-        next_level()
+    #if nextlevel:
+    #    complete = level_complete()
+    #    update_level(complete)
     if score >= highscore and not beathighscore and started:
         beathighscore = True
         play_sound_effect(sfx_on,newhighscore)
@@ -674,6 +675,8 @@ def convert_colors(item,row,column,samesquare):
             set_square(11 if item == "bomb" else randint(5,6),x,y)
             score += 10*level
             update_text()
+    complete = level_complete()
+    update_level(complete)
     busy = False
     draw_animation(diamondx,diamondy,smokes[lookup(diamondx,diamondy)-6],100,c,get_pos,window)
     set_square(11 if item == "bomb" else randint(5,6),diamondx,diamondy)
@@ -734,7 +737,7 @@ def handle_items(item,row,column):
         return True
 
 
-    update_text()
+    #update_text()
     return False
 
 def get_2d_pos(index):
@@ -767,11 +770,14 @@ def clear_colors(row,column):
     set_square(0,row,column) #removes the current diamond
     if all(0==x for x in grid):
         score += 50*level
-        update_text()
         c.itemconfig(scoredisp,text=score)
         window.after(1000,reset_color)
         window.after(1000,play_place_sound)
-    update_text()
+        update_text()
+
+    complete = level_complete()
+    update_level(complete)
+
 
 def clear_line(direction,row,column,sound=True):
     global score
@@ -788,7 +794,8 @@ def clear_line(direction,row,column,sound=True):
             score += 10*level
             
             if cursquare == 12:
-                next_level()
+                #complete = level_complete()
+                #update_level(complete)
                 play_sound_effect(sfx_on,brickbreak)
             else:
                 play_sound_effect(sfx_on,remove)
@@ -803,9 +810,9 @@ def clear_line(direction,row,column,sound=True):
                     else:
                         delete = False
                         queue.append(func)
-
         if delete:      
             set_square(0,curx,cury) #sets all squares in the column to blank
+
     for item in queue:
         item()
     if all(0==x for x in grid):
@@ -814,6 +821,8 @@ def clear_line(direction,row,column,sound=True):
         c.itemconfig(scoredisp,text=score)
         window.after(1000,reset_color)
         window.after(1000,play_place_sound)
+    #complete = level_complete()
+    #update_level(complete)
 
 def close():
     global highscore
@@ -856,7 +865,8 @@ def switchcolors(row,column,color):
         idx = grid.index(brick)
 
         grid[idx] = new_color
-        update_text()
+        complete = level_complete()
+        update_level(complete)
         draw_board()
 
 
@@ -982,7 +992,8 @@ diceprev = []
 def click(event):
     global selcolor,diceprev, pit, canplace, pitobjects, grid, score, gameover, tools, started, helping, tutstage, level, highscore, music_on, sfx_on, repeats, busy, track, mode, moves, selecting, toolvalues, storedcoords, choosing, colorselbox
 
-    next_level()
+    complete = level_complete()
+    update_level(complete)
     mouseb = event.num
     # print(mousex,mousey)
 
@@ -1214,7 +1225,7 @@ def click(event):
                     selcolor = 0
                     canplace = False
                     draw_pit()
-                update_text()
+                #update_text()
                 tools[4] = 2
                 toast("Use the Dice to replenish your pit.")
                 play_sound_effect(sfx_on,toolselected)
@@ -1250,16 +1261,17 @@ def click(event):
                 play_sound_effect(sfx_on,pickused)
                 draw_animation(row,column,smokes[0], 100,c,get_pos,window)
                 if lookup(row,column) == 12:
-                    next_level()
                     play_sound_effect(sfx_on,brickbreak)
                 else:
                     play_sound_effect(sfx_on,remove)
                 score += 60*level
-                update_text()
                 c.itemconfig(scoredisp,text=score)
                 set_square(0,row,column)
-                next_level()
+                complete = level_complete()
+                update_level(complete)
+                update_text()
                 return
+            
         if tools[1] == 2 and 0 <= column <= 6 and 0 <= row <= 6: #Removes the line for the throwing axe after checking that it is within bounds
             clear_toast()
             toolvalues[1] -= 1
@@ -1275,8 +1287,10 @@ def click(event):
             update_text()
             c.itemconfig(scoredisp,text=score)
             clear_line("H",row,column,False)
-            next_level()
+            complete = level_complete()
+            update_level(complete)
             return
+        
         if tools[2] == 2 and 0 <= column <= 6 and 0 <= row <= 6: #Removes the column for the jackhammer after checking that it is within bounds
             clear_toast()
             toolvalues[2] -= 1
@@ -1292,7 +1306,8 @@ def click(event):
             update_text()
             c.itemconfig(scoredisp,text=score)
             clear_line("V",row,column,False)
-            next_level()
+            complete = level_complete()
+            update_level(complete)
             return
         if (tools[3] == 2 and 0 <= column <= 6 and 0 <= row <= 6 ) and (13 <= lookup(row,column) <= 16 if mode == "chroma" else True): #Clears the starline, or fills with the bucket, depending on the mode
             clear_toast()
@@ -1315,10 +1330,11 @@ def click(event):
                 score += 300*level
                 update_text()
                 c.itemconfig(scoredisp,text=score)
-                clear_line("V",row,column,False)
-                clear_line("H",row,column,False)
+                clear_line("V",row,column,sound=False)
+                clear_line("H",row,column,sound=False)
                 clear_diagonal_lines(row,column)
-                next_level()
+                complete = level_complete()
+                update_level(complete)
                 return
         try:
             if not busy:
@@ -1378,7 +1394,8 @@ def click(event):
                 lines, direction, num, linelens = detect_line(row,column,lookup) #detects any lines
                 if mode == "obstacle":
                     moves -= 1
-                    next_level()
+                    complete = level_complete()
+                    update_level(complete)
 
                 elif mode == "survival":
                     if grid.count(0) <= level + 1:
@@ -1398,6 +1415,8 @@ def click(event):
                     set_square(0,line[0],line[1]) #clears all of the squares part of the line
                     score += 10*level
                     update_text()
+                complete = level_complete()
+                update_level(complete)
                 if len (lines) >= 3:
                     if len(lines) == 3:
                         handle_gem_break(square, direction, num, tempx, tempy)
@@ -1462,7 +1481,8 @@ def click(event):
                             color = 0
                         for _ in range(level): #Puts more bricks on the board
                             set_brick(color)
-                next_level()
+                complete = level_complete()
+                update_level(complete)
                 if moves <= 3:
                     if moves == 3:
                         play_sound_effect(sfx_on,warning)
@@ -1625,7 +1645,8 @@ def clear_diagonal_lines(row,column,clear=True):
 
         if clear:
             if lookup(currow,curcolumn) == 12:
-                next_level()
+                #complete = level_complete()
+                #update_level(complete)
                 play_sound_effect(sfx_on,brickbreak)
             elif lookup(currow,curcolumn) != 0:
                 play_sound_effect(sfx_on,remove)
@@ -1651,7 +1672,8 @@ def clear_diagonal_lines(row,column,clear=True):
             set_square(0,currow,curcolumn)
             draw_animation(currow,curcolumn,smokes[0],100,c,get_pos,window)
             if lookup(currow,curcolumn) == 12:
-                next_level()
+                complete = level_complete()
+                update_level(complete)
                 play_sound_effect(sfx_on,brickbreak)
             elif lookup(currow,curcolumn) != 0:
                 play_sound_effect(sfx_on,remove)
@@ -1679,6 +1701,7 @@ def chain(x,y):
         func = (lambda x=x,y=y: clear_colors(x,y))
         functype = "diamond"
     return func, functype
+
 #print(explosions)
 def explode(row, column, radius):
     global score
@@ -1706,6 +1729,8 @@ def explode(row, column, radius):
         c.itemconfig(scoredisp,text=score)
         window.after(1000,reset_color)
         window.after(1000,play_place_sound)
+    #complete = level_complete()
+    #update_level(complete)
     update_text()
 
 def clear_bricks(gem,soundplayed=False,color=0):
