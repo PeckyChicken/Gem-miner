@@ -1064,30 +1064,11 @@ def click(event):
             c.itemconfig(musicsquare, image = nomusic)
         else:
             music_on = True
-            repeats = 0
-            
+
+            for channel in channels:
+                channel.set_volume(1)
             play_sound_effect(sfx_on,clicked)
-            if started:
-                if gameover:
-                    if not sfx_on:
-                        game_over_music.play()
-                elif mode == "survival":
-                    [game_music,game_music2][track].play()
-                elif mode == "time":
-                    repeats = 0
-                    time_music.play()
-                elif mode == "obstacle":
-                    obstacle_music.play()
-                elif mode == "chroma":
-                    chroma_music.play()
-            else:
-                if selecting:
-                    select_music.play()
-                else:
-                    if randint(0,1):
-                        title_music.play()
-                    else:
-                        title_music2.play()
+
             c.itemconfig(musicsquare, image = music)
 
     if inside(0,400,50,450,mousex,mousey): #Is sfx clicked?

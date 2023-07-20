@@ -158,13 +158,5 @@ def stop_sounds():
 def stop_music(window):
     global repeats, channels
     for channel in channels:
-        channel.stop()
-    channels.clear()
+        channel.set_volume(0)
     errors = 0
-    try:
-        window.after_cancel(loop2)
-    except NameError: 
-        errors += 1
-    #if errors != 1:
-        #print(f"LOG: Error found in function stop_music(), the number of errors were:\n{errors}.\nExpected:\n0.")
-    repeats = 0
