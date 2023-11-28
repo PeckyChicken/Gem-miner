@@ -73,19 +73,16 @@ class Point:
 
 select_music = Music({mode_select:69818},window)
 title_music = Music({title1:13300,title2:54850},window)
-title_music2 = Music({title1:13300,title2:54850},window)
 game_music = Music({main1:52377},window)
 game_music2 = Music({main2:61075},window)
 time_music = Music({time3:40000,time4:36000},window)
 obstacle_music = Music({obstacle:56000},window)
 game_over_music = Music({gameover1:643,gameover2:13714},window)
 chroma_music = Music({chromablitz:57600},window)
- 
 
-if randint(0,1):
-    title_music.play()
-else:
-    title_music2.play()
+
+title_music.play()
+
 
 canplace = False
 selcolor = 0
@@ -378,6 +375,7 @@ def pausedloop(event:callable,times:int,pause:int,/,*,interation=0) -> None:
 
 def start_music():
     global repeats
+    stop_music(window,mute=False)
     if music_on:
         if mode == "survival":
             [game_music,game_music2][track].play()
@@ -533,10 +531,7 @@ def ask_quit():
             tool.hide()
         play_sound_effect(sfx_on,clicked)
         if music_on:
-            if randint(0,1):
-                title_music.play()
-            else:
-                title_music2.play()
+            title_music.play()
         tools = [0]*5
         toolvalues = [0]*5
         update_text(False)
@@ -1061,7 +1056,7 @@ def click(event):
             
             play_sound_effect(sfx_on,clicked)
             if not gameover or (gameover and not sfx_on):
-                stop_music(window)
+                stop_music(window,mute=True)
             
             c.itemconfig(musicsquare, image = nomusic)
         else:

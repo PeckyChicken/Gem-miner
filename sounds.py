@@ -11,7 +11,9 @@ with open(f"{filepath}/folder_name.txt") as f:
     folder_name = f.read()
 
 class Music:
+    instances = []
     def __init__(self,music: dict,window:Tk):
+        Music.instances.append(self)
         '''Creates a music object which you can play at any time. 
         You can pass up to 2 songs as the keys in a dictionary, with the values being how long the songs last, (In ms).'''
         if len(music) == 1:
@@ -157,8 +159,16 @@ def stop_sounds():
             pass
     soundchannels.clear()
 
-def stop_music(window):
+def stop_music(window: Tk,mute=False):
     global repeats, channels
     for channel in channels:
-        channel.set_volume(0)
+        if mute:
+            channel.set_volume(0)
+        else:
+            channel.stop()
+            soundchannels.clear()
+            try:
+                window.after_cancel(loop2)
+            except Exception:
+                pass
     errors = 0
