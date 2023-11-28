@@ -1772,8 +1772,8 @@ def gameover_check():
             hsfile.close()
         update_text(False)
         return True #game is over
-
     return False #game is not over
+
 def draw_pit():
     global pitobjects
     #delete everything in the pit
