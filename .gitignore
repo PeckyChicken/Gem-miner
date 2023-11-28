@@ -1,4 +1,5 @@
 Gem miner/highscore.txt
+Gem miner*/*
 build/*
 dist/*
 *.pyc
@@ -11,3 +12,5 @@ output/*
 .vscode/settings.json
 animator.py
 ideas.txt
+bugs.txt
+.gitignore

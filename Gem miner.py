@@ -15,12 +15,14 @@ from lines import *
 from sounds import *
 
 filepath = __file__+"/../"
+with open(f"{filepath}/folder_name.txt") as f:
+    folder_name = f.read()
 
 card = None
 fade = None
 
-window.title("Gem miner")
-window.iconbitmap(filepath+"Gem miner/icon.ico")
+window.title(f"{folder_name}")
+window.iconbitmap(filepath+f"{folder_name}/icon.ico")
 window.resizable(0, 0)
 
 gameover = False
@@ -44,13 +46,13 @@ sfx_on = True
 
 c = Canvas(window,width=WIDTH,height=HEIGHT, bg="gray") #sets up canvas
 c.pack(fill="both")
-bg = PhotoImage(file = filepath+"Gem miner/Images/Backgrounds/bg.png")
+bg = PhotoImage(file = filepath+f"{folder_name}/Images/Backgrounds/bg.png")
 bg_image = c.create_image(WIDTH/2,HEIGHT/2,image=bg)
 highlight = [c.create_rectangle(5,7,6,8)]
 c.delete(highlight[0])
 highlight.clear()
 try:
-    with open(filepath+"Gem miner/highscore.txt","r+") as hsfile:
+    with open(filepath+f"{folder_name}/highscore.txt","r+") as hsfile:
         highscore = hsfile.read()
         highscore = int(highscore.strip())
         hsfile.close()
@@ -513,7 +515,7 @@ def ask_quit():
         clear_toast()
         if score > highscore:
             highscore = score
-        with open("Gem miner/highscore.txt","w+") as hsfile:
+        with open(f"{folder_name}/highscore.txt","w+") as hsfile:
             hsfile.write(str(highscore))
             hsfile.close()
         stop_music(window)
@@ -576,7 +578,7 @@ def update_text(nextlevel=True): #Updates the font size depending on how many po
         c.itemconfig(scoredisp,font=(FONT,calc_font_size(str(score))+5))
         window.after(250,lambda: c.itemconfig(scoredisp,font=(FONT,calc_font_size(str(score)))))
         highscore = score
-        with open("Gem miner/highscore.txt","w+") as hsfile:
+        with open(f"{folder_name}/highscore.txt","w+") as hsfile:
             hsfile.write(str(highscore))
             hsfile.close()
     c.itemconfig(leveldisp,text=str(level))
@@ -828,7 +830,7 @@ def close():
     global highscore
     if score > highscore:
         highscore = score
-        with open("Gem miner/highscore.txt","w+") as hsfile:
+        with open(f"{folder_name}/highscore.txt","w+") as hsfile:
             hsfile.write(str(highscore))
             hsfile.close()
     window.destroy()
@@ -1770,7 +1772,7 @@ def gameover_check():
 
         if score > highscore: 
             highscore = score
-        with open("Gem miner/highscore.txt","w+") as hsfile:
+        with open(f"{folder_name}/highscore.txt","w+") as hsfile:
             hsfile.write(str(highscore))
             hsfile.close()
         update_text(False)
