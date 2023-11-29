@@ -10,7 +10,7 @@ from animations import *
 
 class GameButton:
     def __init__(self,text:str,offset:float,c:Canvas,get_pos:callable,window:Tk,hide:bool=False):
-        self.image = c.create_image(WIDTH/2,HEIGHT/2+offset,image=button,state=[NORMAL,HIDDEN][hide])
+        self.image = c.create_image(WIDTH/2,HEIGHT/2+offset,image=UI["button"],state=[NORMAL,HIDDEN][hide])
         self.text = c.create_text(WIDTH/2,HEIGHT/2+offset,text=text,font=(FONT,25),fill="white",state=[NORMAL,HIDDEN][hide])
         self.bounds = (WIDTH/2-100,
                        HEIGHT/2+offset-50/2,

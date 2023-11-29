@@ -110,10 +110,10 @@ clickcount = 0
 
 
 
-titlebg = c.create_image(WIDTH/2,HEIGHT/2,image=titlebgimage)
+titlebg = c.create_image(WIDTH/2,HEIGHT/2,image=backgrounds["bg"])
 
 
-selected = c.create_image(470,50,image=empty_block,state=HIDDEN)
+selected = c.create_image(470,50,image=UI["empty"],state=HIDDEN)
 
 tutimage = c.create_image(WIDTH/2,HEIGHT/2,image=tut1,state=HIDDEN)
 
@@ -126,7 +126,7 @@ class Tool:
     objects = []
     def __init__(self,image:PhotoImage,pos:int) -> None:
         self.objects.append(self)
-        self.holder = c.create_image(470,(pos+1)*60+90,image=tool_bg,state=HIDDEN)
+        self.holder = c.create_image(470,(pos+1)*60+90,image=UI["tools_bg"],state=HIDDEN)
         self.image = c.create_image(470,(pos+1)*60+90,image=image,state=HIDDEN)
         self.value_display = c.create_text(490,(pos+1)*60+100,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
         #self.value = 1
@@ -137,33 +137,26 @@ class Tool:
         for item in (self.holder,self.image,self.value_display):
             c.itemconfig(item,state=HIDDEN)
 
-#pickholder = c.create_image(470,150,image=tool_bg,state=HIDDEN)
-#pickaxesquare = c.create_image(470,150,image=pickaxe_img,state=HIDDEN)
-#pickvalue = c.create_text(490,180,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
+pickaxe = Tool(tool_images["pickaxe"],0)
 
-pickaxe = Tool(pickaxe_img,0)
-#axeholder = c.create_image(470,210,image=tool_bg,state=HIDDEN)
-#throwingaxesquare = c.create_image(470,210,image=axe_img,state=HIDDEN)
-#axevalue = c.create_text(490,240,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
+axe = Tool(tool_images["axe"],1)
 
-axe = Tool(axe_img,1)
+jackhammer = Tool(tool_images["jackhammer"],2)
 
-jackhammer = Tool(jackhammer_img,2)
+star = Tool(tool_images["star"],3)
 
-star = Tool(star_img,3)
+dice = Tool(tool_images["dice"],4)
 
-dice = Tool(dice_img,4)
+bucket = Tool(tool_images["bucket"],3)
 
-bucket = Tool(bucket_img,3)
-
-wand = Tool(wand_img,4)
+wand = Tool(tool_images["wand"],4)
 
 indicator = c.create_image(0,0)
 
 #Sets up the button squares
-backsquare = c.create_image(25,375,image=backbutton,state=HIDDEN)
-sfxsquare = c.create_image(25,425,image=sfx)
-musicsquare = c.create_image(25,475,image=music)
+backsquare = c.create_image(25,375,image=UI["backbutton"],state=HIDDEN)
+sfxsquare = c.create_image(25,425,image=UI["sfx_yes"])
+musicsquare = c.create_image(25,475,image=UI["music_yes"])
 
 
 #Buttons
@@ -204,7 +197,7 @@ helping = False
 tutstage = 0
 
 #*IDS
-itemid = {0:empty_block,1:red_block,2:yellow_block,3:green_block,4:blue_block,5:vdrill,6:hdrill,7:red_diamond,8:yellow_diamond,9:green_diamond,10:blue_diamond,11:bomb,12:bricks,13:redbricks,14:yellowbricks,15:greenbricks,16:bluebricks} #sets up the item ids
+itemid = {0:UI["empty"],1:gems["red_gem"],2:gems["yellow_gem"],3:gems["green_gem"],4:gems["blue_gem"],5:tool_images["rocket_vertical"],6:tool_images["rocket_horizontal"],7:tool_images["red_diamond"],8:tool_images["yellow_diamond"],9:tool_images["green_diamond"],10:tool_images["blue_diamond"],11:tool_images["bomb"],12:bricks["bricks"],13:bricks["red_bricks"],14:bricks["yellow_bricks"],15:bricks["green_bricks"],16:bricks["blue_bricks"]} #sets up the item ids
 '''1 is red, 2 is yellow, 3 is green, 4 is blue'''
 
 
@@ -359,9 +352,9 @@ def time_rush():
         for idx,item in enumerate(grid):
             if item == 0:
                 coords = get_pos(*get_2d_pos(idx))
-                squares.append(c.create_image(coords[0]+SQUARELEN/2,coords[1]+SQUARELEN/2,image=careful))
+                squares.append(c.create_image(coords[0]+SQUARELEN/2,coords[1]+SQUARELEN/2,image=UI["warning"]))
         for square in squares:
-            flash(square,frames=[careful,air],delete=True)
+            flash(square,frames=[UI["warning"],UI["air"]],delete=True)
     if 0 in grid:
         play_sound_effect(sfx_on,brickplaced)
     for _ in range(level):
@@ -453,19 +446,19 @@ def start():
     pit[:] = [randint(1,4),randint(1,4),randint(1,4)]
     draw_pit()
 
-    fade = [c.create_image(WIDTH/2,HEIGHT/2,image=fade_image)]
+    fade = [c.create_image(WIDTH/2,HEIGHT/2,image=UI["fade"])]
     if mode == "obstacle":
-        c.itemconfig(bg_image,image=obstacle_bg)
-        card = [c.create_image(WIDTH/2,HEIGHT/2,image=obstaclecard)]
+        c.itemconfig(bg_image,image=backgrounds["obstacle_bg"])
+        card = [c.create_image(WIDTH/2,HEIGHT/2,image=UI["obstacles_card"])]
     elif mode == "time":
-        c.itemconfig(bg_image,image=time_bg)
-        card = [c.create_image(WIDTH/2,HEIGHT/2,image=timecard)]
+        c.itemconfig(bg_image,image=backgrounds["time_bg"])
+        card = [c.create_image(WIDTH/2,HEIGHT/2,image=UI["time_card"])]
     elif mode == "survival":
-        c.itemconfig(bg_image,image=survival_bg)
-        card = [c.create_image(WIDTH/2,HEIGHT/2,image=survivalcard)]
+        c.itemconfig(bg_image,image=backgrounds["survival_bg"])
+        card = [c.create_image(WIDTH/2,HEIGHT/2,image=UI["survival_card"])]
     elif mode == "chroma":
-        c.itemconfig(bg_image,image=chroma_bg)
-        card = [c.create_image(WIDTH/2,HEIGHT/2,image=chromacard)]
+        c.itemconfig(bg_image,image=backgrounds["chroma_bg"])
+        card = [c.create_image(WIDTH/2,HEIGHT/2,image=UI["chroma_card"])]
 
        
     c.itemconfig(highscoretext,state=HIDDEN)
@@ -537,7 +530,7 @@ def ask_quit():
         update_text(False)
         grid = [0]*49
         selcolor = 0
-        c.itemconfig(selected,image=empty_block)
+        c.itemconfig(selected,image=UI["empty"])
         score = 0
         level = 1
         gameover = False
@@ -903,13 +896,13 @@ def motion(event,outside=False):
                         (column < 6 and lookup(row,column+1)),
                         (column > 0 and lookup(row,column-1))))
                         ))):
-                c.itemconfig(indicator,image=cross,state=NORMAL)
+                c.itemconfig(indicator,image=UI["cross"],state=NORMAL)
                 return
 
             lines, direction, _, _ = detect_line(row,column,lookup,special=True,color=selcolor)
 
             if direction == "HV":
-                icon = bomb
+                icon = tool_images["bomb"]
             elif direction == '0' or len(lines) <= 3:
                 icon = itemid[selcolor]
             elif len(lines) == 5:
@@ -919,21 +912,21 @@ def motion(event,outside=False):
             for square in lines:
                 #print(f"Row/Column, {(row,column)}. Square, {(square)}")
                 if square != [row,column]:
-                    highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
+                    highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=UI["empty"]))
             c.itemconfig(indicator,image=icon,state=NORMAL)
         elif 2 in tools:
             hovered = lookup(row,column)
             if tools[0] == 2:
                 if lookup(row,column) == 0:
-                    highlight.append(c.create_image(get_pos(row,column)[0]+SQUARELEN/2,get_pos(row,column)[1]+SQUARELEN/2,image=cross))
+                    highlight.append(c.create_image(get_pos(row,column)[0]+SQUARELEN/2,get_pos(row,column)[1]+SQUARELEN/2,image=UI["cross"]))
                 else:
-                    highlight.append(c.create_image(get_pos(row,column)[0]+SQUARELEN/2,get_pos(row,column)[1]+SQUARELEN/2,image=empty_block))
+                    highlight.append(c.create_image(get_pos(row,column)[0]+SQUARELEN/2,get_pos(row,column)[1]+SQUARELEN/2,image=UI["empty"]))
             elif tools[1] == 2:
                 for square in [(i,column) for i in range(7)]:
-                    highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
+                    highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=UI["empty"]))
             elif tools[2] == 2:
                 for square in [(row,i) for i in range(7)]:
-                    highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
+                    highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=UI["empty"]))
             elif tools[3] == 2:
                 if mode == "chroma":
 
@@ -942,13 +935,13 @@ def motion(event,outside=False):
                             for curcolumn in range(7):
                                 square = (currow,curcolumn)
                                 if lookup(*square) == hovered:
-                                    highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
+                                    highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=UI["empty"]))
                     else:
-                        highlight.append(c.create_image(get_pos(row,column)[0]+SQUARELEN/2,get_pos(row,column)[1]+SQUARELEN/2,image=cross))
+                        highlight.append(c.create_image(get_pos(row,column)[0]+SQUARELEN/2,get_pos(row,column)[1]+SQUARELEN/2,image=UI["cross"]))
                 else:
                     for square in [(row,i) for i in range(7)]+[(i,column) for i in range(7)]+clear_diagonal_lines(row,column,False):
                         #if square != [row,column]:
-                        highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
+                        highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=UI["empty"]))
             
         else: c.itemconfig(indicator,state=HIDDEN)
     else:
@@ -1058,7 +1051,7 @@ def click(event):
             if not gameover or (gameover and not sfx_on):
                 stop_music(window,mute=True)
             
-            c.itemconfig(musicsquare, image = nomusic)
+            c.itemconfig(musicsquare, image = UI["music_no"])
         else:
             music_on = True
 
@@ -1066,20 +1059,20 @@ def click(event):
                 channel.set_volume(1)
             play_sound_effect(sfx_on,clicked)
 
-            c.itemconfig(musicsquare, image = music)
+            c.itemconfig(musicsquare, image = UI["music_yes"])
 
     if inside(0,400,50,450,mousex,mousey): #Is sfx clicked?
         if sfx_on:
             sfx_on = False
             if gameover and not music_on:
                 stop_music(window)
-            c.itemconfig(sfxsquare, image = nosfx)
+            c.itemconfig(sfxsquare, image = UI["music_no"])
         else:
             sfx_on = True
             if gameover and not music_on:
                 game_over_music.play()
             play_sound_effect(sfx_on,clicked)
-            c.itemconfig(sfxsquare, image = sfx)
+            c.itemconfig(sfxsquare, image = UI["sfx_yes"])
     
     if started:
         if gameover and playb.is_clicked(mousex,mousey): #if the game is over run it again
@@ -1103,7 +1096,7 @@ def click(event):
                     0,0,0,0,0,0,0,
                     0,0,0,0,0,0,0]
             selcolor = 0
-            c.itemconfig(selected,image=empty_block)
+            c.itemconfig(selected,image=UI["empty"])
             score = 0
             level = 1
             gameover = False
@@ -1130,7 +1123,7 @@ def click(event):
                 selcolor = 0
                 canplace = False
                 draw_pit()
-            c.itemconfig(selected,image=pickaxe_img)
+            c.itemconfig(selected,image=tool_images["pickaxe"])
             tools = [1 if elem==2 else elem for elem in tools]
             tools[0] = 2
             toast("The Pickaxe clears the square you click on.")
@@ -1151,7 +1144,7 @@ def click(event):
                 draw_pit()
             tools = [1 if elem==2 else elem for elem in tools]
             tools[1] = 2
-            c.itemconfig(selected,image=axe_img)
+            c.itemconfig(selected,image=tool_images["axe"])
             toast("Click on any square to clear a row with the Axe.")
             return
         if inside(445,245,495,295,mousex,mousey) and tools[2] != 0: #is jackhammer clicked?
@@ -1170,7 +1163,7 @@ def click(event):
                 draw_pit()
             tools = [1 if elem==2 else elem for elem in tools]
             tools[2] = 2
-            c.itemconfig(selected,image=jackhammer_img)
+            c.itemconfig(selected,image=tool_images["jackhammer"])
             toast("Clear a whole column with the Jackhammer.")
             return
         if inside(445,305,495,355,mousex,mousey) and tools[3] != 0: #is star or bucket clicked?
@@ -1189,10 +1182,10 @@ def click(event):
             tools = [1 if elem==2 else elem for elem in tools]
             tools[3] = 2
             if mode == "chroma":
-                c.itemconfig(selected,image=bucket_img)
+                c.itemconfig(selected,image=tool_images["bucket"])
                 toast("The Bucket changes the color of bricks.")
             else:
-                c.itemconfig(selected,image=star_img)
+                c.itemconfig(selected,image=tool_images["star"])
                 toast("Clear a line in every direction from the Star.")
             return
         if inside(445,365,495,415,mousex,mousey) and tools[4] != 0: #is shuffle clicked?
@@ -1207,10 +1200,10 @@ def click(event):
                 tools[4] = 2
                 toast("Use the Dice to replenish your pit.")
                 play_sound_effect(sfx_on,toolselected)
-                c.itemconfig(selected,image=dice_img)
+                c.itemconfig(selected,image=tool_images["dice"])
                 for square in [(0,8),(3,8),(6,8)]:
                     #if square != [row,column]:
-                    diceprev.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=empty_block))
+                    diceprev.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=UI["empty"]))
                 return
             shuffle_pit()
 
@@ -1234,7 +1227,7 @@ def click(event):
                 else:
                     tools[0] = 1
                 c.itemconfig(pickaxe.image,state=HIDDEN)
-                c.itemconfig(selected,image=empty_block)    
+                c.itemconfig(selected,image=UI["empty"])    
                 
                 play_sound_effect(sfx_on,pickused)
                 draw_animation(row,column,smokes[0], 100,c,get_pos,window)
@@ -1258,7 +1251,7 @@ def click(event):
                 c.itemconfig(axe.image,state=HIDDEN)
             else:
                 tools[1] = 1
-            c.itemconfig(selected,image=empty_block)
+            c.itemconfig(selected,image=UI["empty"])
             
             play_sound_effect(sfx_on,axeused)
             score += 120*level
@@ -1277,7 +1270,7 @@ def click(event):
                 c.itemconfig(jackhammer.image,state=HIDDEN)
             else:
                 tools[2] = 1
-            c.itemconfig(selected,image=empty_block)
+            c.itemconfig(selected,image=UI["empty"])
             
             play_sound_effect(sfx_on,jackhammerused)
             score += 120*level
@@ -1289,13 +1282,13 @@ def click(event):
             return
         if (tools[3] == 2 and 0 <= column <= 6 and 0 <= row <= 6 ) and (13 <= lookup(row,column) <= 16 if mode == "chroma" else True): #Clears the starline, or fills with the bucket, depending on the mode
             clear_toast()
-            c.itemconfig(selected,image=empty_block)
+            c.itemconfig(selected,image=UI["empty"])
             if mode == 'chroma':
                 tools[3] = 0
                 storedcoords[:] = [row,column]
                 choosing = True
-                colorselbox[0] = c.create_image(WIDTH/2,HEIGHT/2,image=fade_image)
-                colorselbox[1] = c.create_image(WIDTH/2,HEIGHT/2,image=colorselection)
+                colorselbox[0] = c.create_image(WIDTH/2,HEIGHT/2,image=UI["fade"])
+                colorselbox[1] = c.create_image(WIDTH/2,HEIGHT/2,image=UI["colorselection"])
 
             else:
                 toolvalues[3] -= 1
@@ -1368,7 +1361,7 @@ def click(event):
                 colorsel = selcolor
                 selcolor = 0
                 canplace = False
-                c.itemconfig(selected,image=empty_block)
+                c.itemconfig(selected,image=UI["empty"])
                 lines, direction, num, linelens = detect_line(row,column,lookup) #detects any lines
                 if mode == "obstacle":
                     moves -= 1
@@ -1382,9 +1375,9 @@ def click(event):
                         for idx,item in enumerate(grid):
                             if item == 0:
                                 coords = get_pos(*get_2d_pos(idx))
-                                squares.append(c.create_image(coords[0]+SQUARELEN/2,coords[1]+SQUARELEN/2,image=careful))
+                                squares.append(c.create_image(coords[0]+SQUARELEN/2,coords[1]+SQUARELEN/2,image=UI["warning"]))
                         for square in squares:
-                            flash(square,frames=[careful,air],delete=True)
+                            flash(square,frames=[UI["warning"],UI["air"]],delete=True)
                 tempx, tempy = row,column
                 square = lookup(tempx,tempy)
 
@@ -1500,7 +1493,6 @@ def click(event):
                 start()
         else:
             if startb.is_clicked(mousex,mousey):
-                draw_animation(WIDTH/2,HEIGHT/2,transition,1000,c,get_pos,window,direct=True)
                 display_modes()
                 play_sound_effect(sfx_on,clicked)
             if helpb.is_clicked(mousex,mousey) and not helping:
@@ -1553,7 +1545,7 @@ def shuffle_pit():
         c.itemconfig(dice.image,state=HIDDEN)
     else:
         tools[4] = 1
-    c.itemconfig(selected,image=empty_block)
+    c.itemconfig(selected,image=UI["empty"])
     #sets the pit
     for item in pitobjects:
         c.delete(item)
@@ -1747,7 +1739,7 @@ def breakbrick(x,y,sound,color):
             return True
     return False
 def clear_selection():
-    c.itemconfig(selected,image=empty_block)
+    c.itemconfig(selected,image=UI["empty"])
 
 #RETURN HERE
 def gameover_check():
