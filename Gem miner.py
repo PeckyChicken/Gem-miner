@@ -128,7 +128,7 @@ class Tool:
         self.objects.append(self)
         self.holder = c.create_image(470,(pos+1)*60+90,image=tool_bg,state=HIDDEN)
         self.image = c.create_image(470,(pos+1)*60+90,image=image,state=HIDDEN)
-        self.value_display = c.create_text(490,180,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
+        self.value_display = c.create_text(490,(pos+1)*60+100,text='',font=(FONT,15),state=HIDDEN,fill=TEXTCOL)
         #self.value = 1
     def show(self):
         for item in (self.holder,self.image,self.value_display):
