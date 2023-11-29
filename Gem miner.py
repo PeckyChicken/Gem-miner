@@ -345,8 +345,8 @@ def time_rush():
         c.itemconfig(bg_image,image=bg)
         window.after_cancel(loop3)
         return
-    if grid.count(0) <= level*3 + 1:
-        if grid.count(0) == level*3 + 1:
+    if grid.count(0) <= level%LEVELBRICKUPGRADE + 1:
+        if grid.count(0) == level%LEVELBRICKUPGRADE + 1:
             play_sound_effect(sfx_on,warning)
         squares = []
         for idx,item in enumerate(grid):
@@ -357,7 +357,9 @@ def time_rush():
             flash(square,frames=[UI["warning"],UI["air"]],delete=True)
     if 0 in grid:
         play_sound_effect(sfx_on,brickplaced)
-    for _ in range(level):
+    for _ in range(level//LEVELBRICKUPGRADE + 1):
+        set_brick()
+    if randint(1,LEVELBRICKUPGRADE) <=level%LEVELBRICKUPGRADE:
         set_brick()
 
 def pausedloop(event:callable,times:int,pause:int,/,*,interation=0) -> None:
@@ -1368,8 +1370,8 @@ def click(event):
                     complete = level_complete()
                     update_level(complete)
 
-                elif mode == "survival":
-                    if grid.count(0) <= level + 1:
+                elif mode == "survival" or mode == "chroma":
+                    if grid.count(0) <= level%LEVELBRICKUPGRADE + 1:
                         play_sound_effect(sfx_on,warning)
                         squares = []
                         for idx,item in enumerate(grid):
@@ -1450,7 +1452,10 @@ def click(event):
                             color = randint(1,4)
                         else:
                             color = 0
-                        for _ in range(level): #Puts more bricks on the board
+                        #Add bricks to the board
+                        for _ in range(level//LEVELBRICKUPGRADE + 1):
+                            set_brick(color)
+                        if randint(1,LEVELBRICKUPGRADE) < level%LEVELBRICKUPGRADE:
                             set_brick(color)
                 complete = level_complete()
                 update_level(complete)
