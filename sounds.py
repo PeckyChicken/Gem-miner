@@ -57,68 +57,17 @@ def get_music():
 sounds = get_sounds(".")
 music = get_music()
 
-bombcreated = mixer.Sound(filepath+f"{folder_name}/Sounds/Bomb/bombcreated.wav")
-explosion = mixer.Sound(filepath+f"{folder_name}/Sounds/Bomb/boom.wav")
-remove = mixer.Sound(filepath+f"{folder_name}/Sounds/Gameplay/break.wav")
-brickbreak = mixer.Sound(filepath+f"{folder_name}/Sounds/Gameplay/brick_break.wav")
-clearall = mixer.Sound(filepath+f"{folder_name}/Sounds/Diamond/clearall.wav")
-diamondcreated = mixer.Sound(filepath+f"{folder_name}/Sounds/Diamond/diamondcreated.wav")
-diamondused = mixer.Sound(filepath+f"{folder_name}/Sounds/Diamond/diamondused.wav")
-drillcreated = mixer.Sound(filepath+f"{folder_name}/Sounds/Drill/drillcreated.wav")
-drillused = mixer.Sound(filepath+f"{folder_name}/Sounds/Drill/drillused.wav")
-
-jackhammerused = mixer.Sound(filepath+f"{folder_name}/Sounds/Tools/jackhammerused.wav")
-nomatch = mixer.Sound(filepath+f"{folder_name}/Sounds/Gameplay/nomatch.wav")
-pickused = mixer.Sound(filepath+f"{folder_name}/Sounds/Tools/pickaxeused.wav")
-placed = mixer.Sound(filepath+f"{folder_name}/Sounds/Gameplay/place.wav")
-toolselected = mixer.Sound(filepath+f"{folder_name}/Sounds/Tools/toolselected.wav")
-shufflesound = mixer.Sound(filepath+f"{folder_name}/Sounds/Tools/shuffleused.wav")
-axeused = mixer.Sound(filepath+f"{folder_name}/Sounds/Tools/axeused.wav")
-starused = mixer.Sound(filepath+f"{folder_name}/Sounds/Tools/starused.wav")
-bucketused = mixer.Sound(filepath+f"{folder_name}/Sounds/Tools/bucketused.wav")
-advance = mixer.Sound(filepath+f"{folder_name}/Sounds/Gameplay/nextlevel.wav")
-newhighscore = mixer.Sound(filepath+f"{folder_name}/Sounds/Gameplay/highscore.wav")
-clicked = mixer.Sound(filepath+f"{folder_name}/Sounds/Gameplay/click.wav")
-clocktick = mixer.Sound(filepath+f"{folder_name}/Sounds/Gameplay/clocktick.wav")
-brickplaced = mixer.Sound(filepath+f"{folder_name}/Sounds/Gameplay/brick_placed.wav")
-specialadvance = mixer.Sound(filepath+f"{folder_name}/Sounds/Gameplay/you_know_not_what_this_is.wav")
-startsound = mixer.Sound(filepath+f"{folder_name}/Sounds/Gameplay/start.wav")
-warning = mixer.Sound(filepath+f"{folder_name}/Sounds/Gameplay/warning.wav")
 
 #Sets the volume of the music
 music_vol = 0.25
-
 for song in music.values():
     song.set_volume(music_vol)
 
 #Sets the volume of the sound effects
 sound_vol = 0.5
-mixer.Sound.set_volume(bombcreated,sound_vol)
-mixer.Sound.set_volume(explosion,sound_vol)
-mixer.Sound.set_volume(remove,sound_vol)
-mixer.Sound.set_volume(brickbreak,sound_vol)
-mixer.Sound.set_volume(clearall,sound_vol)
-mixer.Sound.set_volume(diamondcreated,sound_vol)
-mixer.Sound.set_volume(diamondused,sound_vol)
-mixer.Sound.set_volume(drillcreated,sound_vol)
-mixer.Sound.set_volume(drillused,sound_vol)
-mixer.Sound.set_volume(bombcreated,sound_vol)
-mixer.Sound.set_volume(jackhammerused,sound_vol)
-mixer.Sound.set_volume(nomatch,sound_vol)
-mixer.Sound.set_volume(pickused,sound_vol)
-mixer.Sound.set_volume(placed,sound_vol)
-mixer.Sound.set_volume(toolselected,sound_vol)
-mixer.Sound.set_volume(shufflesound,sound_vol)
-mixer.Sound.set_volume(axeused,sound_vol)
-mixer.Sound.set_volume(starused,sound_vol)
-mixer.Sound.set_volume(advance,sound_vol)
-mixer.Sound.set_volume(specialadvance,sound_vol)
-mixer.Sound.set_volume(clicked,sound_vol)
-mixer.Sound.set_volume(clocktick,sound_vol)
-mixer.Sound.set_volume(brickplaced,sound_vol)
-mixer.Sound.set_volume(startsound,sound_vol)
-mixer.Sound.set_volume(warning,sound_vol)
-mixer.Sound.set_volume(newhighscore,sound_vol)
+for sound in sounds.values():
+    sound.set_volume(music_vol)
+
 soundchannels: list[mixer.Channel] = []
 def play_sound_effect(sfx_on,effect):
     global soundchannels
