@@ -11,9 +11,7 @@ with open(f"{filepath}/folder_name.txt") as f:
     folder_name = f.read()
 
 class Music:
-    instances = []
     def __init__(self,music: dict,window:Tk):
-        Music.instances.append(self)
         '''Creates a music object which you can play at any time. 
         You can pass up to 2 songs as the keys in a dictionary, with the values being how long the songs last, (In ms).'''
         if len(music) == 1:

@@ -1,10 +1,10 @@
 from tkinter import PhotoImage, Tk
-
+import os.path as path
 from animations import CreateAnimation
 
 window = Tk() #sets up window
 filepath = __file__+"/../"
-with open(f"{filepath}/folder_name.txt") as f:
+with open(path.join(filepath,"folder_name.txt")) as f:
     folder_name = f.read()
 
 red_block = PhotoImage(file = filepath+f"{folder_name}/Images/Gems/red_gem.png")
