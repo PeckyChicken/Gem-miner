@@ -71,14 +71,14 @@ class Point:
     def inside(self, p1, p2):
         return p1.x <= self.x <= p2.x and p1.y <= self.y <= p2.y
 
-select_music = Music({mode_select:69818},window)
-title_music = Music({title1:13300,title2:54850},window)
-game_music = Music({main1:52377},window)
-game_music2 = Music({main2:61075},window)
-time_music = Music({time3:40000,time4:36000},window)
-obstacle_music = Music({obstacle:56000},window)
-game_over_music = Music({gameover1:643,gameover2:13714},window)
-chroma_music = Music({chromablitz:57600},window)
+select_music = Music({music["mode_select"]:69818},window)
+title_music = Music({music["titleA"]:13300,music["titleB"]:54850},window)
+game_music = Music({music["main1"]:52377},window)
+game_music2 = Music({music["main2"]:61075},window)
+time_music = Music({music["timeA"]:40000,music["timeB"]:36000},window)
+obstacle_music = Music({music["obstacle"]:56000},window)
+game_over_music = Music({music["gameoverA"]:643,music["gameoverB"]:13714},window)
+chroma_music = Music({music["chromablitz"]:57600},window)
 
 
 title_music.play()
@@ -253,11 +253,7 @@ def set_square(color,x,y,reserve=False):
         draw_board()
 
 def calc_reqscore(level):
-    if mode == "chromablitz":
-        starter_score = 100
-    else: 
-        starter_score = 500
-    return (((level+1)%2)+1) * starter_score * 10 ** (1+(level - 3) // 2)
+    return (((level+1)%2)+1) * 500 * 10 ** (1+(level - 3) // 2)
 
 def level_complete():
     

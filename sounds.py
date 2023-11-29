@@ -1,5 +1,8 @@
-from pygame import init, mixer
+import glob
+import os
 from tkinter import Tk
+
+from pygame import init, mixer
 
 mixer.pre_init(48000, -16, 1, 512)
 init()
@@ -9,6 +12,7 @@ mixer.set_num_channels(32)
 filepath = __file__+"/../"
 with open(f"{filepath}/folder_name.txt") as f:
     folder_name = f.read()
+
 
 class Music:
     def __init__(self,music: dict,window:Tk):
@@ -42,6 +46,17 @@ class Music:
                 loop2 = self.window.after(self.music[1][1],self.play_song)   
 
 #Importing the sounds
+def get_sounds(folder):
+    sounds = {os.path.basename(file).split(".")[0]:mixer.Sound(file) for file in glob.glob(f'{filepath}/{folder_name}/Sounds/{folder}/**/*.wav', recursive=True)}
+    return sounds
+
+def get_music():
+    music = {os.path.basename(file).split(".")[0]:mixer.Sound(file) for file in glob.glob(f'{filepath}/{folder_name}/Music/**/*.ogg', recursive=True)}
+    return music
+
+sounds = get_sounds(".")
+music = get_music()
+
 bombcreated = mixer.Sound(filepath+f"{folder_name}/Sounds/Bomb/bombcreated.wav")
 explosion = mixer.Sound(filepath+f"{folder_name}/Sounds/Bomb/boom.wav")
 remove = mixer.Sound(filepath+f"{folder_name}/Sounds/Gameplay/break.wav")
@@ -61,22 +76,8 @@ shufflesound = mixer.Sound(filepath+f"{folder_name}/Sounds/Tools/shuffleused.wav
 axeused = mixer.Sound(filepath+f"{folder_name}/Sounds/Tools/axeused.wav")
 starused = mixer.Sound(filepath+f"{folder_name}/Sounds/Tools/starused.wav")
 bucketused = mixer.Sound(filepath+f"{folder_name}/Sounds/Tools/bucketused.wav")
-title1 = mixer.Sound(filepath+f"{folder_name}/Music/title1.ogg")
-title2 = mixer.Sound(filepath+f"{folder_name}/Music/title2.ogg")
-title3 = mixer.Sound(filepath+f"{folder_name}/Music/title3.ogg")
-mode_select = mixer.Sound(filepath+f"{folder_name}/Music/mode_select.ogg")
-main1 = mixer.Sound(filepath+f"{folder_name}/Music/main.ogg")
-main2 = mixer.Sound(filepath+f"{folder_name}/Music/main2.ogg")
-time1 = mixer.Sound(filepath+f"{folder_name}/Music/time1.ogg")
-time2 = mixer.Sound(filepath+f"{folder_name}/Music/time2.ogg")
-time3 = mixer.Sound(filepath+f"{folder_name}/Music/time3.ogg")
-time4 = mixer.Sound(filepath+f"{folder_name}/Music/time4.ogg")
 advance = mixer.Sound(filepath+f"{folder_name}/Sounds/Gameplay/nextlevel.wav")
 newhighscore = mixer.Sound(filepath+f"{folder_name}/Sounds/Gameplay/highscore.wav")
-gameover1 = mixer.Sound(filepath+f"{folder_name}/Music/gameover1.ogg")
-gameover2 = mixer.Sound(filepath+f"{folder_name}/Music/gameover2.ogg")
-obstacle = mixer.Sound(filepath+f"{folder_name}/Music/obstacle.ogg")
-chromablitz = mixer.Sound(filepath+f"{folder_name}/Music/chromablitz.ogg")
 clicked = mixer.Sound(filepath+f"{folder_name}/Sounds/Gameplay/click.wav")
 clocktick = mixer.Sound(filepath+f"{folder_name}/Sounds/Gameplay/clocktick.wav")
 brickplaced = mixer.Sound(filepath+f"{folder_name}/Sounds/Gameplay/brick_placed.wav")
@@ -86,20 +87,9 @@ warning = mixer.Sound(filepath+f"{folder_name}/Sounds/Gameplay/warning.wav")
 
 #Sets the volume of the music
 music_vol = 0.25
-mixer.Sound.set_volume(title1,music_vol)
-mixer.Sound.set_volume(title2,music_vol)
-mixer.Sound.set_volume(title3,music_vol)
-mixer.Sound.set_volume(main1,music_vol)
-mixer.Sound.set_volume(main2,music_vol)
-mixer.Sound.set_volume(time1,music_vol)
-mixer.Sound.set_volume(time2,music_vol)
-mixer.Sound.set_volume(time3,music_vol)
-mixer.Sound.set_volume(time4,music_vol)
-mixer.Sound.set_volume(obstacle,music_vol*1.5)
-mixer.Sound.set_volume(gameover1,music_vol)
-mixer.Sound.set_volume(gameover2,music_vol)
-mixer.Sound.set_volume(mode_select,music_vol)
-mixer.Sound.set_volume(chromablitz,music_vol)
+
+for song in music.values():
+    song.set_volume(music_vol)
 
 #Sets the volume of the sound effects
 sound_vol = 0.5

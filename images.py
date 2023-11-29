@@ -1,6 +1,7 @@
-from tkinter import PhotoImage, Tk
-import os
 import glob
+import os
+from tkinter import PhotoImage, Tk
+
 from animations import CreateAnimation
 
 window = Tk() #sets up window

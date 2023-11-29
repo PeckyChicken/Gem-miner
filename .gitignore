@@ -1,5 +1,5 @@
 Gem miner/highscore.txt
-Gem miner*/*
+Gem miner AI/*
 build/*
 dist/*
 *.pyc

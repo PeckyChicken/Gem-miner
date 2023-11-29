@@ -1,11 +1,9 @@
 from tkinter import HIDDEN, NORMAL, Canvas
 
+from animations import *
 from constants import *
 from functions import *
 from images import *
-from animations import *
-
-
 
 
 class GameButton:

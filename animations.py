@@ -1,8 +1,9 @@
 from pathlib import Path
-from typing import List, Callable
 from tkinter import NORMAL, Canvas, PhotoImage, Tk
+from typing import Callable, List
 
 from constants import SQUARELEN
+
 
 class CreateAnimation:
     def __init__(self, path: str, name: str, filetype: str = "png"):
