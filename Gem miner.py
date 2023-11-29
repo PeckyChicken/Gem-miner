@@ -253,12 +253,13 @@ def set_square(color,x,y,reserve=False):
         draw_board()
 
 def calc_reqscore(level):
-    return (((level+1)%2)+1) * 500 * 10 ** (1+(level - 3) // 2)
+    if mode == "chromablitz":
+        starter_score = 100
+    else: 
+        starter_score = 500
+    return (((level+1)%2)+1) * starter_score * 10 ** (1+(level - 3) // 2)
 
 def level_complete():
-    
-    #caller = inspect.currentframe().f_back.f_code
-
     
     # Different level system in obstacle mode
     if mode == "obstacle" and started:
@@ -268,8 +269,6 @@ def level_complete():
         # Calculate required score for next level
         reqscore = calc_reqscore(level)
         complete = score >= reqscore
-    #print(f"next_level() called from {caller.co_name} with completed level {level_complete}")
-
     return complete
 
 def update_level(complete):
