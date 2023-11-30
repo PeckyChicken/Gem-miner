@@ -740,7 +740,10 @@ def clear_colors(row,column):
     for i in range(len(grid)):
         if grid[i] == lookup(row,column)-6: #sets all colors of the same to gray
             currow, curcolumn = get_2d_pos(i)
-            soundplayed = clear_bricks((currow,curcolumn),soundplayed)
+            if mode == "chroma":
+                soundplayed = clear_bricks((currow,curcolumn),soundplayed,color=square)
+            else:
+                soundplayed = clear_bricks((currow,curcolumn),soundplayed,color=0)
             draw_animation(currow,curcolumn,smokes[lookup(currow,curcolumn)],100,c,get_pos,window)
             
             set_square(0,currow,curcolumn)
@@ -1466,7 +1469,7 @@ def click(event):
 
             if gameover_check(): return
             draw_board()
-        elif column == 8: #if not check if row is where the colors are and that they can choose a color
+        elif column == 8 and not gameover: #if not check if row is where the colors are and that they can choose a color
             pick_color(row)
             if selcolor == 0:
                 canplace = False
