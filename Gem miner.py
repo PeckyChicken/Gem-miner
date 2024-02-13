@@ -340,7 +340,7 @@ def time_rush():
         c.itemconfig(bg_image,image=bg)
         window.after_cancel(loop3)
         return
-    if grid.count(0) <= level%LEVELBRICKUPGRADE + 1:
+    if grid.count(0) <= level%LEVELBRICKUPGRADE + 1 and not any(x in grid for x in [5,6,7,8,9,10,11]):
         if grid.count(0) == level%LEVELBRICKUPGRADE + 1:
             play_sound_effect(sfx_on,sounds["warning"])
         squares = []
@@ -357,11 +357,14 @@ def time_rush():
     if randint(1,LEVELBRICKUPGRADE) <=level%LEVELBRICKUPGRADE:
         set_brick()
 
-def pausedloop(event:callable,times:int,pause:int,/,*,interation=0) -> None:
-    event()
-    interation += 1
-    if interation < times:
-        window.after(pause,lambda:pausedloop(event,times,pause,interation=interation))
+def pausedloop(event:callable,times:int,pause:int,/,*,iteration=0) -> None:
+    '''Repeats EVENT TIMES times with PAUSE milliseconds between each call.
+    The current iteration will be passed to EVENT.
+    '''
+    event(iteration)
+    iteration += 1
+    if iteration < times:
+        window.after(pause,lambda:pausedloop(event,times,pause,iteration=iteration))
 
 def start_music():
     global repeats
@@ -750,6 +753,7 @@ def clear_colors(row,column):
             score += 10*level
             c.itemconfig(scoredisp,text=score)
             update_text()
+
     if mode == "chroma":
         print("")
     score += 100*level
@@ -775,7 +779,9 @@ def clear_line(direction,row,column,sound=True):
     if sound:
         play_sound_effect(sfx_on,sounds["drillused"])
     queue: callable = []
-    for square in range(GRIDROWS):
+    #for square in range(GRIDROWS):
+    def clearself(square):
+        global score
         delete = True
         curx, cury = square if direction == "H" else row, square if direction == "V" else column
         cursquare = lookup(curx,cury)
@@ -802,7 +808,7 @@ def clear_line(direction,row,column,sound=True):
                         queue.append(func)
         if delete:      
             set_square(0,curx,cury) #sets all squares in the column to blank
-
+    pausedloop(clearself,GRIDROWS,50)
     for item in queue:
         item()
     if all(0==x for x in grid):
@@ -860,7 +866,7 @@ def switchcolors(row,column,color):
         draw_board()
 
 
-    pausedloop(lambda: change_color(brick, color), grid.count(brick), 100)
+    pausedloop(lambda _: change_color(brick, color), grid.count(brick), 100)
 
 storedcoords = []
 choosing = False
@@ -1369,7 +1375,7 @@ def click(event):
                     update_level(complete)
 
                 elif mode == "survival" or mode == "chroma":
-                    if grid.count(0) <= level%LEVELBRICKUPGRADE + 1:
+                    if grid.count(0) <= level%LEVELBRICKUPGRADE + 1 and not any(x in grid for x in [5,6,7,8,9,10,11]):
                         play_sound_effect(sfx_on,sounds["warning"])
                         squares = []
                         for idx,item in enumerate(grid):
@@ -1614,7 +1620,13 @@ def clear_diagonal_lines(row,column,clear=True):
     while currow > 0 and curcolumn > 0:
         currow -= 1
         curcolumn -= 1
-    while currow < 7 and curcolumn < 7:
+    def clearself(i):
+        
+        currow = i + row
+        curcolumn = i + column
+        
+        if currow >= 7 or curcolumn >= 7:
+            return
 
         if clear:
             if lookup(currow,curcolumn) == 12:
@@ -1628,9 +1640,8 @@ def clear_diagonal_lines(row,column,clear=True):
             draw_animation(currow,curcolumn,smokes[0],100,c,get_pos,window)
         else:
             squares.append((currow,curcolumn))
-
-        currow += 1
-        curcolumn += 1
+    
+    pausedloop(clearself,7,50)
 
     
     currow = row
