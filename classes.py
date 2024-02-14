@@ -31,3 +31,11 @@ class GameButton:
         self.visible = visible
         self.canvas.itemconfig(self.image,state=[HIDDEN,NORMAL][visible])
         self.canvas.itemconfig(self.text,state=[HIDDEN,NORMAL][visible])
+
+class GameState:
+    def __init__(self) -> None:
+        self.reset()
+    def reset(self):
+        self.moves = 15
+        self.score = 0
+        self.level = 1
