@@ -5,7 +5,7 @@ from typing import Callable, List
 from constants import SQUARELEN
 
 
-class CreateAnimation:
+class Animation:
     def __init__(self, path: str, name: str, filetype: str = "png"):
         self.index = 0
         """
@@ -39,7 +39,7 @@ class CreateAnimation:
         return result
 
 
-def draw_animation(x, y, frames: CreateAnimation, fps, c: Canvas, get_pos: Callable, window: Tk, frame=0, sprite=None, event: Callable = None, direct=False):
+def draw_animation(x, y, frames: Animation, fps, c: Canvas, get_pos: Callable, window: Tk, frame=0, sprite=None, event: Callable = None, direct=False):
     """
     Draws an animation at a given grid position. X and Y are the grid position of the animation, frames is a list of the frames to play, fps is how fast the animation plays.
 
