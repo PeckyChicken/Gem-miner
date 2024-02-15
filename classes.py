@@ -39,3 +39,7 @@ class GameState:
         self.moves = 15
         self.score = 0
         self.level = 1
+        self.required_score = 500
+        self.cutscene = False
+        self.mode = "none"
+        self.game_over = False

@@ -25,16 +25,11 @@ window.title(f"{folder_name}")
 window.iconbitmap(filepath+f"{folder_name}/icon.ico")
 window.resizable(0, 0)
 
-gameover = False
-squarey = SQUAREMARGINY
 
 game_state = GameState()
 
-cutscene = False
 track = 0
 busy = False
-reqscore = 500
-mode = "none"
 display = False
 selecting = False
 mousex=mousey=0
@@ -205,7 +200,7 @@ board: list[Button] = list() #sets up the board
 
 
 def draw_board():
-    if not gameover:
+    if not game_state.game_over:
         global board
         squarey = SQUAREMARGINY
         for object in board:
@@ -224,7 +219,7 @@ def draw_tools():
     global tools
     tool_imgs = [pickaxe.image,axe.image,jackhammer.image,star.image,dice.image]
     toolvalues = [pickaxe.value_display,axe.value_display,jackhammer.value_display,star.value_display,dice.value_display]
-    if mode == "chroma":
+    if game_state.mode == "chroma":
         tool_imgs[3], toolvalues[3] = bucket.image,bucket.value_display
 
     for tool, value in zip(tool_imgs,tools):
@@ -257,33 +252,33 @@ def calc_reqscore(level):
 def level_complete():
     
     # Different level system in obstacle mode
-    if mode == "obstacle" and started:
+    if game_state.mode == "obstacle" and started:
         complete = 12 not in grid
 
     else:
         # Calculate required score for next level
-        reqscore = calc_reqscore(game_state.level)
-        complete = game_state.score >= reqscore
+        game_state.required_score = calc_reqscore(game_state.level)
+        complete = game_state.score >= game_state.required_score
     return complete
 
 def update_level(complete):
-    global tools, reqscore, toolvalues
+    global tools, toolvalues
 
     if complete:
         game_state.level += 1
-        if mode == "survival" and game_state.level % 10 == 0:
+        if game_state.mode == "survival" and game_state.level % 10 == 0:
             play_sound_effect(sfx_on, sounds["you_know_not_what_this_is"])
         else:
             play_sound_effect(sfx_on, sounds["nextlevel"])
         
-        if mode == "obstacle":
+        if game_state.mode == "obstacle":
             toolvalues[randint(0, len(toolvalues)-1)] += 1
             tools[:] = [1 if i else 0 for i in toolvalues]
             game_state.moves += game_state.level
             for _ in range(game_state.level):
                 set_brick()
             update_text(False)
-        elif mode == "chroma":
+        elif game_state.mode == "chroma":
             toolvalues = [min(value+1,5) for value in toolvalues]
             tools[:] = [1 if i else 0 for i in toolvalues]
         else:
@@ -334,7 +329,7 @@ def play_place_sound(): #only putting it in a function by itself so i can call i
 def time_rush():
     base_time = 1000
     loop3 = window.after(floor(base_time),time_rush)
-    if gameover or gameover_check() or not started:
+    if game_state.game_over or gameover_check() or not started:
         c.itemconfig(bg_image,image=bg)
         window.after_cancel(loop3)
         return
@@ -368,47 +363,47 @@ def start_music():
     global repeats
     stop_music(window,mute=False)
     if music_on:
-        if mode == "survival":
+        if game_state.mode == "survival":
             [game_music,game_music2][track].play()
-        elif mode == "time":
+        elif game_state.mode == "time":
             repeats = 0
             time_music.play()
-        elif mode == "obstacle":
+        elif game_state.mode == "obstacle":
             obstacle_music.play()
-        elif mode == "chroma":
+        elif game_state.mode == "chroma":
             chroma_music.play()
 
 def start_part_2():
-    global started, repeats, cutscene
+    global started, repeats
 
     start_music()
     started = True
-    cutscene = False
-    if mode == "time":        
+    game_state.cutscene = False
+    if game_state.mode == "time":        
         #window.after(50,time_rush)
         time_rush()
 
     c.delete(card[0])
     c.delete(fade[0])
-    if mode != "obstacle":
+    if game_state.mode != "obstacle":
         for _ in range(4):
-            if mode == 'chroma':
+            if game_state.mode == 'chroma':
                 set_brick(randint(1,4))
             else:
                 set_brick(0)
-    if mode == 'chroma':
+    if game_state.mode == 'chroma':
         set_brick(randint(1,4))
     else:
         set_brick(0)
 
 def start():
-    global repeats,track,tools,toolvalues, cutscene, beathighscore, card, fade, starters
+    global repeats,track,tools,toolvalues, beathighscore, card, fade, starters
     reset_color()
     reset_color()
     draw_tools()
     draw_board()
     draw_pit()
-    cutscene = True
+    game_state.cutscene = True
     beathighscore = False
     toolholders = [pickaxe.holder,axe.holder,jackhammer.holder,star.holder,dice.holder]
     for holder in toolholders:
@@ -425,7 +420,7 @@ def start():
     c.itemconfig(goaltext,state=NORMAL)
 
     c.itemconfig(tooltext,state=NORMAL)
-    if mode == "obstacle":
+    if game_state.mode == "obstacle":
         c.itemconfig(goaltext,text="Moves")
         c.itemconfig(goaldisp,text=str(game_state.moves))
     else:
@@ -445,16 +440,16 @@ def start():
     draw_pit()
 
     fade = [c.create_image(WIDTH/2,HEIGHT/2,image=UI["fade"])]
-    if mode == "obstacle":
+    if game_state.mode == "obstacle":
         c.itemconfig(bg_image,image=backgrounds["obstacle_bg"])
         card = [c.create_image(WIDTH/2,HEIGHT/2,image=UI["obstacles_card"])]
-    elif mode == "time":
+    elif game_state.mode == "time":
         c.itemconfig(bg_image,image=backgrounds["time_bg"])
         card = [c.create_image(WIDTH/2,HEIGHT/2,image=UI["time_card"])]
-    elif mode == "survival":
+    elif game_state.mode == "survival":
         c.itemconfig(bg_image,image=backgrounds["survival_bg"])
         card = [c.create_image(WIDTH/2,HEIGHT/2,image=UI["survival_card"])]
-    elif mode == "chroma":
+    elif game_state.mode == "chroma":
         c.itemconfig(bg_image,image=backgrounds["chroma_bg"])
         card = [c.create_image(WIDTH/2,HEIGHT/2,image=UI["chroma_card"])]
 
@@ -494,7 +489,7 @@ def toast(msg,time=-1):
         window.after(time*1000,clear_toast)
 
 def ask_quit():
-    global grid, clickcount, highscore, selcolor, gameover, tools, toolvalues, selecting, track, started, display
+    global grid, clickcount, highscore, selcolor, tools, toolvalues, selecting, track, started, display
     
     play_sound_effect(sfx_on,sounds["click"])
     clickcount += 1
@@ -529,7 +524,7 @@ def ask_quit():
         grid = [0]*49
         selcolor = 0
         c.itemconfig(selected,image=UI["empty"])
-        gameover = False
+        game_state.game_over = False
         c.itemconfig(titlebg,state=NORMAL)
         for button in [startb,helpb]:
             button.set_visible(True)
@@ -549,7 +544,7 @@ beathighscore = False
 
 def update_text(nextlevel=True): #Updates the font size depending on how many points the player has.
     global highscore, beathighscore
-    reqscore = calc_reqscore(game_state.level)
+    game_state.required_score = calc_reqscore(game_state.level)
 
     c.itemconfig(scoredisp,font=(FONT,calc_font_size(str(game_state.score))))
     c.itemconfig(scoredisp,text=str(game_state.score))
@@ -568,12 +563,12 @@ def update_text(nextlevel=True): #Updates the font size depending on how many po
     c.itemconfig(leveldisp,text=str(game_state.level))
     c.itemconfig(leveldisp,font=(FONT,calc_font_size(str(game_state.level))))
     
-    if mode == "obstacle":
+    if game_state.mode == "obstacle":
         c.itemconfig(goaldisp,text=str(game_state.moves))
         c.itemconfig(goaldisp,font=(FONT,calc_font_size(str(game_state.moves))))
     else:
-        c.itemconfig(goaldisp,text=str(reqscore))
-        c.itemconfig(goaldisp,font=(FONT,calc_font_size(str(reqscore))))
+        c.itemconfig(goaldisp,text=str(game_state.required_score))
+        c.itemconfig(goaldisp,font=(FONT,calc_font_size(str(game_state.required_score))))
 
     for idx, value in enumerate(toolvalues):
         text = ''
@@ -737,7 +732,7 @@ def clear_colors(row,column):
     for i in range(len(grid)):
         if grid[i] == lookup(row,column)-6: #sets all colors of the same to gray
             currow, curcolumn = get_2d_pos(i)
-            if mode == "chroma":
+            if game_state.mode == "chroma":
                 soundplayed = clear_bricks((currow,curcolumn),soundplayed,color=square)
             else:
                 soundplayed = clear_bricks((currow,curcolumn),soundplayed,color=0)
@@ -748,7 +743,7 @@ def clear_colors(row,column):
             c.itemconfig(scoredisp,text=game_state.score)
             update_text()
 
-    if mode == "chroma":
+    if game_state.mode == "chroma":
         print("")
     game_state.score += 100*game_state.level
     
@@ -832,7 +827,7 @@ def pick_color(row):
 
 def key_press(event):
     key = event.keysym
-    if key in '123' and started and not gameover:
+    if key in '123' and started and not game_state.game_over:
         keyvalue = int(key)-1
         pick_color(keyvalue*3)
 
@@ -922,7 +917,7 @@ def motion(event,outside=False):
                 for square in [(row,i) for i in range(7)]:
                     highlight.append(c.create_image(get_pos(*square)[0]+SQUARELEN/2,get_pos(*square)[1]+SQUARELEN/2,image=UI["empty"]))
             elif tools[3] == 2:
-                if mode == "chroma":
+                if game_state.mode == "chroma":
 
                     if hovered in (13,14,15,16):
                         for currow in range(7):
@@ -974,7 +969,7 @@ bluezone = (330,245,380,395)
 diceprev = []
 #Main event
 def click(event):
-    global selcolor,diceprev, pit, canplace, pitobjects, grid, gameover, tools, started, helping, tutstage, highscore, music_on, sfx_on, repeats, busy, track, mode, selecting, toolvalues, storedcoords, choosing, colorselbox
+    global selcolor, diceprev, pit, canplace, pitobjects, grid, tools, started, helping, tutstage, highscore, music_on, sfx_on, repeats, busy, track, selecting, toolvalues, storedcoords, choosing, colorselbox
 
     complete = level_complete()
     update_level(complete)
@@ -1022,7 +1017,7 @@ def click(event):
 
         return
 
-    if cutscene:
+    if game_state.cutscene:
         window.after_cancel(starters[0])
         #window.after_cancel(starters[1])
         stop_sounds()
@@ -1042,7 +1037,7 @@ def click(event):
             music_on = False
             
             play_sound_effect(sfx_on,sounds["click"])
-            if not gameover or (gameover and not sfx_on):
+            if not game_state.game_over or (game_state.game_over and not sfx_on):
                 stop_music(window,mute=True)
             
             c.itemconfig(musicsquare, image = UI["music_no"])
@@ -1058,18 +1053,18 @@ def click(event):
     if inside(0,400,50,450,mousex,mousey): #Is sfx clicked?
         if sfx_on:
             sfx_on = False
-            if gameover and not music_on:
+            if game_state.game_over and not music_on:
                 stop_music(window)
             c.itemconfig(sfxsquare, image = UI["music_no"])
         else:
             sfx_on = True
-            if gameover and not music_on:
+            if game_state.game_over and not music_on:
                 game_over_music.play()
             play_sound_effect(sfx_on,sounds["click"])
             c.itemconfig(sfxsquare, image = UI["sfx_yes"])
     
     if started:
-        if gameover and playb.is_clicked(mousex,mousey): #if the game is over run it again
+        if game_state.game_over and playb.is_clicked(mousex,mousey): #if the game is over run it again
             stop_music(window)
             playb.set_visible(False)
             #Anything in these lists gets deleted or vanished
@@ -1091,7 +1086,6 @@ def click(event):
                     0,0,0,0,0,0,0]
             selcolor = 0
             c.itemconfig(selected,image=UI["empty"])
-            gameover = False
             c.itemconfig(scoredisp,text=game_state.score)
             c.itemconfig(gameovertext,text="")
             c.itemconfig(finalscoretext,text="")
@@ -1174,7 +1168,7 @@ def click(event):
                 draw_pit()
             tools = [1 if elem==2 else elem for elem in tools]
             tools[3] = 2
-            if mode == "chroma":
+            if game_state.mode == "chroma":
                 c.itemconfig(selected,image=tool_images["bucket"])
                 toast("The Bucket changes the color of bricks.")
             else:
@@ -1273,10 +1267,10 @@ def click(event):
             complete = level_complete()
             update_level(complete)
             return
-        if (tools[3] == 2 and 0 <= column <= 6 and 0 <= row <= 6 ) and (13 <= lookup(row,column) <= 16 if mode == "chroma" else True): #Clears the starline, or fills with the bucket, depending on the mode
+        if (tools[3] == 2 and 0 <= column <= 6 and 0 <= row <= 6 ) and (13 <= lookup(row,column) <= 16 if game_state.mode == "chroma" else True): #Clears the starline, or fills with the bucket, depending on the mode
             clear_toast()
             c.itemconfig(selected,image=UI["empty"])
-            if mode == 'chroma':
+            if game_state.mode == 'chroma':
                 tools[3] = 0
                 storedcoords[:] = [row,column]
                 choosing = True
@@ -1356,12 +1350,12 @@ def click(event):
                 canplace = False
                 c.itemconfig(selected,image=UI["empty"])
                 lines, direction, num, linelens = detect_line(row,column,lookup) #detects any lines
-                if mode == "obstacle":
+                if game_state.mode == "obstacle":
                     game_state.moves -= 1
                     complete = level_complete()
                     update_level(complete)
 
-                elif mode == "survival" or mode == "chroma":
+                elif game_state.mode == "survival" or game_state.mode == "chroma":
                     if grid.count(0) <= game_state.level%LEVELBRICKUPGRADE + 1 and not any(x in grid for x in [5,6,7,8,9,10,11]):
                         play_sound_effect(sfx_on,sounds["warning"])
                         squares = []
@@ -1438,8 +1432,8 @@ def click(event):
                     play_place_sound()
                     game_state.score += game_state.level
                     update_text()
-                    if mode in ("survival","chroma"):
-                        if mode == "chroma":
+                    if game_state.mode in ("survival","chroma"):
+                        if game_state.mode == "chroma":
                             color = randint(1,4)
                         else:
                             color = 0
@@ -1462,7 +1456,7 @@ def click(event):
 
             if gameover_check(): return
             draw_board()
-        elif column == 8 and not gameover: #if not check if row is where the colors are and that they can choose a color
+        elif column == 8 and not game_state.game_over: #if not check if row is where the colors are and that they can choose a color
             pick_color(row)
             if selcolor == 0:
                 canplace = False
@@ -1470,22 +1464,22 @@ def click(event):
         if display:
             if survivalb.is_clicked(mousex,mousey):
                 play_sound_effect(sfx_on,sounds["click"])
-                mode = "survival"
+                game_state.mode = "survival"
                 start()
 
             if timeb.is_clicked(mousex,mousey):
                 play_sound_effect(sfx_on,sounds["click"])
-                mode = "time"
+                game_state.mode = "time"
                 start()
 
             if obstacleb.is_clicked(mousex,mousey):
                 play_sound_effect(sfx_on,sounds["click"])
-                mode = "obstacle"
+                game_state.mode = "obstacle"
                 start()
             
             if chromab.is_clicked(mousex,mousey):
                 play_sound_effect(sfx_on,sounds["click"])
-                mode = "chroma"
+                game_state.mode = "chroma"
                 start()
         else:
             if startb.is_clicked(mousex,mousey):
@@ -1743,8 +1737,8 @@ def clear_selection():
 
 #RETURN HERE
 def gameover_check():
-    global gameover, highscore, display, tools, toolvalues
-    if (0 not in grid and any(x in grid for x in [5,6,7,8,9,10,11]) == 0) or (game_state.moves <= 0 and mode == "obstacle"):  #game is over
+    global highscore, display, tools, toolvalues
+    if (0 not in grid and any(x in grid for x in [5,6,7,8,9,10,11]) == 0) or (game_state.moves <= 0 and game_state.mode == "obstacle"):  #game is over
         stop_music(window)
         if music_on or sfx_on:
             game_over_music.play()
@@ -1753,9 +1747,9 @@ def gameover_check():
         playb.set_visible(True)
         c.itemconfig(gameovertext,text="GAME OVER")
         c.itemconfig(finalscoretext, text="Your score was "+str(game_state.score))
-        for square in board: #delete the grid so we can actually see the gameover text
+        for square in board: #delete the grid so we can actually see the game over text
             c.delete(square)
-        gameover = True
+        game_state.game_over = True
 
         if game_state.score > highscore: 
             highscore = game_state.score
