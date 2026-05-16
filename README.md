@@ -6,3 +6,5 @@ The goal is to stop the board from filling up.
 
 The current version is under heavy refactorisation, and is not currently functional.
 For a functional version, check out [this](https://peckychicken.itch.io/gem-miner) Itch.io page.
+
+Copyright (c) 2026 PeckyChicken
